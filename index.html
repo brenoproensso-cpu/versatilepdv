@@ -74,6 +74,8 @@ a{color:inherit;text-decoration:none}
 .nav-item:hover{background:var(--bg3);color:var(--text)}
 .nav-item.active{background:var(--winedim);color:var(--winetext);border-color:var(--wine3)}
 .nav-item .ni{font-size:14px;width:18px;text-align:center}
+.nav-item .drag-handle{font-size:11px!important;width:12px!important;opacity:.35;cursor:grab!important}
+.nav-item:hover .drag-handle{opacity:.7}
 .sidebar-bottom{margin-top:auto;padding:10px;border-top:1px solid var(--border);display:flex;gap:6px}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .topbar{height:54px;background:var(--topbar-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;transition:background .2s}
@@ -719,12 +721,44 @@ const NAV=[
   {id:'dre',ic:'💹',lb:'DRE',roles:['admin']},
   {id:'trocas',ic:'🔄',lb:'Trocas',roles:['admin','vendedor']},
 ];
+// --- NAV REORDER com drag-and-drop ---
+function getNavOrder(){
+  try{const o=localStorage.getItem('nav_order');if(o)return JSON.parse(o);}catch(e){}
+  return NAV.map(n=>n.id);
+}
+function saveNavOrder(ids){try{localStorage.setItem('nav_order',JSON.stringify(ids));}catch(e){}}
 function buildNav(){
-  document.getElementById('snav').innerHTML=NAV.filter(n=>temPerm(n.id)).map(n=>`
-    <div class="nav-item" id="ni-${n.id}" onclick="goTo('${n.id}')">
+  const order=getNavOrder();
+  const navSorted=[...NAV].sort((a,b)=>{const ia=order.indexOf(a.id),ib=order.indexOf(b.id);return(ia<0?999:ia)-(ib<0?999:ib);});
+  const snav=document.getElementById('snav');
+  snav.innerHTML=navSorted.filter(n=>temPerm(n.id)).map(n=>`
+    <div class="nav-item" id="ni-${n.id}" draggable="true"
+      onclick="goTo('${n.id}')"
+      ondragstart="navDragStart(event,'${n.id}')"
+      ondragover="navDragOver(event)"
+      ondrop="navDrop(event,'${n.id}')"
+      ondragend="navDragEnd(event)"
+    >
+      <span class="ni drag-handle" title="Arrastar para reordenar" style="cursor:grab;opacity:.45;font-size:11px;margin-right:2px">⠿</span>
       <span class="ni">${n.ic}</span><span>${n.lb}</span>
     </div>`).join('');
 }
+let _navDragId=null;
+function navDragStart(e,id){_navDragId=id;e.currentTarget.style.opacity='.4';}
+function navDragOver(e){e.preventDefault();e.currentTarget.style.background='var(--bg3)';}
+function navDrop(e,targetId){
+  e.preventDefault();
+  if(!_navDragId||_navDragId===targetId)return;
+  const order=getNavOrder();
+  const from=order.indexOf(_navDragId),to=order.indexOf(targetId);
+  if(from<0||to<0)return;
+  order.splice(from,1);order.splice(to,0,_navDragId);
+  saveNavOrder(order);buildNav();
+  if(curPage){
+    const ni=document.getElementById('ni-'+curPage);if(ni)ni.classList.add('active');
+  }
+}
+function navDragEnd(e){_navDragId=null;document.querySelectorAll('.nav-item').forEach(el=>{el.style.opacity='';el.style.background='';});}
 function goTo(pg){
   if(!ses)return;
   const item=NAV.find(n=>n.id===pg);
@@ -1911,7 +1945,7 @@ function pgHistorico(){
   document.getElementById('tbar-actions').innerHTML='';
   document.getElementById('page').innerHTML=`
   <div class="card mb-3"><div class="flex gap-3 items-center flex-wrap">
-    <div class="flex-1 srch"><span class="srch-ic">🔍</span><input class="form-control" placeholder="Buscar nº, cliente, vendedor..." id="hs" oninput="filtHist()"></div>
+    <div class="flex-1 srch"><span class="srch-ic">🔍</span><input class="form-control" placeholder="Buscar nº, cliente, vendedor..." id="hs" oninput="debounceFiltHist()"></div>
     <div class="flex gap-2 items-center">
       <input class="form-control" type="date" id="hi" style="width:135px" onchange="filtHist()">
       <span class="text-dim">até</span>
@@ -1920,7 +1954,7 @@ function pgHistorico(){
   </div></div>
   <div class="card"><div class="table-wrap"><table>
     <thead><tr><th>Nº</th><th>Data/Hora</th><th>Cliente</th><th>Vendedor</th><th>Modal.</th><th>Pgto</th><th>Desc.</th><th>Total</th><th style='width:120px'></th></tr></thead>
-    <tbody id="htb">${genLinhasHist([...db.vendas].reverse())}</tbody>
+    <tbody id="htb">${genLinhasHist([...db.vendas].sort((a,b)=>b.data>a.data?1:-1))}</tbody>
   </table></div></div>`;
 }
 function genLinhasHist(arr){
@@ -2010,11 +2044,13 @@ async function excluirVenda(id){
   }
 }
 
+let _filtHistTimer=null;
+function debounceFiltHist(){clearTimeout(_filtHistTimer);_filtHistTimer=setTimeout(filtHist,280);}
 function filtHist(){
   const q=(document.getElementById('hs')?.value||'').toLowerCase();
   const ini=document.getElementById('hi')?.value;
   const fim=document.getElementById('hf')?.value;
-  let fil=[...db.vendas].reverse();
+  let fil=[...db.vendas].sort((a,b)=>b.data>a.data?1:-1);
   if(q)fil=fil.filter(v=>[v.id,v.clienteNome,v.vendedor,v.pgto,v.modalidade].join(' ').toLowerCase().includes(q));
   if(ini)fil=fil.filter(v=>v.data&&v.data.slice(0,10)>=ini);
   if(fim)fil=fil.filter(v=>v.data&&v.data.slice(0,10)<=fim);
@@ -2238,7 +2274,7 @@ function renderFin(){
   <div class="card"><div class="sec-title">Fluxo de Caixa</div>
     <div class="table-wrap"><table>
       <thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th></th></tr></thead>
-      <tbody>${[...db.movimentos].reverse().map(m=>`<tr>
+      <tbody>${[...db.movimentos].sort((a,b)=>b.data>a.data?1:-1).map(m=>`<tr>
         <td class="text-dim text-xs">${m.data||'—'}</td>
         <td><span class="badge ${m.tipo==='entrada'?'green':'red'}">${m.tipo==='entrada'?'↑ Entrada':'↓ Saída'}</span></td>
         <td>${m.desc}</td>
@@ -2524,12 +2560,12 @@ async function loadAll(){
     {nome:'usuarios',  url: SB_URL+'/rest/v1/usuarios?select=id,nome,username,senha,role,ativo,criado'},
     {nome:'produtos',  url: SB_URL+'/rest/v1/produtos?select=*'},
     {nome:'clientes',  url: SB_URL+'/rest/v1/clientes?select=*'},
-    {nome:'vendas',    url: SB_URL+'/rest/v1/vendas?select=*'},
-    {nome:'movimentos',url: SB_URL+'/rest/v1/movimentos?select=*'},
-    {nome:'caixas',    url: SB_URL+'/rest/v1/caixas?select=*'},
+    {nome:'vendas',    url: SB_URL+'/rest/v1/vendas?select=*&order=data.desc'},
+    {nome:'movimentos',url: SB_URL+'/rest/v1/movimentos?select=*&order=data.desc'},
+    {nome:'caixas',    url: SB_URL+'/rest/v1/caixas?select=*&order=data.desc'},
   ];
 
-  for(const t of tabelas){
+  await Promise.all(tabelas.map(async t=>{
     try{
       const r = await fetch(t.url, {headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}});
       const txt = await r.text();
@@ -2547,7 +2583,7 @@ async function loadAll(){
       console.error('ERRO '+t.nome+':', e);
       resultados[t.nome] = [];
     }
-  }
+  }));
 
   // Aplicar dados
   const us=resultados.usuarios||[], pr=resultados.produtos||[];
@@ -2557,9 +2593,9 @@ async function loadAll(){
   if(us.length) db.usuarios=(us).map(r=>({id:r.id,nome:r.nome,username:r.username,senha:r.senha,role:r.role,ativo:r.ativo,criado:r.criado,permissoes:r.permissoes||null}));
   if(pr.length) db.produtos=(pr).map(r=>({id:r.id,cod:r.cod,nome:r.nome,marca:r.marca,cor:r.cor,custo:parseFloat(r.custo||0),preco:parseFloat(r.preco||0),min:r.min||2,obs:r.obs,grade:r.grade||[],qtd:r.qtd||0,tam:r.tam,foto:r.foto||null}));
   if(cl.length) db.clientes=(cl).map(r=>({id:r.id,nome:r.nome,cpf:r.cpf,nasc:r.nasc,whatsapp:r.whatsapp,email:r.email,end:r.endereco,obs:r.obs,criado:r.criado}));
-  if(vn.length) db.vendas=(vn).map(r=>({id:r.id,data:r.data,clienteId:r.cliente_id,clienteNome:r.cliente_nome||'',pgto:r.pgto,recebido:parseFloat(r.recebido||0),troco:parseFloat(r.troco||0),modalidade:r.modalidade||'Presencial',itens:r.itens||[],subtotal:parseFloat(r.subtotal||0),desconto:parseFloat(r.desconto||0),total:parseFloat(r.total||0),vendedor:r.vendedor_nome,vendedorId:r.vendedor_id}));
-  if(mv.length) db.movimentos=(mv).map(r=>({id:r.id,tipo:r.tipo,desc:r.descricao,val:parseFloat(r.val||0),data:r.data,vendaId:r.venda_id}));
-  if(cx.length) db.caixas=(cx).map(r=>({id:r.id,data:r.data,hora:r.hora,vendedorId:r.vendedor_id,vendedorNome:r.vendedor_nome,total:parseFloat(r.total||0),qtdVendas:r.qtd_vendas||0,obs:r.obs}));
+  if(vn.length) db.vendas=(vn).map(r=>({id:r.id,data:r.data,clienteId:r.cliente_id,clienteNome:r.cliente_nome||'',pgto:r.pgto,recebido:parseFloat(r.recebido||0),troco:parseFloat(r.troco||0),modalidade:r.modalidade||'Presencial',itens:r.itens||[],subtotal:parseFloat(r.subtotal||0),desconto:parseFloat(r.desconto||0),total:parseFloat(r.total||0),vendedor:r.vendedor_nome,vendedorId:r.vendedor_id})).sort((a,b)=>b.data>a.data?1:-1);
+  if(mv.length) db.movimentos=(mv).map(r=>({id:r.id,tipo:r.tipo,desc:r.descricao,val:parseFloat(r.val||0),data:r.data,vendaId:r.venda_id})).sort((a,b)=>b.data>a.data?1:-1);
+  if(cx.length) db.caixas=(cx).map(r=>({id:r.id,data:r.data,hora:r.hora,vendedorId:r.vendedor_id,vendedorNome:r.vendedor_nome,total:parseFloat(r.total||0),qtdVendas:r.qtd_vendas||0,obs:r.obs})).sort((a,b)=>b.data>a.data?1:-1);
 
   saveLocal();
   showLoading(false);
