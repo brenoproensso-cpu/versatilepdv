@@ -831,7 +831,7 @@ function pgDashboard(){
   </div>
   <div class="grid2 mt-4">
     <div class="card"><div class="sec-title">🧾 Vendas Recentes</div>
-      ${db.vendas.slice(-6).reverse().map(v=>`<div class="flex justify-between items-center" style="padding:7px 0;border-bottom:1px solid var(--border)"><div><div class="font-med" style="font-size:13px">#${v.id} ${v.clienteNome||'<span class="text-dim">Sem cadastro</span>'}</div><div class="text-xs text-dim">${fmtD(v.data)} · ${v.pgto} · ${v.modalidade||'Presencial'}</div></div><div class="font-bold text-gold">${fmt(v.total)}</div></div>`).join('')||'<div class="empty"><p>Sem vendas</p></div>'}
+      ${[...db.vendas].sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;}).slice(0,6).map(v=>`<div class="flex justify-between items-center" style="padding:7px 0;border-bottom:1px solid var(--border)"><div><div class="font-med" style="font-size:13px">#${v.id} ${v.clienteNome||'<span class="text-dim">Sem cadastro</span>'}</div><div class="text-xs text-dim">${fmtD(v.data)} · ${v.pgto} · ${v.modalidade||'Presencial'}</div></div><div class="font-bold text-gold">${fmt(v.total)}</div></div>`).join('')||'<div class="empty"><p>Sem vendas</p></div>'}
     </div>
     <div class="card"><div class="sec-title">⚠️ Estoque Baixo</div>
       ${db.produtos.filter(p=>(p.qtd||0)<=(p.min||2)).map(p=>`<div class="flex justify-between items-center" style="padding:7px 0;border-bottom:1px solid var(--border)"><div><div class="font-med" style="font-size:13px">${p.nome}${p.tam?' T'+p.tam:''}</div><div class="text-xs text-dim">${p.marca||''}</div></div><span class="badge ${p.qtd===0?'red':'amber'}">${p.qtd===0?'Esgotado':p.qtd+' rest.'}</span></div>`).join('')||'<div class="empty" style="padding:14px"><p>Estoque OK ✓</p></div>'}
@@ -1954,7 +1954,7 @@ function pgHistorico(){
   </div></div>
   <div class="card"><div class="table-wrap"><table>
     <thead><tr><th>Nº</th><th>Data/Hora</th><th>Cliente</th><th>Vendedor</th><th>Modal.</th><th>Pgto</th><th>Desc.</th><th>Total</th><th style='width:120px'></th></tr></thead>
-    <tbody id="htb">${genLinhasHist([...db.vendas].sort((a,b)=>b.data>a.data?1:-1))}</tbody>
+    <tbody id="htb">${genLinhasHist([...db.vendas].sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;}))}</tbody>
   </table></div></div>`;
 }
 function genLinhasHist(arr){
@@ -2050,7 +2050,7 @@ function filtHist(){
   const q=(document.getElementById('hs')?.value||'').toLowerCase();
   const ini=document.getElementById('hi')?.value;
   const fim=document.getElementById('hf')?.value;
-  let fil=[...db.vendas].sort((a,b)=>b.data>a.data?1:-1);
+  let fil=[...db.vendas].sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;});
   if(q)fil=fil.filter(v=>[v.id,v.clienteNome,v.vendedor,v.pgto,v.modalidade].join(' ').toLowerCase().includes(q));
   if(ini)fil=fil.filter(v=>v.data&&v.data.slice(0,10)>=ini);
   if(fim)fil=fil.filter(v=>v.data&&v.data.slice(0,10)<=fim);
@@ -2593,7 +2593,7 @@ async function loadAll(){
   if(us.length) db.usuarios=(us).map(r=>({id:r.id,nome:r.nome,username:r.username,senha:r.senha,role:r.role,ativo:r.ativo,criado:r.criado,permissoes:r.permissoes||null}));
   if(pr.length) db.produtos=(pr).map(r=>({id:r.id,cod:r.cod,nome:r.nome,marca:r.marca,cor:r.cor,custo:parseFloat(r.custo||0),preco:parseFloat(r.preco||0),min:r.min||2,obs:r.obs,grade:r.grade||[],qtd:r.qtd||0,tam:r.tam,foto:r.foto||null}));
   if(cl.length) db.clientes=(cl).map(r=>({id:r.id,nome:r.nome,cpf:r.cpf,nasc:r.nasc,whatsapp:r.whatsapp,email:r.email,end:r.endereco,obs:r.obs,criado:r.criado}));
-  if(vn.length) db.vendas=(vn).map(r=>({id:r.id,data:r.data,clienteId:r.cliente_id,clienteNome:r.cliente_nome||'',pgto:r.pgto,recebido:parseFloat(r.recebido||0),troco:parseFloat(r.troco||0),modalidade:r.modalidade||'Presencial',itens:r.itens||[],subtotal:parseFloat(r.subtotal||0),desconto:parseFloat(r.desconto||0),total:parseFloat(r.total||0),vendedor:r.vendedor_nome,vendedorId:r.vendedor_id})).sort((a,b)=>b.data>a.data?1:-1);
+  if(vn.length) db.vendas=(vn).map(r=>({id:r.id,data:r.data,clienteId:r.cliente_id,clienteNome:r.cliente_nome||'',pgto:r.pgto,recebido:parseFloat(r.recebido||0),troco:parseFloat(r.troco||0),modalidade:r.modalidade||'Presencial',itens:r.itens||[],subtotal:parseFloat(r.subtotal||0),desconto:parseFloat(r.desconto||0),total:parseFloat(r.total||0),vendedor:r.vendedor_nome,vendedorId:r.vendedor_id})).sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;});
   if(mv.length) db.movimentos=(mv).map(r=>({id:r.id,tipo:r.tipo,desc:r.descricao,val:parseFloat(r.val||0),data:r.data,vendaId:r.venda_id})).sort((a,b)=>b.data>a.data?1:-1);
   if(cx.length) db.caixas=(cx).map(r=>({id:r.id,data:r.data,hora:r.hora,vendedorId:r.vendedor_id,vendedorNome:r.vendedor_nome,total:parseFloat(r.total||0),qtdVendas:r.qtd_vendas||0,obs:r.obs})).sort((a,b)=>b.data>a.data?1:-1);
 
