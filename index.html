@@ -314,6 +314,25 @@ tbody tr:hover td{background:var(--bg3)}
   .nav-item{justify-content:center;padding:9px;margin:1px 4px}
   .grid4,.grid5,.grid3,.grid2{grid-template-columns:1fr}
 }
+/* ===== Histórico: accordion de itens ===== */
+tr.h-data-row{border-bottom:1px solid var(--border)}
+tr.h-data-row.open{border-bottom:none}
+tr.h-exp-row td{padding:0;background:var(--bg2)}
+.h-exp-inner{max-height:0;overflow:hidden;transition:max-height .28s ease}
+.h-exp-inner.open{max-height:800px;border-bottom:1px solid var(--border)}
+.h-exp-content{padding:10px 14px 12px 46px;border-top:1px dashed var(--border)}
+.h-exp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
+.h-exp-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;display:flex;justify-content:space-between;align-items:center}
+.h-exp-nome{font-size:12px;color:var(--text);font-weight:500}
+.h-exp-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.h-exp-preco{font-size:12px;color:var(--gold);font-weight:700;white-space:nowrap;margin-left:8px}
+.h-btn-exp{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:3px 5px;border-radius:4px;transition:color .2s,transform .25s ease;line-height:1;display:inline-block}
+.h-btn-exp:hover{color:var(--gold)}
+.h-btn-exp.open{color:var(--gold);transform:rotate(90deg)}
+.h-itens-chips{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
+.h-chip{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:2px 8px;font-size:11px;color:var(--gold);white-space:nowrap}
+.h-chip-q{color:var(--text3);margin-right:2px}
+.h-chip-mais{background:transparent;border:1px dashed var(--text3);color:var(--text3)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -1953,27 +1972,44 @@ function pgHistorico(){
     </div>
   </div></div>
   <div class="card"><div class="table-wrap"><table>
-    <thead><tr><th>Nº</th><th>Data/Hora</th><th>Cliente</th><th>Vendedor</th><th>Modal.</th><th>Pgto</th><th>Desc.</th><th>Total</th><th style='width:120px'></th></tr></thead>
+    <thead><tr><th style='width:32px'></th><th>Nº</th><th>Data/Hora</th><th>Cliente</th><th>Vendedor</th><th>Modal.</th><th>Pgto</th><th>Desc.</th><th>Total</th><th>Itens</th><th style='width:120px'></th></tr></thead>
     <tbody id="htb">${genLinhasHist([...db.vendas].sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;}))}</tbody>
   </table></div></div>`;
 }
 function genLinhasHist(arr){
-  return arr.map(v=>`<tr>
-    <td><strong>${v.id}</strong></td>
-    <td class="text-xs text-dim">${fmtD(v.data)}</td>
-    <td>${v.clienteNome||'<span class="text-dim">Consumidor Final</span>'}</td>
-    <td class="text-dim text-xs">${v.vendedor||'—'}</td>
-    <td><span class="badge ${v.modalidade==='Online'?'blue':'gray'}">${v.modalidade||'Presencial'}</span></td>
-    <td><span class="badge wine">${v.pgto}</span></td>
-    <td class="text-red">${v.desconto?fmt(v.desconto):'—'}</td>
-    <td><strong class="text-gold">${fmt(v.total)}</strong></td>
-    <td>
-      <div class="flex gap-1">
-        <button class="btn xs" onclick="imprimirReciboById('${v.id}')">🖨 Recibo</button>
-        ${isAdmin()?`<button class="btn xs danger" onclick="excluirVenda('${v.id}')" title="Cancelar venda e devolver estoque">↩ Cancelar</button>`:''}
-      </div>
-    </td>
-  </tr>`).join('')||`<tr><td colspan="9"><div class="empty"><div class="ei">🧾</div><p>Sem vendas</p></div></td></tr>`;
+  if(!arr.length)return`<tr><td colspan="11"><div class="empty"><div class="ei">🧾</div><p>Sem vendas</p></div></td></tr>`;
+  return arr.map(v=>{
+    const its=v.itens||[];
+    const MAX=2;
+    let chips='<div class="h-itens-chips">';
+    its.slice(0,MAX).forEach(it=>{chips+=`<span class="h-chip"><span class="h-chip-q">${it.qtd}x</span>${it.nome}${it.tam?' · Nº'+it.tam:''}</span>`;});
+    if(its.length>MAX)chips+=`<span class="h-chip h-chip-mais">+${its.length-MAX}</span>`;
+    chips+='</div>';
+    const grid=its.map(it=>`<div class="h-exp-item"><div><div class="h-exp-nome">${it.qtd}x ${it.nome}</div>${it.tam?`<div class="h-exp-sub">Nº ${it.tam}</div>`:''}</div><div class="h-exp-preco">${it.preco!=null?fmt(it.preco):'—'}</div></div>`).join('');
+    return`<tr id="hrow-${v.id}" class="h-data-row">
+      <td><button class="h-btn-exp" id="hbtn-${v.id}" onclick="togHist('${v.id}')" aria-label="Expandir itens">&#9658;</button></td>
+      <td><strong>${v.id}</strong></td>
+      <td class="text-xs text-dim">${fmtD(v.data)}</td>
+      <td>${v.clienteNome||'<span class="text-dim">Consumidor Final</span>'}</td>
+      <td class="text-dim text-xs">${v.vendedor||'—'}</td>
+      <td><span class="badge ${v.modalidade==='Online'?'blue':'gray'}">${v.modalidade||'Presencial'}</span></td>
+      <td><span class="badge wine">${v.pgto}</span></td>
+      <td class="text-red">${v.desconto?fmt(v.desconto):'—'}</td>
+      <td><strong class="text-gold">${fmt(v.total)}</strong></td>
+      <td>${chips}</td>
+      <td><div class="flex gap-1"><button class="btn xs" onclick="imprimirReciboById('${v.id}')">🖨 Recibo</button>${isAdmin()?`<button class="btn xs danger" onclick="excluirVenda('${v.id}')" title="Cancelar venda e devolver estoque">↩ Cancelar</button>`:''}</div></td>
+    </tr><tr class="h-exp-row"><td colspan="11"><div class="h-exp-inner" id="hexp-${v.id}"><div class="h-exp-content"><div class="h-exp-grid">${grid}</div></div></div></td></tr>`;
+  }).join('');
+}
+function togHist(id){
+  const btn=document.getElementById('hbtn-'+id);
+  const exp=document.getElementById('hexp-'+id);
+  const row=document.getElementById('hrow-'+id);
+  if(!btn||!exp||!row)return;
+  const isOpen=exp.classList.contains('open');
+  exp.classList.toggle('open',!isOpen);
+  btn.classList.toggle('open',!isOpen);
+  row.classList.toggle('open',!isOpen);
 }
 async function excluirVenda(id){
   if(!isAdmin()){notify('Apenas administradores podem cancelar vendas','err');return;}
