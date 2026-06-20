@@ -382,6 +382,7 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
 .h-chip-mais{background:transparent;border:1px dashed var(--text3);color:var(--text3)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 <div id="rp"></div>
@@ -763,6 +764,7 @@ async function doLogin(){
     document.getElementById('sb-role').textContent=ses.usuario.role==='admin'?'Administrador':'Vendedor';
     registrarAudit('LOGIN','Acesso ao sistema');
     carregarAuditoria();
+    rtStart();
     buildNav();goTo('dashboard');
   }catch(e){
     showLoading(false);console.error('LOGIN:',e);
@@ -773,9 +775,74 @@ async function doLogin(){
 function doLogout(){
   ses=null;cart=[];
   db={usuarios:[],produtos:[],clientes:[],vendas:[],movimentos:[],caixas:[]};
+  rtStop();
   document.getElementById('app').classList.add('hidden');
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('lu').value='';document.getElementById('lp').value='';
+}
+
+// ============================================================
+// REALTIME — sincronização automática entre dispositivos
+// ============================================================
+let _sbClient=null, _rtChannel=null;
+function rtStart(){
+  if(_rtChannel) return;
+  _sbClient=supabase.createClient(SB_URL,SB_ANON,{realtime:{params:{eventsPerSecond:5}}});
+  _rtChannel=_sbClient.channel('db-sync')
+    .on('postgres_changes',{event:'*',schema:'public',table:'produtos'},p=>rtHandle('produtos',p))
+    .on('postgres_changes',{event:'*',schema:'public',table:'vendas'},p=>rtHandle('vendas',p))
+    .on('postgres_changes',{event:'*',schema:'public',table:'clientes'},p=>rtHandle('clientes',p))
+    .on('postgres_changes',{event:'*',schema:'public',table:'movimentos'},p=>rtHandle('movimentos',p))
+    .on('postgres_changes',{event:'*',schema:'public',table:'caixas'},p=>rtHandle('caixas',p))
+    .subscribe();
+}
+function rtStop(){
+  if(_rtChannel){_rtChannel.unsubscribe();_rtChannel=null;}
+  if(_sbClient){_sbClient.removeAllChannels();_sbClient=null;}
+}
+function rtHandle(table,payload){
+  const ev=payload.eventType;
+  const row=payload.new||{};
+  const old=payload.old||{};
+  if(table==='produtos'){
+    const p={id:row.id,cod:row.cod,nome:row.nome,marca:row.marca,cor:row.cor,custo:parseFloat(row.custo||0),preco:parseFloat(row.preco||0),min:row.min||2,obs:row.obs,grade:row.grade||[],qtd:row.qtd||0,tam:row.tam,foto:row.foto||null};
+    if(ev==='INSERT'){if(!db.produtos.find(x=>x.id===p.id))db.produtos.push(p);}
+    else if(ev==='UPDATE'){const i=db.produtos.findIndex(x=>x.id===p.id);if(i>=0)db.produtos[i]=p;}
+    else if(ev==='DELETE'){db.produtos=db.produtos.filter(x=>x.id!==(old.id||row.id));}
+  }else if(table==='vendas'){
+    const v={id:row.id,data:row.data,clienteId:row.cliente_id,clienteNome:row.cliente_nome||'',pgto:row.pgto,recebido:parseFloat(row.recebido||0),troco:parseFloat(row.troco||0),modalidade:row.modalidade||'Presencial',itens:row.itens||[],subtotal:parseFloat(row.subtotal||0),desconto:parseFloat(row.desconto||0),total:parseFloat(row.total||0),vendedor:row.vendedor_nome,vendedorId:row.vendedor_id};
+    if(ev==='INSERT'){if(!db.vendas.find(x=>x.id===v.id))db.vendas.unshift(v);}
+    else if(ev==='UPDATE'){const i=db.vendas.findIndex(x=>x.id===v.id);if(i>=0)db.vendas[i]=v;}
+    else if(ev==='DELETE'){db.vendas=db.vendas.filter(x=>x.id!==(old.id||row.id));}
+  }else if(table==='clientes'){
+    const c={id:row.id,nome:row.nome,cpf:row.cpf,nasc:row.nasc,whatsapp:row.whatsapp,email:row.email,end:row.endereco,obs:row.obs,criado:row.criado};
+    if(ev==='INSERT'){if(!db.clientes.find(x=>x.id===c.id))db.clientes.push(c);}
+    else if(ev==='UPDATE'){const i=db.clientes.findIndex(x=>x.id===c.id);if(i>=0)db.clientes[i]=c;}
+    else if(ev==='DELETE'){db.clientes=db.clientes.filter(x=>x.id!==(old.id||row.id));}
+  }else if(table==='movimentos'){
+    const m={id:row.id,tipo:row.tipo,desc:row.descricao,val:parseFloat(row.val||0),data:row.data,vendaId:row.venda_id};
+    if(ev==='INSERT'){if(!db.movimentos.find(x=>x.id===m.id))db.movimentos.unshift(m);}
+    else if(ev==='UPDATE'){const i=db.movimentos.findIndex(x=>x.id===m.id);if(i>=0)db.movimentos[i]=m;}
+    else if(ev==='DELETE'){db.movimentos=db.movimentos.filter(x=>x.id!==(old.id||row.id));}
+  }else if(table==='caixas'){
+    const c={id:row.id,data:row.data,hora:row.hora,vendedorId:row.vendedor_id,vendedorNome:row.vendedor_nome,total:parseFloat(row.total||0),qtdVendas:row.qtd_vendas||0,obs:row.obs};
+    if(ev==='INSERT'){if(!db.caixas.find(x=>x.id===c.id))db.caixas.unshift(c);}
+    else if(ev==='UPDATE'){const i=db.caixas.findIndex(x=>x.id===c.id);if(i>=0)db.caixas[i]=c;}
+    else if(ev==='DELETE'){db.caixas=db.caixas.filter(x=>x.id!==(old.id||row.id));}
+  }
+  saveLocal();
+  rtRefreshPage(table);
+}
+function rtRefreshPage(table){
+  const pg=curPage;
+  if(pg==='dashboard') goTo('dashboard');
+  else if(pg==='estoque'&&table==='produtos') goTo('estoque');
+  else if(pg==='venda'&&table==='produtos') renderPCards();
+  else if(pg==='clientes'&&table==='clientes') goTo('clientes');
+  else if(pg==='historico'&&table==='vendas') goTo('historico');
+  else if(pg==='caixa'&&(table==='vendas'||table==='caixas')) goTo('caixa');
+  else if(pg==='financeiro'&&(table==='movimentos'||table==='vendas')) goTo('financeiro');
+  else if(pg==='ranking'&&table==='vendas') goTo('ranking');
 }
 
 // ============================================================
