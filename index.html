@@ -164,7 +164,7 @@ tbody tr:hover td{background:var(--bg3)}
 
 /* ====== LOGIN ====== */
 #login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500}
-.login-box{background:var(--card-bg);border:1px solid var(--border2);border-radius:var(--r3);padding:40px 36px;width:400px;box-shadow:var(--shadow)}
+.login-box{background:var(--card-bg);border:1px solid var(--border2);border-radius:var(--r3);padding:40px 36px;width:400px;max-width:92vw;box-shadow:var(--shadow)}
 .login-logo-area{text-align:center;margin-bottom:28px}
 .login-logo-v{margin:0 auto 8px}
 .login-logo-name{font-family:var(--font-head);font-size:28px;font-weight:700;letter-spacing:5px;color:var(--text)}
@@ -302,17 +302,58 @@ tbody tr:hover td{background:var(--bg3)}
 /* ====== CAIXA FECHAMENTO ====== */
 .fechamento-box{background:var(--winedim);border:1px solid var(--wine3);border-radius:var(--r2);padding:16px}
 
+/* ====== HAMBURGER ====== */
+.hamburger{display:none;background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:4px 6px;line-height:1;border-radius:var(--r)}
+.hamburger:hover{background:var(--bg3)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;backdrop-filter:blur(2px)}
+
 /* ====== RESPONSIVE ====== */
 @media(max-width:900px){
   .venda-layout{grid-template-columns:1fr;height:auto}
   .grid4,.grid5{grid-template-columns:1fr 1fr}
   .grid3{grid-template-columns:1fr 1fr}
 }
-@media(max-width:640px){
-  .sidebar{width:56px;min-width:56px}
-  .sidebar .logo-text-block,.sidebar-user,.nav-item span,.nav-section{display:none}
-  .nav-item{justify-content:center;padding:9px;margin:1px 4px}
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(-100%);transition:transform .25s ease;width:260px;min-width:260px;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block}
+  .sidebar .logo-text-block,.sidebar-user,.nav-item span,.nav-section{display:revert}
+  .topbar{padding:0 12px}
+  .topbar-title{font-size:16px}
+  .content{padding:12px 10px}
+  .grid4,.grid5{grid-template-columns:1fr 1fr}
+  .grid3{grid-template-columns:1fr 1fr}
+  .grid2{grid-template-columns:1fr}
+  .metric-card{padding:12px}
+  .metric-val{font-size:22px}
+  .metric-card .mi{font-size:20px;top:10px;right:10px;opacity:.35}
+  .card{padding:12px}
+  .login-box{width:92vw;max-width:400px;padding:28px 20px}
+  .modal{margin:8px;padding:16px;max-height:95vh}
+  .form-row.col2,.form-row.col3{grid-template-columns:1fr}
+  .tab-row{overflow-x:auto;flex-wrap:nowrap}
+  .tab-btn{flex:none;min-width:auto;padding:7px 12px}
+  table{font-size:12px}
+  thead th,tbody td{padding:7px 8px}
+  .venda-layout{grid-template-columns:1fr;height:auto;overflow:visible}
+  .venda-right{max-height:60vh}
+  .prod-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+  .sec-title{font-size:14px}
+  .btn{padding:7px 10px;font-size:12px}
+  .topbar .flex{flex-wrap:wrap}
+  .nav-item{padding:11px 14px;font-size:14px}
+  .nav-item .drag-handle{display:none}
+  #nc{top:8px;right:8px;left:8px}
+  .notif{max-width:100%}
+  .h-exp-content{padding:10px 10px 12px 10px}
+  .qty-btn{width:28px;height:28px;font-size:16px}
+}
+@media(max-width:400px){
   .grid4,.grid5,.grid3,.grid2{grid-template-columns:1fr}
+  .metric-val{font-size:20px}
+  .topbar-title{font-size:15px}
+  .prod-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
 }
 /* ===== Histórico: accordion de itens ===== */
 tr.h-data-row{border-bottom:1px solid var(--border)}
@@ -388,8 +429,10 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
     </div>
   </aside>
 
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
   <main class="main">
     <div class="topbar">
+      <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
       <div class="topbar-title" id="tbar-title">Painel</div>
       <div class="flex gap-2" id="tbar-actions"></div>
     </div>
@@ -655,6 +698,15 @@ function maskPhone(el){let v=el.value.replace(/\D/g,'').slice(0,11);if(v.length>
 // ============================================================
 // THEME
 // ============================================================
+function toggleSidebar(){
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
 function toggleTheme(){
   const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
   document.documentElement.setAttribute('data-theme',t);
@@ -783,7 +835,8 @@ function goTo(pg){
   const item=NAV.find(n=>n.id===pg);
   if(item&&!item.roles.includes(ses.usuario.role)){notify('Acesso restrito','err');return;}
   curPage=pg;
-  document.getElementById('page').style.padding='18px 20px';
+  closeSidebar();
+  document.getElementById('page').style.padding='';
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   const ni=document.getElementById('ni-'+pg);if(ni)ni.classList.add('active');
   const titles={dashboard:'Painel',venda:'Nova Venda',estoque:'Estoque',clientes:'Clientes',historico:'Histórico de Vendas',caixa:'Fechamento de Caixa',ranking:'Ranking',vendedores:'Comissões por Vendedor',financeiro:'Financeiro',usuarios:'Usuários',recibos:'Config. Recibos',relatorios:'Relatórios',auditoria:'Auditoria — Movimentações',lucratividade:'Lucratividade Real',aniversariantes:'Aniversariantes do Mês',etiquetas:'Impressão de Etiquetas',configuracoes:'Configurações do Sistema',impressao:'Configurações de Impressão',cupons:'Cupons de Desconto',categorias:'Categorias de Produto',fornecedores:'Fornecedores',ordemcompra:'Ordem de Compra / Reposição',pontos:'Fidelidade — Programa de Pontos',segmentacao:'Segmentação de Clientes',trocas:'Trocas de Produtos',comparativo:'Comparativo Mensal',dre:'DRE — Demonstrativo de Resultado'};
