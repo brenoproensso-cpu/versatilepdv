@@ -164,7 +164,7 @@ tbody tr:hover td{background:var(--bg3)}
 
 /* ====== LOGIN ====== */
 #login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500}
-.login-box{background:var(--card-bg);border:1px solid var(--border2);border-radius:var(--r3);padding:40px 36px;width:400px;box-shadow:var(--shadow)}
+.login-box{background:var(--card-bg);border:1px solid var(--border2);border-radius:var(--r3);padding:40px 36px;width:400px;max-width:92vw;box-shadow:var(--shadow)}
 .login-logo-area{text-align:center;margin-bottom:28px}
 .login-logo-v{margin:0 auto 8px}
 .login-logo-name{font-family:var(--font-head);font-size:28px;font-weight:700;letter-spacing:5px;color:var(--text)}
@@ -302,17 +302,58 @@ tbody tr:hover td{background:var(--bg3)}
 /* ====== CAIXA FECHAMENTO ====== */
 .fechamento-box{background:var(--winedim);border:1px solid var(--wine3);border-radius:var(--r2);padding:16px}
 
+/* ====== HAMBURGER ====== */
+.hamburger{display:none;background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:4px 6px;line-height:1;border-radius:var(--r)}
+.hamburger:hover{background:var(--bg3)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;backdrop-filter:blur(2px)}
+
 /* ====== RESPONSIVE ====== */
 @media(max-width:900px){
   .venda-layout{grid-template-columns:1fr;height:auto}
   .grid4,.grid5{grid-template-columns:1fr 1fr}
   .grid3{grid-template-columns:1fr 1fr}
 }
-@media(max-width:640px){
-  .sidebar{width:56px;min-width:56px}
-  .sidebar .logo-text-block,.sidebar-user,.nav-item span,.nav-section{display:none}
-  .nav-item{justify-content:center;padding:9px;margin:1px 4px}
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(-100%);transition:transform .25s ease;width:260px;min-width:260px;box-shadow:4px 0 24px rgba(0,0,0,.4)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block}
+  .sidebar .logo-text-block,.sidebar-user,.nav-item span,.nav-section{display:revert}
+  .topbar{padding:0 12px}
+  .topbar-title{font-size:16px}
+  .content{padding:12px 10px}
+  .grid4,.grid5{grid-template-columns:1fr 1fr}
+  .grid3{grid-template-columns:1fr 1fr}
+  .grid2{grid-template-columns:1fr}
+  .metric-card{padding:12px}
+  .metric-val{font-size:22px}
+  .metric-card .mi{font-size:20px;top:10px;right:10px;opacity:.35}
+  .card{padding:12px}
+  .login-box{width:92vw;max-width:400px;padding:28px 20px}
+  .modal{margin:8px;padding:16px;max-height:95vh}
+  .form-row.col2,.form-row.col3{grid-template-columns:1fr}
+  .tab-row{overflow-x:auto;flex-wrap:nowrap}
+  .tab-btn{flex:none;min-width:auto;padding:7px 12px}
+  table{font-size:12px}
+  thead th,tbody td{padding:7px 8px}
+  .venda-layout{grid-template-columns:1fr;height:auto;overflow:visible}
+  .venda-right{max-height:60vh}
+  .prod-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+  .sec-title{font-size:14px}
+  .btn{padding:7px 10px;font-size:12px}
+  .topbar .flex{flex-wrap:wrap}
+  .nav-item{padding:11px 14px;font-size:14px}
+  .nav-item .drag-handle{display:none}
+  #nc{top:8px;right:8px;left:8px}
+  .notif{max-width:100%}
+  .h-exp-content{padding:10px 10px 12px 10px}
+  .qty-btn{width:28px;height:28px;font-size:16px}
+}
+@media(max-width:400px){
   .grid4,.grid5,.grid3,.grid2{grid-template-columns:1fr}
+  .metric-val{font-size:20px}
+  .topbar-title{font-size:15px}
+  .prod-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
 }
 /* ===== Histórico: accordion de itens ===== */
 tr.h-data-row{border-bottom:1px solid var(--border)}
@@ -388,8 +429,10 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
     </div>
   </aside>
 
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
   <main class="main">
     <div class="topbar">
+      <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
       <div class="topbar-title" id="tbar-title">Painel</div>
       <div class="flex gap-2" id="tbar-actions"></div>
     </div>
@@ -481,7 +524,7 @@ let db={usuarios:[],produtos:[],clientes:[],vendas:[],movimentos:[],caixas:[]};
 // Permissões padrão — admin pode alterar por usuário
 const PERM_DEFAULTS = {
   admin:    {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:1,vendedores:1,financeiro:1,usuarios:1,recibos:1,relatorios:1,auditoria:1,lucratividade:1,aniversariantes:1,etiquetas:1,configuracoes:1,impressao:1,cupons:1,categorias:1,fornecedores:1,ordemcompra:1,pontos:1,segmentacao:1,comparativo:1,dre:1,trocas:1},
-  vendedor: {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:0,vendedores:0,financeiro:0,usuarios:0,recibos:0,relatorios:0,auditoria:0,lucratividade:0,aniversariantes:1,etiquetas:0}
+  vendedor: {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:0,vendedores:0,financeiro:0,usuarios:0,recibos:0,relatorios:0,auditoria:0,lucratividade:0,aniversariantes:1,etiquetas:0,trocas:0}
 };
 function getPerms(usuario){
   if(!usuario) return {};
@@ -503,8 +546,8 @@ let vendaCliNome='';
 // Dados padrão iniciais
 const DB_DEFAULT = {
   usuarios:[
-    {id:'u1',nome:'Administrador',username:'admin',senha:'1234',role:'admin',ativo:true,criado:new Date().toISOString()},
-    {id:'u2',nome:'Vendedor',username:'vendedor',senha:'1234',role:'vendedor',ativo:true,criado:new Date().toISOString()}
+    {id:'u1',nome:'Administrador',username:'admin',role:'admin',ativo:true,criado:new Date().toISOString()},
+    {id:'u2',nome:'Vendedor',username:'vendedor',role:'vendedor',ativo:true,criado:new Date().toISOString()}
   ],
   produtos:[],clientes:[],vendas:[],movimentos:[],caixas:[]
 };
@@ -572,12 +615,23 @@ async function saveCaixa(obj){
   const n=await sbPost('caixas',row);obj.id=n.id;db.caixas.unshift({...obj});saveLocal();
 }
 async function saveUsuario(obj){
-  const row={nome:obj.nome,username:obj.username,senha:obj.senha,role:obj.role,ativo:obj.ativo};
-  if(obj.id&&db.usuarios.find(x=>x.id===obj.id)){await sbPatch('usuarios','id=eq.'+obj.id,row);const i=db.usuarios.findIndex(x=>x.id===obj.id);db.usuarios[i]={...obj};}
-  else{const n=await sbPost('usuarios',row);obj.id=n.id;db.usuarios.push({...obj,id:n.id});}
+  const body={p_nome:obj.nome,p_username:obj.username,p_role:obj.role,p_ativo:obj.ativo,p_permissoes:obj.permissoes||null};
+  if(obj.id) body.p_id=obj.id;
+  if(obj.senha) body.p_senha=obj.senha;
+  const r=await fetch(SB_URL+'/rest/v1/rpc/fn_save_usuario',{method:'POST',headers:sbH(),body:JSON.stringify(body)});
+  if(!r.ok){const e=await r.text();throw new Error('Erro ao salvar: '+e.slice(0,120));}
+  const res=await r.json();
+  if(!res.ok) throw new Error(res.msg||'Erro ao salvar usuário');
+  const safe={id:res.id||obj.id,nome:obj.nome,username:obj.username,role:obj.role,ativo:obj.ativo,criado:obj.criado||new Date().toISOString(),permissoes:obj.permissoes||null};
+  const i=db.usuarios.findIndex(x=>x.id===safe.id);
+  if(i>=0) db.usuarios[i]=safe; else db.usuarios.push(safe);
   saveLocal();
 }
-async function deleteUsuario(id){await sbDelete('usuarios','id=eq.'+id);db.usuarios=db.usuarios.filter(x=>x.id!==id);saveLocal();}
+async function deleteUsuario(id){
+  const r=await fetch(SB_URL+'/rest/v1/rpc/fn_delete_usuario',{method:'POST',headers:sbH(),body:JSON.stringify({p_id:id})});
+  if(!r.ok){const e=await r.text();throw new Error('Erro ao excluir: '+e.slice(0,120));}
+  db.usuarios=db.usuarios.filter(x=>x.id!==id);saveLocal();
+}
 // ============================================================
 // LOADING GLOBAL
 // ============================================================
@@ -655,6 +709,15 @@ function maskPhone(el){let v=el.value.replace(/\D/g,'').slice(0,11);if(v.length>
 // ============================================================
 // THEME
 // ============================================================
+function toggleSidebar(){
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
 function toggleTheme(){
   const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
   document.documentElement.setAttribute('data-theme',t);
@@ -680,12 +743,13 @@ async function doLogin(){
   if(btn){btn.textContent='Entrando...';btn.disabled=true;}
   try{
     showLoading(true,'Verificando acesso...');
-    const todos=await sbGet('usuarios','ativo=eq.true','');
+    const r=await fetch(SB_URL+'/rest/v1/rpc/fn_login',{method:'POST',headers:sbH(),body:JSON.stringify({p_username:u,p_senha:p})});
     showLoading(false);
-    if(!Array.isArray(todos)||!todos.length) throw new Error('Sem usuarios. Execute o SQL no Supabase.');
-    const user=todos.find(x=>x.username&&x.username.toLowerCase()===u&&x.senha===p);
-    if(!user){err.textContent='Usuario ou senha incorretos';err.style.color='var(--red)';err.classList.remove('hidden');if(btn){btn.textContent='Entrar';btn.disabled=false;}return;}
-    ses={usuario:{id:user.id,nome:user.nome,username:user.username,senha:user.senha,role:user.role,ativo:user.ativo,criado:user.criado}};
+    if(!r.ok) throw new Error('Falha na conexão (HTTP '+r.status+')');
+    const res=await r.json();
+    if(!res.ok){err.textContent='Usuário ou senha incorretos';err.style.color='var(--red)';err.classList.remove('hidden');if(btn){btn.textContent='Entrar';btn.disabled=false;}return;}
+    const user=res.usuario;
+    ses={usuario:{id:user.id,nome:user.nome,username:user.username,role:user.role,ativo:user.ativo,criado:user.criado,permissoes:user.permissoes||null}};
     await loadAll();
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
@@ -783,7 +847,8 @@ function goTo(pg){
   const item=NAV.find(n=>n.id===pg);
   if(item&&!item.roles.includes(ses.usuario.role)){notify('Acesso restrito','err');return;}
   curPage=pg;
-  document.getElementById('page').style.padding='18px 20px';
+  closeSidebar();
+  document.getElementById('page').style.padding='';
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   const ni=document.getElementById('ni-'+pg);if(ni)ni.classList.add('active');
   const titles={dashboard:'Painel',venda:'Nova Venda',estoque:'Estoque',clientes:'Clientes',historico:'Histórico de Vendas',caixa:'Fechamento de Caixa',ranking:'Ranking',vendedores:'Comissões por Vendedor',financeiro:'Financeiro',usuarios:'Usuários',recibos:'Config. Recibos',relatorios:'Relatórios',auditoria:'Auditoria — Movimentações',lucratividade:'Lucratividade Real',aniversariantes:'Aniversariantes do Mês',etiquetas:'Impressão de Etiquetas',configuracoes:'Configurações do Sistema',impressao:'Configurações de Impressão',cupons:'Cupons de Desconto',categorias:'Categorias de Produto',fornecedores:'Fornecedores',ordemcompra:'Ordem de Compra / Reposição',pontos:'Fidelidade — Programa de Pontos',segmentacao:'Segmentação de Clientes',trocas:'Trocas de Produtos',comparativo:'Comparativo Mensal',dre:'DRE — Demonstrativo de Resultado'};
@@ -2398,7 +2463,7 @@ function togglePermEditor(){
       dashboard:'Painel',venda:'Nova Venda',estoque:'Estoque',
       clientes:'Clientes',historico:'Vendas (histórico)',caixa:'Fechamento Caixa',
       ranking:'Ranking',vendedores:'Comissões',financeiro:'Financeiro',
-      relatorios:'Relatórios'
+      relatorios:'Relatórios',trocas:'Trocas',aniversariantes:'Aniversariantes'
     };
     const editU = editId ? db.usuarios.find(x=>x.id===editId) : null;
     const perms = editU?.permissoes || PERM_DEFAULTS.vendedor;
@@ -2439,12 +2504,21 @@ function salvarUser(){
   if(senha&&senha.length<4){notify('Mínimo 4 caracteres','warn');return;}
   if(db.usuarios.find(x=>x.username===username&&x.id!==editId)){notify('Usuário já existe','err');return;}
   const existente=editId?db.usuarios.find(x=>x.id===editId):null;
+  const role=document.getElementById('ur').value;
+  let permissoes=existente?.permissoes||null;
+  if(role==='vendedor'){
+    permissoes={};
+    document.querySelectorAll('#perm-checks input[data-perm]').forEach(el=>{
+      permissoes[el.dataset.perm]=el.checked?1:0;
+    });
+  }
   const obj={
     id:editId||null,nome,username,
-    senha:senha||existente?.senha||'',
-    role:document.getElementById('ur').value,
+    senha:senha||null,
+    role,
     ativo:document.getElementById('uativo').value==='true',
-    criado:existente?.criado||nowISO()
+    criado:existente?.criado||nowISO(),
+    permissoes
   };
   saveUsuario(obj).then(()=>{
     closeM('musr');renderUsers();notify(editId?'Atualizado!':'Usuário criado!');
@@ -2593,7 +2667,7 @@ async function loadAll(){
 
   // Testar cada tabela individualmente
   const tabelas = [
-    {nome:'usuarios',  url: SB_URL+'/rest/v1/usuarios?select=id,nome,username,senha,role,ativo,criado'},
+    {nome:'usuarios',  url: SB_URL+'/rest/v1/rpc/fn_list_usuarios', rpc:true},
     {nome:'produtos',  url: SB_URL+'/rest/v1/produtos?select=*'},
     {nome:'clientes',  url: SB_URL+'/rest/v1/clientes?select=*'},
     {nome:'vendas',    url: SB_URL+'/rest/v1/vendas?select=*&order=data.desc'},
@@ -2603,12 +2677,15 @@ async function loadAll(){
 
   await Promise.all(tabelas.map(async t=>{
     try{
-      const r = await fetch(t.url, {headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}});
+      const opts = t.rpc
+        ? {method:'POST',headers:sbH(),body:'{}'}
+        : {headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}};
+      const r = await fetch(t.url, opts);
       const txt = await r.text();
       if(r.ok){
         const data = JSON.parse(txt);
-        resultados[t.nome] = data;
-        console.log('OK '+t.nome+': '+data.length+' registros');
+        resultados[t.nome] = Array.isArray(data) ? data : (data || []);
+        console.log('OK '+t.nome+': '+(Array.isArray(data)?data.length:'loaded'));
       } else {
         erros.push(t.nome+': HTTP '+r.status+' — '+txt.slice(0,100));
         console.error('ERRO '+t.nome+': HTTP '+r.status, txt.slice(0,200));
@@ -2626,7 +2703,7 @@ async function loadAll(){
   const cl=resultados.clientes||[], vn=resultados.vendas||[];
   const mv=resultados.movimentos||[], cx=resultados.caixas||[];
 
-  if(us.length) db.usuarios=(us).map(r=>({id:r.id,nome:r.nome,username:r.username,senha:r.senha,role:r.role,ativo:r.ativo,criado:r.criado,permissoes:r.permissoes||null}));
+  if(us.length) db.usuarios=(us).map(r=>({id:r.id,nome:r.nome,username:r.username,role:r.role,ativo:r.ativo,criado:r.criado,permissoes:r.permissoes||null}));
   if(pr.length) db.produtos=(pr).map(r=>({id:r.id,cod:r.cod,nome:r.nome,marca:r.marca,cor:r.cor,custo:parseFloat(r.custo||0),preco:parseFloat(r.preco||0),min:r.min||2,obs:r.obs,grade:r.grade||[],qtd:r.qtd||0,tam:r.tam,foto:r.foto||null}));
   if(cl.length) db.clientes=(cl).map(r=>({id:r.id,nome:r.nome,cpf:r.cpf,nasc:r.nasc,whatsapp:r.whatsapp,email:r.email,end:r.endereco,obs:r.obs,criado:r.criado}));
   if(vn.length) db.vendas=(vn).map(r=>({id:r.id,data:r.data,clienteId:r.cliente_id,clienteNome:r.cliente_nome||'',pgto:r.pgto,recebido:parseFloat(r.recebido||0),troco:parseFloat(r.troco||0),modalidade:r.modalidade||'Presencial',itens:r.itens||[],subtotal:parseFloat(r.subtotal||0),desconto:parseFloat(r.desconto||0),total:parseFloat(r.total||0),vendedor:r.vendedor_nome,vendedorId:r.vendedor_id})).sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;});
