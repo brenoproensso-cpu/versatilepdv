@@ -546,8 +546,8 @@ let vendaCliNome='';
 // Dados padrão iniciais
 const DB_DEFAULT = {
   usuarios:[
-    {id:'u1',nome:'Administrador',username:'admin',senha:'1234',role:'admin',ativo:true,criado:new Date().toISOString()},
-    {id:'u2',nome:'Vendedor',username:'vendedor',senha:'1234',role:'vendedor',ativo:true,criado:new Date().toISOString()}
+    {id:'u1',nome:'Administrador',username:'admin',role:'admin',ativo:true,criado:new Date().toISOString()},
+    {id:'u2',nome:'Vendedor',username:'vendedor',role:'vendedor',ativo:true,criado:new Date().toISOString()}
   ],
   produtos:[],clientes:[],vendas:[],movimentos:[],caixas:[]
 };
@@ -615,12 +615,23 @@ async function saveCaixa(obj){
   const n=await sbPost('caixas',row);obj.id=n.id;db.caixas.unshift({...obj});saveLocal();
 }
 async function saveUsuario(obj){
-  const row={nome:obj.nome,username:obj.username,senha:obj.senha,role:obj.role,ativo:obj.ativo,permissoes:obj.permissoes||null};
-  if(obj.id&&db.usuarios.find(x=>x.id===obj.id)){await sbPatch('usuarios','id=eq.'+obj.id,row);const i=db.usuarios.findIndex(x=>x.id===obj.id);db.usuarios[i]={...obj};}
-  else{const n=await sbPost('usuarios',row);obj.id=n.id;db.usuarios.push({...obj,id:n.id});}
+  const body={p_nome:obj.nome,p_username:obj.username,p_role:obj.role,p_ativo:obj.ativo,p_permissoes:obj.permissoes||null};
+  if(obj.id) body.p_id=obj.id;
+  if(obj.senha) body.p_senha=obj.senha;
+  const r=await fetch(SB_URL+'/rest/v1/rpc/fn_save_usuario',{method:'POST',headers:sbH(),body:JSON.stringify(body)});
+  if(!r.ok){const e=await r.text();throw new Error('Erro ao salvar: '+e.slice(0,120));}
+  const res=await r.json();
+  if(!res.ok) throw new Error(res.msg||'Erro ao salvar usuário');
+  const safe={id:res.id||obj.id,nome:obj.nome,username:obj.username,role:obj.role,ativo:obj.ativo,criado:obj.criado||new Date().toISOString(),permissoes:obj.permissoes||null};
+  const i=db.usuarios.findIndex(x=>x.id===safe.id);
+  if(i>=0) db.usuarios[i]=safe; else db.usuarios.push(safe);
   saveLocal();
 }
-async function deleteUsuario(id){await sbDelete('usuarios','id=eq.'+id);db.usuarios=db.usuarios.filter(x=>x.id!==id);saveLocal();}
+async function deleteUsuario(id){
+  const r=await fetch(SB_URL+'/rest/v1/rpc/fn_delete_usuario',{method:'POST',headers:sbH(),body:JSON.stringify({p_id:id})});
+  if(!r.ok){const e=await r.text();throw new Error('Erro ao excluir: '+e.slice(0,120));}
+  db.usuarios=db.usuarios.filter(x=>x.id!==id);saveLocal();
+}
 // ============================================================
 // LOADING GLOBAL
 // ============================================================
@@ -732,12 +743,13 @@ async function doLogin(){
   if(btn){btn.textContent='Entrando...';btn.disabled=true;}
   try{
     showLoading(true,'Verificando acesso...');
-    const todos=await sbGet('usuarios','ativo=eq.true','');
+    const r=await fetch(SB_URL+'/rest/v1/rpc/fn_login',{method:'POST',headers:sbH(),body:JSON.stringify({p_username:u,p_senha:p})});
     showLoading(false);
-    if(!Array.isArray(todos)||!todos.length) throw new Error('Sem usuarios. Execute o SQL no Supabase.');
-    const user=todos.find(x=>x.username&&x.username.toLowerCase()===u&&x.senha===p);
-    if(!user){err.textContent='Usuario ou senha incorretos';err.style.color='var(--red)';err.classList.remove('hidden');if(btn){btn.textContent='Entrar';btn.disabled=false;}return;}
-    ses={usuario:{id:user.id,nome:user.nome,username:user.username,senha:user.senha,role:user.role,ativo:user.ativo,criado:user.criado}};
+    if(!r.ok) throw new Error('Falha na conexão (HTTP '+r.status+')');
+    const res=await r.json();
+    if(!res.ok){err.textContent='Usuário ou senha incorretos';err.style.color='var(--red)';err.classList.remove('hidden');if(btn){btn.textContent='Entrar';btn.disabled=false;}return;}
+    const user=res.usuario;
+    ses={usuario:{id:user.id,nome:user.nome,username:user.username,role:user.role,ativo:user.ativo,criado:user.criado,permissoes:user.permissoes||null}};
     await loadAll();
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
@@ -2502,7 +2514,7 @@ function salvarUser(){
   }
   const obj={
     id:editId||null,nome,username,
-    senha:senha||existente?.senha||'',
+    senha:senha||null,
     role,
     ativo:document.getElementById('uativo').value==='true',
     criado:existente?.criado||nowISO(),
@@ -2655,7 +2667,7 @@ async function loadAll(){
 
   // Testar cada tabela individualmente
   const tabelas = [
-    {nome:'usuarios',  url: SB_URL+'/rest/v1/usuarios?select=id,nome,username,senha,role,ativo,criado'},
+    {nome:'usuarios',  url: SB_URL+'/rest/v1/rpc/fn_list_usuarios', rpc:true},
     {nome:'produtos',  url: SB_URL+'/rest/v1/produtos?select=*'},
     {nome:'clientes',  url: SB_URL+'/rest/v1/clientes?select=*'},
     {nome:'vendas',    url: SB_URL+'/rest/v1/vendas?select=*&order=data.desc'},
@@ -2665,12 +2677,15 @@ async function loadAll(){
 
   await Promise.all(tabelas.map(async t=>{
     try{
-      const r = await fetch(t.url, {headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}});
+      const opts = t.rpc
+        ? {method:'POST',headers:sbH(),body:'{}'}
+        : {headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}};
+      const r = await fetch(t.url, opts);
       const txt = await r.text();
       if(r.ok){
         const data = JSON.parse(txt);
-        resultados[t.nome] = data;
-        console.log('OK '+t.nome+': '+data.length+' registros');
+        resultados[t.nome] = Array.isArray(data) ? data : (data || []);
+        console.log('OK '+t.nome+': '+(Array.isArray(data)?data.length:'loaded'));
       } else {
         erros.push(t.nome+': HTTP '+r.status+' — '+txt.slice(0,100));
         console.error('ERRO '+t.nome+': HTTP '+r.status, txt.slice(0,200));
@@ -2688,7 +2703,7 @@ async function loadAll(){
   const cl=resultados.clientes||[], vn=resultados.vendas||[];
   const mv=resultados.movimentos||[], cx=resultados.caixas||[];
 
-  if(us.length) db.usuarios=(us).map(r=>({id:r.id,nome:r.nome,username:r.username,senha:r.senha,role:r.role,ativo:r.ativo,criado:r.criado,permissoes:r.permissoes||null}));
+  if(us.length) db.usuarios=(us).map(r=>({id:r.id,nome:r.nome,username:r.username,role:r.role,ativo:r.ativo,criado:r.criado,permissoes:r.permissoes||null}));
   if(pr.length) db.produtos=(pr).map(r=>({id:r.id,cod:r.cod,nome:r.nome,marca:r.marca,cor:r.cor,custo:parseFloat(r.custo||0),preco:parseFloat(r.preco||0),min:r.min||2,obs:r.obs,grade:r.grade||[],qtd:r.qtd||0,tam:r.tam,foto:r.foto||null}));
   if(cl.length) db.clientes=(cl).map(r=>({id:r.id,nome:r.nome,cpf:r.cpf,nasc:r.nasc,whatsapp:r.whatsapp,email:r.email,end:r.endereco,obs:r.obs,criado:r.criado}));
   if(vn.length) db.vendas=(vn).map(r=>({id:r.id,data:r.data,clienteId:r.cliente_id,clienteNome:r.cliente_nome||'',pgto:r.pgto,recebido:parseFloat(r.recebido||0),troco:parseFloat(r.troco||0),modalidade:r.modalidade||'Presencial',itens:r.itens||[],subtotal:parseFloat(r.subtotal||0),desconto:parseFloat(r.desconto||0),total:parseFloat(r.total||0),vendedor:r.vendedor_nome,vendedorId:r.vendedor_id})).sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;});
