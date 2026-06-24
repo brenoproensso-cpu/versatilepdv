@@ -447,8 +447,8 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
 // MODO LOCAL — dados salvos no navegador (localStorage)
 // ============================================================
 const LOCAL_KEY = 'versatile_local_v1';
-const SB_URL  = 'COLE_SUA_URL_AQUI';       // Ex: https://xyzabc.supabase.co
-const SB_ANON = 'COLE_SUA_ANON_KEY_AQUI';  // Ex: eyJhbGci...
+const SB_URL  = 'https://tyzagtxfedfijushpgvx.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5emFndHhmZWRmaWp1c2hwZ3Z4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMzE2NTIsImV4cCI6MjA5NzkwNzY1Mn0.dkIKeGr65GZDmNPp07lO7rWUXQ0tB-vrxMG6a5d8noA';
 function sbH(x){return Object.assign({'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON,'Content-Type':'application/json'},x||{});}
 async function sbGet(t,f,o,s){
   s=s||'*';f=f||'';o=o||'';
