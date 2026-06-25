@@ -200,7 +200,7 @@ CREATE POLICY acesso_total_mensagens ON public.mensagens
 -- 4. FUNCOES RPC (SECURITY DEFINER)
 -- ============================================================
 
-CREATE OR REPLACE FUNCTION public.fn_login(p_username text, p_senha text)
+CREATE OR REPLACE FUNCTION public.fn_login(p_username text DEFAULT NULL, p_senha text DEFAULT NULL)
 RETURNS json
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -236,13 +236,13 @@ END;
 $$;
 
 CREATE OR REPLACE FUNCTION public.fn_save_usuario(
-  p_id uuid,
-  p_nome text,
-  p_username text,
-  p_senha text,
-  p_role text,
-  p_ativo boolean,
-  p_permissoes jsonb
+  p_id uuid DEFAULT NULL,
+  p_nome text DEFAULT NULL,
+  p_username text DEFAULT NULL,
+  p_senha text DEFAULT NULL,
+  p_role text DEFAULT 'vendedor',
+  p_ativo boolean DEFAULT true,
+  p_permissoes jsonb DEFAULT NULL
 )
 RETURNS json
 LANGUAGE plpgsql
@@ -288,7 +288,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.fn_delete_usuario(p_id uuid)
+CREATE OR REPLACE FUNCTION public.fn_delete_usuario(p_id uuid DEFAULT NULL)
 RETURNS json
 LANGUAGE plpgsql
 SECURITY DEFINER
