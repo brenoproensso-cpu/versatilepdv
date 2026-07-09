@@ -525,8 +525,8 @@ let db={usuarios:[],produtos:[],clientes:[],vendas:[],movimentos:[],caixas:[]};
 
 // Permissões padrão — admin pode alterar por usuário
 const PERM_DEFAULTS = {
-  admin:    {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:1,vendedores:1,financeiro:1,usuarios:1,recibos:1,relatorios:1,auditoria:1,lucratividade:1,aniversariantes:1,etiquetas:1,configuracoes:1,impressao:1,cupons:1,categorias:1,fornecedores:1,ordemcompra:1,pontos:1,segmentacao:1,comparativo:1,dre:1,trocas:1,cancelar_venda:1},
-  vendedor: {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:0,vendedores:0,financeiro:0,usuarios:0,recibos:0,relatorios:0,auditoria:0,lucratividade:0,aniversariantes:1,etiquetas:0,trocas:0,cancelar_venda:0}
+  admin:    {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:1,vendedores:1,financeiro:1,usuarios:1,recibos:1,relatorios:1,auditoria:1,lucratividade:1,aniversariantes:1,etiquetas:1,configuracoes:1,impressao:1,cupons:1,categorias:1,fornecedores:1,ordemcompra:1,pontos:1,segmentacao:1,comparativo:1,dre:1,trocas:1,cancelar_venda:1,nuvemshop:1},
+  vendedor: {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:0,vendedores:0,financeiro:0,usuarios:0,recibos:0,relatorios:0,auditoria:0,lucratividade:0,aniversariantes:1,etiquetas:0,trocas:0,cancelar_venda:0,nuvemshop:0}
 };
 function getPerms(usuario){
   if(!usuario) return {};
@@ -805,6 +805,7 @@ const NAV=[
   {id:'comparativo',ic:'📈',lb:'Comparativo Mensal',roles:['admin']},
   {id:'dre',ic:'💹',lb:'DRE',roles:['admin']},
   {id:'trocas',ic:'🔄',lb:'Trocas',roles:['admin','vendedor']},
+  {id:'nuvemshop',ic:'☁️',lb:'NuvemShop',roles:['admin']},
 ];
 // --- NAV REORDER com drag-and-drop ---
 function getNavOrder(){
@@ -853,10 +854,10 @@ function goTo(pg){
   document.getElementById('page').style.padding='';
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   const ni=document.getElementById('ni-'+pg);if(ni)ni.classList.add('active');
-  const titles={dashboard:'Painel',venda:'Nova Venda',estoque:'Estoque',clientes:'Clientes',historico:'Histórico de Vendas',caixa:'Fechamento de Caixa',ranking:'Ranking',vendedores:'Comissões por Vendedor',financeiro:'Financeiro',usuarios:'Usuários',recibos:'Config. Recibos',relatorios:'Relatórios',auditoria:'Auditoria — Movimentações',lucratividade:'Lucratividade Real',aniversariantes:'Aniversariantes do Mês',etiquetas:'Impressão de Etiquetas',configuracoes:'Configurações do Sistema',impressao:'Configurações de Impressão',cupons:'Cupons de Desconto',categorias:'Categorias de Produto',fornecedores:'Fornecedores',ordemcompra:'Ordem de Compra / Reposição',pontos:'Fidelidade — Programa de Pontos',segmentacao:'Segmentação de Clientes',trocas:'Trocas de Produtos',comparativo:'Comparativo Mensal',dre:'DRE — Demonstrativo de Resultado'};
+  const titles={dashboard:'Painel',venda:'Nova Venda',estoque:'Estoque',clientes:'Clientes',historico:'Histórico de Vendas',caixa:'Fechamento de Caixa',ranking:'Ranking',vendedores:'Comissões por Vendedor',financeiro:'Financeiro',usuarios:'Usuários',recibos:'Config. Recibos',relatorios:'Relatórios',auditoria:'Auditoria — Movimentações',lucratividade:'Lucratividade Real',aniversariantes:'Aniversariantes do Mês',etiquetas:'Impressão de Etiquetas',configuracoes:'Configurações do Sistema',impressao:'Configurações de Impressão',cupons:'Cupons de Desconto',categorias:'Categorias de Produto',fornecedores:'Fornecedores',ordemcompra:'Ordem de Compra / Reposição',pontos:'Fidelidade — Programa de Pontos',segmentacao:'Segmentação de Clientes',trocas:'Trocas de Produtos',comparativo:'Comparativo Mensal',dre:'DRE — Demonstrativo de Resultado',nuvemshop:'NuvemShop — Integração'};
   document.getElementById('tbar-title').textContent=titles[pg]||pg;
   document.getElementById('tbar-actions').innerHTML='<button class="btn" onclick="abrirModalMeta()">🎯 Definir Metas</button>';
-  ({dashboard:pgDashboard,venda:pgVenda,estoque:pgEstoque,clientes:pgClientes,historico:pgHistorico,caixa:pgCaixa,ranking:pgRanking,vendedores:pgVendedores,financeiro:pgFinanceiro,usuarios:pgUsuarios,recibos:pgRecibos,relatorios:pgRelatorios,auditoria:pgAuditoria,lucratividade:pgLucratividade,aniversariantes:pgAniversariantes,etiquetas:pgEtiquetas,configuracoes:pgConfiguracoes,impressao:renderCfgImpressao,cupons:pgCupons,categorias:pgCategorias,fornecedores:pgFornecedores,ordemcompra:pgOrdemCompra,pontos:pgPontos,segmentacao:pgSegmentacao,trocas:pgTrocas,comparativo:pgComparativo,dre:pgDRE})[pg]?.();
+  ({dashboard:pgDashboard,venda:pgVenda,estoque:pgEstoque,clientes:pgClientes,historico:pgHistorico,caixa:pgCaixa,ranking:pgRanking,vendedores:pgVendedores,financeiro:pgFinanceiro,usuarios:pgUsuarios,recibos:pgRecibos,relatorios:pgRelatorios,auditoria:pgAuditoria,lucratividade:pgLucratividade,aniversariantes:pgAniversariantes,etiquetas:pgEtiquetas,configuracoes:pgConfiguracoes,impressao:renderCfgImpressao,cupons:pgCupons,categorias:pgCategorias,fornecedores:pgFornecedores,ordemcompra:pgOrdemCompra,pontos:pgPontos,segmentacao:pgSegmentacao,trocas:pgTrocas,comparativo:pgComparativo,dre:pgDRE,nuvemshop:pgNuvemShop})[pg]?.();
 }
 
 // ============================================================
@@ -5097,6 +5098,312 @@ async function carregarTrocasSupabase(){
       }catch(e){}
     }
   }catch(e){ console.warn('Erro ao carregar trocas:',e.message); }
+}
+
+// ============================================================
+// NUVEMSHOP — Integração (protótipo DEV)
+// ============================================================
+function getNuvemShopCfg(){
+  try{return JSON.parse(localStorage.getItem('ns_cfg')||'{}');}catch(e){return {};}
+}
+function saveNuvemShopCfg(cfg){
+  localStorage.setItem('ns_cfg',JSON.stringify(cfg));
+}
+
+// Pedidos simulados NuvemShop para protótipo
+const NS_PEDIDOS_MOCK = [
+  {id:'NS-10041',data:'2026-07-09T10:23:00Z',cliente:'Fernanda Lima',total:199.90,pgto:'Cartão de Crédito',itens:[{nome:'Tênis Casual Preto',tam:'38',qtd:1,preco:199.90}],status:'pago',envio:'Pendente',rastreio:''},
+  {id:'NS-10040',data:'2026-07-08T17:45:00Z',cliente:'Carlos Souza',total:129.90,pgto:'PIX',itens:[{nome:'Sandália Rasteira',tam:'36',qtd:1,preco:129.90}],status:'pago',envio:'Enviado',rastreio:'BR123456789BR'},
+  {id:'NS-10039',data:'2026-07-08T09:12:00Z',cliente:'Mariana Costa',total:389.80,pgto:'Boleto',itens:[{nome:'Bota Feminina Cano Curto',tam:'37',qtd:1,preco:189.90},{nome:'Sandália Rasteira',tam:'35',qtd:1,preco:129.90},{nome:'Chinelo Slide',tam:'37',qtd:1,preco:59.90}],status:'aguardando_pagamento',envio:'—',rastreio:''},
+  {id:'NS-10038',data:'2026-07-07T14:30:00Z',cliente:'Roberto Alves',total:229.90,pgto:'Cartão de Crédito',itens:[{nome:'Sapatênis Masculino',tam:'41',qtd:1,preco:229.90}],status:'pago',envio:'Entregue',rastreio:'BR987654321BR'},
+  {id:'NS-10037',data:'2026-07-06T11:00:00Z',cliente:'Ana Paula',total:59.90,pgto:'PIX',itens:[{nome:'Chinelo Slide',tam:'38',qtd:1,preco:59.90}],status:'cancelado',envio:'—',rastreio:''},
+];
+
+// Produtos com estoque no PDV e NuvemShop (simulado)
+const NS_ESTOQUE_MOCK = [
+  {prodNome:'Tênis Casual Preto',pdv:15,ns:12,diverge:false},
+  {prodNome:'Sandália Rasteira',pdv:10,ns:8,diverge:true},
+  {prodNome:'Bota Feminina Cano Curto',pdv:8,ns:8,diverge:false},
+  {prodNome:'Chinelo Slide',pdv:20,ns:18,diverge:true},
+  {prodNome:'Sapatênis Masculino',pdv:12,ns:12,diverge:false},
+];
+
+function pgNuvemShop(){
+  if(!isAdmin()){notify('Acesso restrito','err');return;}
+  const cfg = getNuvemShopCfg();
+  const conectado = !!(cfg.token && cfg.storeUrl);
+  document.getElementById('tbar-actions').innerHTML = conectado
+    ? `<button class="btn primary" onclick="nsSincronizarAgora()">🔄 Sincronizar Agora</button>`
+    : '';
+
+  const statusBadge = conectado
+    ? `<span class="badge green" style="font-size:12px">● Conectado</span>`
+    : `<span class="badge" style="background:#3d2020;color:#f87171;border:1px solid #5a2020;font-size:12px">● Não conectado</span>`;
+
+  document.getElementById('page').innerHTML = `
+  <div class="tab-row mb-0" id="ns-tabs">
+    <button class="tab-btn active" onclick="nsTab('config')">⚙️ Configuração</button>
+    <button class="tab-btn" onclick="nsTab('pedidos')">📦 Pedidos Online</button>
+    <button class="tab-btn" onclick="nsTab('estoque')">🗄️ Estoque</button>
+    <button class="tab-btn" onclick="nsTab('envios')">🚚 Envios</button>
+  </div>
+
+  <!-- TAB CONFIG -->
+  <div id="ns-tab-config" class="ns-tab" style="margin-top:16px">
+    <div class="card mb-3" style="border-color:#3a3060">
+      <div class="flex" style="gap:12px;align-items:center;margin-bottom:16px">
+        <div style="background:linear-gradient(135deg,#5b21b6,#7c3aed);border-radius:10px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">☁️</div>
+        <div>
+          <div style="font-weight:700;font-size:15px">NuvemShop</div>
+          <div style="font-size:12px;color:var(--text3)">Integração com sua loja online</div>
+        </div>
+        ${statusBadge}
+      </div>
+      <div class="form-row col2">
+        <div class="form-group">
+          <label class="form-label">URL da Loja *</label>
+          <input class="form-control" id="ns-url" placeholder="https://sujaloja.nuvemshop.com.br" value="${cfg.storeUrl||''}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ID da Loja *</label>
+          <input class="form-control" id="ns-id" placeholder="123456" value="${cfg.storeId||''}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Token de Acesso (API) *</label>
+        <input class="form-control" id="ns-token" type="password" placeholder="Cole aqui o token gerado no painel da NuvemShop" value="${cfg.token||''}">
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">Encontre em: Painel NuvemShop → Meus aplicativos → Aplicativos criados → Token</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn primary" onclick="nsSalvarConfig()">💾 Salvar Configuração</button>
+        <button class="btn" onclick="nsTestarConexao()">🔌 Testar Conexão</button>
+        ${conectado?`<button class="btn danger" onclick="nsDesconectar()">Desconectar</button>`:''}
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="sec-title">📋 O que será sincronizado</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" ${cfg.syncEstoque?'checked':''} onchange="nsSaveCfgToggle('syncEstoque',this.checked)" style="accent-color:var(--accent)">
+            <span><strong>Estoque</strong> — baixar/subir automaticamente</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" ${cfg.syncPedidos?'checked':''} onchange="nsSaveCfgToggle('syncPedidos',this.checked)" style="accent-color:var(--accent)">
+            <span><strong>Pedidos</strong> — importar como vendas no PDV</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" ${cfg.syncAuto?'checked':''} onchange="nsSaveCfgToggle('syncAuto',this.checked)" style="accent-color:var(--accent)">
+            <span><strong>Sincronização automática</strong> — a cada 15 min</span>
+          </label>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec-title">📊 Última sincronização</div>
+        ${cfg.ultimaSync
+          ? `<div style="font-size:13px;color:var(--green);margin-bottom:6px">✅ ${cfg.ultimaSync}</div><div style="font-size:12px;color:var(--text3)">Próxima: automática em ${cfg.syncAuto?'~15 min':'—'}</div>`
+          : `<div style="font-size:13px;color:var(--text3)">Nenhuma sincronização realizada ainda.</div>`
+        }
+        <div style="margin-top:12px;padding:10px;background:var(--bg3);border-radius:var(--r);font-size:12px;color:var(--text3)">
+          ℹ️ A integração real requer uma função servidor (Edge Function) para contornar restrições de CORS da API NuvemShop. No protótipo, os dados abaixo são simulados.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB PEDIDOS -->
+  <div id="ns-tab-pedidos" class="ns-tab" style="display:none;margin-top:16px">
+    <div class="card mb-3" style="background:linear-gradient(135deg,rgba(91,33,182,.15),transparent);border-color:#3a3060">
+      <div class="flex" style="gap:16px;flex-wrap:wrap">
+        <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:#a78bfa">${NS_PEDIDOS_MOCK.length}</div><div style="font-size:11px;color:var(--text3)">Total pedidos</div></div>
+        <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--green)">${NS_PEDIDOS_MOCK.filter(p=>p.status==='pago').length}</div><div style="font-size:11px;color:var(--text3)">Pagos</div></div>
+        <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--gold)">${NS_PEDIDOS_MOCK.filter(p=>p.status==='aguardando_pagamento').length}</div><div style="font-size:11px;color:var(--text3)">Aguardando pgto</div></div>
+        <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--text2)">${NS_PEDIDOS_MOCK.filter(p=>p.status==='cancelado').length}</div><div style="font-size:11px;color:var(--text3)">Cancelados</div></div>
+        <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--accent)">${fmt(NS_PEDIDOS_MOCK.filter(p=>p.status==='pago').reduce((s,p)=>s+p.total,0))}</div><div style="font-size:11px;color:var(--text3)">Faturamento online</div></div>
+      </div>
+    </div>
+    <div class="table-wrap card">
+      <table>
+        <thead><tr><th>Pedido</th><th>Data</th><th>Cliente</th><th>Itens</th><th>Total</th><th>Pagamento</th><th>Status</th><th>Envio</th><th>Ação</th></tr></thead>
+        <tbody>
+          ${NS_PEDIDOS_MOCK.map(p=>{
+            const statusMap={pago:'<span class="badge green">Pago</span>',aguardando_pagamento:'<span class="badge" style="background:#3d3000;color:#fbbf24;border:1px solid #5a4700">Aguard. Pgto</span>',cancelado:'<span class="badge" style="background:#3d1020;color:#f87171;border:1px solid #5a1a2a">Cancelado</span>'};
+            const envioMap={Pendente:'<span class="badge" style="background:#1a1a3d;color:#818cf8;border:1px solid #2d2d6e">Pendente</span>',Enviado:'<span class="badge blue">Enviado</span>',Entregue:'<span class="badge green">Entregue</span>','—':'<span class="text-dim">—</span>'};
+            return `<tr>
+              <td><strong style="color:#a78bfa">${p.id}</strong></td>
+              <td class="text-xs text-dim">${fmtD(p.data)}</td>
+              <td>${p.cliente}</td>
+              <td class="text-xs text-dim">${p.itens.map(i=>i.qtd+'x '+i.nome+(i.tam?' nº'+i.tam:'')).join('<br>')}</td>
+              <td><strong class="text-gold">${fmt(p.total)}</strong></td>
+              <td class="text-xs">${p.pgto}</td>
+              <td>${statusMap[p.status]||p.status}</td>
+              <td>${envioMap[p.envio]||p.envio}</td>
+              <td>
+                <div class="flex gap-1">
+                  ${p.status==='pago'?`<button class="btn xs primary" onclick="nsImportarPedido('${p.id}')" title="Importar como venda no PDV">⬇️ Importar</button>`:''}
+                  ${p.status==='pago'&&p.envio==='Pendente'?`<button class="btn xs" onclick="nsGerarEnvio('${p.id}')" title="Gerar envio">🚚 Enviar</button>`:''}
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB ESTOQUE -->
+  <div id="ns-tab-estoque" class="ns-tab" style="display:none;margin-top:16px">
+    <div class="card mb-3" style="border-color:#3a3060">
+      <div class="flex" style="align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="sec-title" style="margin-bottom:4px">Espelho de Estoque — PDV ↔ NuvemShop</div>
+          <div style="font-size:12px;color:var(--text3)">Divergências precisam ser sincronizadas</div>
+        </div>
+        <button class="btn primary" onclick="nsSincronizarEstoque()">🔄 Sincronizar Estoque</button>
+      </div>
+    </div>
+    <div class="table-wrap card">
+      <table>
+        <thead><tr><th>Produto</th><th style="text-align:center">PDV</th><th style="text-align:center">NuvemShop</th><th style="text-align:center">Status</th><th>Ação</th></tr></thead>
+        <tbody>
+          ${NS_ESTOQUE_MOCK.map(e=>`<tr>
+            <td><strong>${e.prodNome}</strong></td>
+            <td style="text-align:center"><strong>${e.pdv}</strong></td>
+            <td style="text-align:center">${e.diverge?`<strong class="text-red">${e.ns}</strong>`:`<strong>${e.ns}</strong>`}</td>
+            <td style="text-align:center">
+              ${e.diverge
+                ? `<span class="badge" style="background:#3d2000;color:#fb923c;border:1px solid #5a3000">⚠️ Divergente</span>`
+                : `<span class="badge green">✓ Sincronizado</span>`}
+            </td>
+            <td>${e.diverge?`<button class="btn xs primary" onclick="nsSincronizarProduto('${e.prodNome}')">Sincronizar</button>`:''}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="card mt-3" style="background:rgba(91,33,182,.08);border-color:#3a3060">
+      <div style="font-size:13px;color:var(--text3)">
+        <strong style="color:var(--text2)">Como funciona na versão real:</strong><br><br>
+        • Ao concluir uma venda no PDV → o sistema chama a API NuvemShop e baixa o estoque do produto correspondente.<br>
+        • Ao receber um pedido NuvemShop → o webhook notifica o PDV e o estoque é baixado automaticamente.<br>
+        • A vinculação produto PDV ↔ NuvemShop é feita pelo <strong>código do produto (SKU)</strong>.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB ENVIOS -->
+  <div id="ns-tab-envios" class="ns-tab" style="display:none;margin-top:16px">
+    <div class="card mb-3" style="border-color:#3a3060">
+      <div class="sec-title">🚚 Pedidos para Enviar</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Pedidos pagos que aguardam despacho</div>
+      ${(()=>{
+        const pendentes = NS_PEDIDOS_MOCK.filter(p=>p.status==='pago'&&p.envio==='Pendente');
+        if(!pendentes.length) return '<div class="empty"><div class="ei">✅</div>Nenhum pedido pendente de envio</div>';
+        return pendentes.map(p=>`
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px">
+              <div style="font-weight:700;color:#a78bfa">${p.id}</div>
+              <div style="font-size:13px">${p.cliente}</div>
+              <div style="font-size:12px;color:var(--text3)">${p.itens.map(i=>i.qtd+'x '+i.nome).join(', ')}</div>
+            </div>
+            <strong class="text-gold">${fmt(p.total)}</strong>
+            <span class="badge" style="background:#1a1a3d;color:#818cf8;border:1px solid #2d2d6e">Aguard. envio</span>
+            <button class="btn xs primary" onclick="nsGerarEnvio('${p.id}')">🚚 Gerar Envio</button>
+          </div>
+        `).join('');
+      })()}
+    </div>
+    <div class="card">
+      <div class="sec-title">📍 Rastreamento</div>
+      ${NS_PEDIDOS_MOCK.filter(p=>p.rastreio).map(p=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
+          <strong style="color:#a78bfa;min-width:90px">${p.id}</strong>
+          <span style="flex:1;font-size:13px">${p.cliente}</span>
+          <code style="font-size:12px;background:var(--bg3);padding:3px 8px;border-radius:6px;border:1px solid var(--border)">${p.rastreio}</code>
+          <span class="badge ${p.envio==='Entregue'?'green':'blue'}">${p.envio}</span>
+          <button class="btn xs" onclick="nsRastrear('${p.rastreio}')">📍 Rastrear</button>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function nsTab(t){
+  document.querySelectorAll('.ns-tab').forEach(el=>el.style.display='none');
+  document.getElementById('ns-tab-'+t).style.display='';
+  document.querySelectorAll('#ns-tabs .tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', ['config','pedidos','estoque','envios'][i]===t);
+  });
+}
+function nsSalvarConfig(){
+  const cfg=getNuvemShopCfg();
+  cfg.storeUrl=document.getElementById('ns-url').value.trim();
+  cfg.storeId=document.getElementById('ns-id').value.trim();
+  cfg.token=document.getElementById('ns-token').value.trim();
+  if(!cfg.storeUrl||!cfg.storeId||!cfg.token){notify('Preencha todos os campos obrigatórios','err');return;}
+  saveNuvemShopCfg(cfg);
+  notify('Configuração salva!','ok');
+  pgNuvemShop();
+}
+function nsTestarConexao(){
+  const url=document.getElementById('ns-url').value.trim();
+  const token=document.getElementById('ns-token').value.trim();
+  if(!url||!token){notify('Preencha URL e Token antes de testar','err');return;}
+  notify('Simulando conexão...','info');
+  setTimeout(()=>{
+    const cfg=getNuvemShopCfg();
+    cfg.ultimaSync=new Date().toLocaleString('pt-BR');
+    saveNuvemShopCfg(cfg);
+    notify('✅ Conexão bem-sucedida! (simulado)','ok');
+    pgNuvemShop();
+  },1200);
+}
+function nsDesconectar(){
+  if(!confirm('Desconectar a integração NuvemShop?')) return;
+  localStorage.removeItem('ns_cfg');
+  notify('Integração desconectada','ok');
+  pgNuvemShop();
+}
+function nsSaveCfgToggle(key,val){
+  const cfg=getNuvemShopCfg();cfg[key]=val;saveNuvemShopCfg(cfg);
+  notify(val?'Opção ativada':'Opção desativada','ok');
+}
+function nsSincronizarAgora(){
+  notify('Sincronizando com NuvemShop...','info');
+  setTimeout(()=>{
+    const cfg=getNuvemShopCfg();
+    cfg.ultimaSync=new Date().toLocaleString('pt-BR');
+    saveNuvemShopCfg(cfg);
+    notify('✅ Sincronização concluída! (simulado)','ok');
+  },1800);
+}
+function nsSincronizarEstoque(){
+  notify('Sincronizando estoque...','info');
+  setTimeout(()=>{
+    NS_ESTOQUE_MOCK.forEach(e=>{ e.ns=e.pdv; e.diverge=false; });
+    notify('✅ Estoque sincronizado! (simulado)','ok');
+    nsTab('estoque');
+    pgNuvemShop();
+    nsTab('estoque');
+  },1500);
+}
+function nsSincronizarProduto(nome){
+  const p=NS_ESTOQUE_MOCK.find(e=>e.prodNome===nome);
+  if(p){p.ns=p.pdv;p.diverge=false;}
+  notify(`✅ ${nome} sincronizado! (simulado)`,'ok');
+  pgNuvemShop(); nsTab('estoque');
+}
+function nsImportarPedido(id){
+  notify(`Pedido ${id} importado como venda no PDV! (simulado)`,'ok');
+}
+function nsGerarEnvio(id){
+  const p=NS_PEDIDOS_MOCK.find(x=>x.id===id);
+  if(p){p.envio='Enviado';p.rastreio='BR'+Math.floor(Math.random()*900000000+100000000)+'BR';}
+  notify(`Envio gerado para pedido ${id}! (simulado)`,'ok');
+  pgNuvemShop(); nsTab('envios');
+}
+function nsRastrear(cod){
+  window.open('https://rastreamento.correios.com.br/app/index.php?codigo='+cod,'_blank');
 }
 
 // INIT
