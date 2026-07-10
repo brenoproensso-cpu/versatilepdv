@@ -530,8 +530,8 @@ let db={usuarios:[],produtos:[],clientes:[],vendas:[],movimentos:[],caixas:[]};
 
 // Permissões padrão — admin pode alterar por usuário
 const PERM_DEFAULTS = {
-  admin:    {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:1,vendedores:1,financeiro:1,usuarios:1,recibos:1,relatorios:1,auditoria:1,lucratividade:1,aniversariantes:1,etiquetas:1,configuracoes:1,impressao:1,cupons:1,categorias:1,fornecedores:1,ordemcompra:1,pontos:1,segmentacao:1,comparativo:1,dre:1,trocas:1},
-  vendedor: {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:0,vendedores:0,financeiro:0,usuarios:0,recibos:0,relatorios:0,auditoria:0,lucratividade:0,aniversariantes:1,etiquetas:0,trocas:0}
+  admin:    {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:1,vendedores:1,financeiro:1,usuarios:1,recibos:1,relatorios:1,auditoria:1,lucratividade:1,aniversariantes:1,etiquetas:1,configuracoes:1,impressao:1,cupons:1,categorias:1,fornecedores:1,ordemcompra:1,pontos:1,segmentacao:1,comparativo:1,dre:1,trocas:1,cancelar_venda:1},
+  vendedor: {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:0,vendedores:0,financeiro:0,usuarios:0,recibos:0,relatorios:0,auditoria:0,lucratividade:0,aniversariantes:1,etiquetas:0,trocas:0,cancelar_venda:0}
 };
 function getPerms(usuario){
   if(!usuario) return {};
@@ -2135,7 +2135,7 @@ function genLinhasHist(arr){
       <td class="text-red">${v.desconto?fmt(v.desconto):'—'}</td>
       <td><strong class="text-gold">${fmt(v.total)}</strong></td>
       <td>${chips}</td>
-      <td><div class="flex gap-1"><button class="btn xs" onclick="imprimirReciboById('${v.id}')">🖨 Recibo</button>${isAdmin()?`<button class="btn xs danger" onclick="excluirVenda('${v.id}')" title="Cancelar venda e devolver estoque">↩ Cancelar</button>`:''}</div></td>
+      <td><div class="flex gap-1"><button class="btn xs" onclick="imprimirReciboById('${v.id}')">🖨 Recibo</button>${(isAdmin()||temPerm('cancelar_venda'))?`<button class="btn xs danger" onclick="excluirVenda('${v.id}')" title="Cancelar venda e devolver estoque">↩ Cancelar</button>`:''}</div></td>
     </tr><tr class="h-exp-row"><td colspan="11"><div class="h-exp-inner" id="hexp-${v.id}"><div class="h-exp-content"><div class="h-exp-grid">${grid}</div></div></div></td></tr>`;
   }).join('');
 }
@@ -2150,7 +2150,7 @@ function togHist(id){
   row.classList.toggle('open',!isOpen);
 }
 async function excluirVenda(id){
-  if(!isAdmin()){notify('Apenas administradores podem cancelar vendas','err');return;}
+  if(!isAdmin()&&!temPerm('cancelar_venda')){notify('Você não tem permissão para cancelar vendas','err');return;}
   const v=db.vendas.find(x=>x.id===id);
   if(!v){notify('Venda não encontrada','err');return;}
 
@@ -2536,7 +2536,7 @@ function togglePermEditor(){
       dashboard:'Painel',venda:'Nova Venda',estoque:'Estoque',
       clientes:'Clientes',historico:'Vendas (histórico)',caixa:'Fechamento Caixa',
       ranking:'Ranking',vendedores:'Comissões',financeiro:'Financeiro',
-      relatorios:'Relatórios',trocas:'Trocas',aniversariantes:'Aniversariantes'
+      relatorios:'Relatórios',trocas:'Trocas',aniversariantes:'Aniversariantes',cancelar_venda:'Cancelar Vendas'
     };
     const editU = editId ? db.usuarios.find(x=>x.id===editId) : null;
     const perms = editU?.permissoes || PERM_DEFAULTS.vendedor;
