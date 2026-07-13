@@ -694,6 +694,14 @@ const fmtDs=iso=>{
   const d=_parseDt(iso);if(!d)return'—';
   return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'America/Araguaina'});
 };
+// Formata apenas a data (DD/MM/AAAA) extraindo direto do texto ISO, sem shift de fuso
+const fmtDia=iso=>{
+  if(!iso)return'—';
+  const m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m)return m[3]+'/'+m[2]+'/'+m[1];
+  const d=_parseDt(iso);
+  return d?d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'America/Araguaina'}):'—';
+};
 const uid=()=>'_'+Math.random().toString(36).substr(2,9);
 // Funções de data sempre no fuso local de Palmas/TO (America/Araguaina = UTC-3)
 const today=()=>{const d=new Date();return d.toLocaleDateString('pt-BR',{timeZone:'America/Araguaina'}).split('/').reverse().join('-');};
@@ -2449,7 +2457,7 @@ function renderFin(){
     <div class="table-wrap"><table>
       <thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th></th></tr></thead>
       <tbody>${[...db.movimentos].sort((a,b)=>b.data>a.data?1:-1).map(m=>`<tr>
-        <td class="text-dim text-xs">${m.data||'—'}</td>
+        <td class="text-dim text-xs">${fmtDia(m.data)}</td>
         <td><span class="badge ${m.tipo==='entrada'?'green':'red'}">${m.tipo==='entrada'?'↑ Entrada':'↓ Saída'}</span></td>
         <td>${m.desc}</td>
         <td class="${m.tipo==='entrada'?'text-green':'text-red'} font-bold">${m.tipo==='entrada'?'+':'-'}${fmt(m.val)}</td>
@@ -4703,12 +4711,12 @@ function verHistoricoEstoque(prodId){
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
       <div class="metric-card"><div class="metric-label">Estoque atual</div><div class="metric-val">${p.qtd} pares</div></div>
       <div class="metric-card"><div class="metric-label">Movimentações</div><div class="metric-val">${movs.length}</div></div>
-      <div class="metric-card"><div class="metric-label">Último ajuste</div><div class="metric-val text-sm">${movs[0]?movs[0].data:'—'}</div></div>
+      <div class="metric-card"><div class="metric-label">Último ajuste</div><div class="metric-val text-sm">${movs[0]?fmtDia(movs[0].data):'—'}</div></div>
     </div>
     ${movs.length?`<div class="table-wrap"><table>
       <thead><tr><th>Data/Hora</th><th>Tipo</th><th>Número</th><th>Qtd</th><th>Observação</th><th>Usuário</th></tr></thead>
       <tbody>${movs.map(m=>`<tr>
-        <td class="text-xs text-dim">${m.data} ${m.hora}</td>
+        <td class="text-xs text-dim">${fmtDia(m.data)} ${m.hora}</td>
         <td><span class="badge ${m.tipo.includes('ENTRADA')||m.tipo==='CONTAGEM'?'green':m.tipo==='AJUSTE'?'gray':'wine'}">${ICONS[m.tipo]||'•'} ${m.tipo.replace(/_/g,' ')}</span></td>
         <td>${m.tam?'Nº '+m.tam:'—'}</td>
         <td class="${m.qtd>0?'text-green':'text-red'} font-bold">${m.qtd>0?'+':''}${m.qtd}</td>
