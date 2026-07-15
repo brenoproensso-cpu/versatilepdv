@@ -456,6 +456,7 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
 <style>@keyframes devPulse{0%,100%{opacity:1}50%{opacity:.35}}</style>
 <div style="height:29px"></div>
 <svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true"><defs>
+<symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
 <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></symbol>
 <symbol id="i-bag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 8h13l-1 11.2a1.6 1.6 0 0 1-1.6 1.4H8.1a1.6 1.6 0 0 1-1.6-1.4z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
 <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 7.5L12 3 3.5 7.5v9L12 21l8.5-4.5z"/><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/></symbol>
@@ -553,7 +554,7 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
     </div>
     <nav id="snav" style="margin-top:4px;flex:1;overflow-y:auto"></nav>
     <div class="sidebar-bottom">
-      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Alternar tema">🌙</button>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Alternar tema"><svg class=ico><use href=#i-moon></use></svg></button>
       <button class="btn ghost flex-1" onclick="doLogout()" style="justify-content:center;font-size:12px">⎋ Sair</button>
     </div>
   </aside>
@@ -561,7 +562,7 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
   <main class="main">
     <div class="topbar">
-      <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+      <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu"><svg class=ico><use href=#i-menu></use></svg></button>
       <div class="topbar-title" id="tbar-title">Painel</div>
       <div class="flex gap-2" id="tbar-actions"></div>
     </div>
@@ -850,13 +851,13 @@ function closeSidebar(){
 function toggleTheme(){
   const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
   document.documentElement.setAttribute('data-theme',t);
-  document.getElementById('theme-btn').textContent=t==='dark'?'🌙':'☀️';
+  document.getElementById('theme-btn').innerHTML=t==='dark'?icon('moon'):icon('sun');
   localStorage.setItem('vtheme',t);
 }
 function initTheme(){
   const t=localStorage.getItem('vtheme')||'dark';
   document.documentElement.setAttribute('data-theme',t);
-  const tb=document.getElementById('theme-btn');if(tb)tb.textContent=t==='dark'?'🌙':'☀️';
+  const tb=document.getElementById('theme-btn');if(tb)tb.innerHTML=t==='dark'?icon('moon'):icon('sun');
 }
 
 // ============================================================
@@ -983,7 +984,7 @@ function goTo(pg){
   const ni=document.getElementById('ni-'+pg);if(ni)ni.classList.add('active');
   const titles={dashboard:'Painel',venda:'Nova Venda',estoque:'Estoque',clientes:'Clientes',historico:'Histórico de Vendas',caixa:'Fechamento de Caixa',ranking:'Ranking',vendedores:'Comissões por Vendedor',financeiro:'Financeiro',usuarios:'Usuários',recibos:'Config. Recibos',relatorios:'Relatórios',auditoria:'Auditoria — Movimentações',lucratividade:'Lucratividade Real',aniversariantes:'Aniversariantes do Mês',etiquetas:'Impressão de Etiquetas',configuracoes:'Configurações do Sistema',impressao:'Configurações de Impressão',cupons:'Cupons de Desconto',categorias:'Categorias de Produto',fornecedores:'Fornecedores',ordemcompra:'Ordem de Compra / Reposição',pontos:'Fidelidade — Programa de Pontos',segmentacao:'Segmentação de Clientes',trocas:'Trocas de Produtos',comparativo:'Comparativo Mensal',dre:'DRE — Demonstrativo de Resultado',nuvemshop:'NuvemShop — Integração'};
   document.getElementById('tbar-title').textContent=titles[pg]||pg;
-  document.getElementById('tbar-actions').innerHTML='<button class="btn" onclick="abrirModalMeta()">🎯 Definir Metas</button>';
+  document.getElementById('tbar-actions').innerHTML='<button class="btn" onclick="abrirModalMeta()"><svg class=ico><use href=#i-target></use></svg> Definir Metas</button>';
   ({dashboard:pgDashboard,venda:pgVenda,estoque:pgEstoque,clientes:pgClientes,historico:pgHistorico,caixa:pgCaixa,ranking:pgRanking,vendedores:pgVendedores,financeiro:pgFinanceiro,usuarios:pgUsuarios,recibos:pgRecibos,relatorios:pgRelatorios,auditoria:pgAuditoria,lucratividade:pgLucratividade,aniversariantes:pgAniversariantes,etiquetas:pgEtiquetas,configuracoes:pgConfiguracoes,impressao:renderCfgImpressao,cupons:pgCupons,categorias:pgCategorias,fornecedores:pgFornecedores,ordemcompra:pgOrdemCompra,pontos:pgPontos,segmentacao:pgSegmentacao,trocas:pgTrocas,comparativo:pgComparativo,dre:pgDRE,nuvemshop:pgNuvemShop})[pg]?.();
 }
 
@@ -1000,14 +1001,14 @@ function pgDashboard(){
   const ticket=vm.length?tm/vm.length:0;
   const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const ds=d.toISOString().slice(0,10);days.push({d:ds,v:db.vendas.filter(x=>x.data&&x.data.startsWith(ds)).reduce((s,x)=>s+x.total,0)});}
   const maxD=Math.max(...days.map(d=>d.v),1);
-  document.getElementById('tbar-actions').innerHTML='<button class="btn" onclick="abrirModalMeta()">🎯 Definir Metas</button>';
+  document.getElementById('tbar-actions').innerHTML='<button class="btn" onclick="abrirModalMeta()"><svg class=ico><use href=#i-target></use></svg> Definir Metas</button>';
   document.getElementById('page').innerHTML=`
   <div class="grid5 mb-4">
-    <div class="metric-card"><div class="mi">💵</div><div class="metric-label">Vendas Hoje</div><div class="metric-val text-green">${fmt(th)}</div><div class="metric-sub">${vh.length} venda(s)</div></div>
-    <div class="metric-card"><div class="mi">📅</div><div class="metric-label">Vendas no Mês</div><div class="metric-val text-wine">${fmt(tm)}</div><div class="metric-sub">${vm.length} venda(s)</div></div>
-    <div class="metric-card"><div class="mi">🎯</div><div class="metric-label">Ticket Médio</div><div class="metric-val text-gold">${fmt(ticket)}</div><div class="metric-sub">este mês</div></div>
-    <div class="metric-card"><div class="mi">📦</div><div class="metric-label">Total Estoque</div><div class="metric-val">${pares}</div><div class="metric-sub ${baixo>0?'text-red':'text-green'}">${baixo>0?baixo+' prod. c/ estoque baixo':'OK'}</div></div>
-    <div class="metric-card"><div class="mi">👤</div><div class="metric-label">Clientes</div><div class="metric-val text-blue">${db.clientes.length}</div><div class="metric-sub">cadastrados</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-cash></use></svg></div><div class="metric-label">Vendas Hoje</div><div class="metric-val text-green">${fmt(th)}</div><div class="metric-sub">${vh.length} venda(s)</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-cal></use></svg></div><div class="metric-label">Vendas no Mês</div><div class="metric-val text-wine">${fmt(tm)}</div><div class="metric-sub">${vm.length} venda(s)</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-target></use></svg></div><div class="metric-label">Ticket Médio</div><div class="metric-val text-gold">${fmt(ticket)}</div><div class="metric-sub">este mês</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-box></use></svg></div><div class="metric-label">Total Estoque</div><div class="metric-val">${pares}</div><div class="metric-sub ${baixo>0?'text-red':'text-green'}">${baixo>0?baixo+' prod. c/ estoque baixo':'OK'}</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-user></use></svg></div><div class="metric-label">Clientes</div><div class="metric-val text-blue">${db.clientes.length}</div><div class="metric-sub">cadastrados</div></div>
   </div>
   ${renderMetasVendedorPanel()}
   ${(()=>{
@@ -1022,12 +1023,12 @@ function pgDashboard(){
       return parseInt(p[1])===new Date().getMonth()+1&&parseInt(p[2])===new Date().getDate();
     });
     return (hasAny?`<div class="card mb-4">
-      <div class="sec-title">🎯 Progresso das Metas</div>
+      <div class="sec-title"><svg class=ico><use href=#i-target></use></svg> Progresso das Metas</div>
       ${barMeta(th,m.dia,'Meta Diária')}
       ${barMeta(tsem,m.semana,'Meta Semanal')}
       ${barMeta(tm,m.mes,'Meta Mensal')}
     </div>`:'')+(anivHoje.length?`<div class="card mb-4" style="border-color:var(--accent);background:var(--accentdim,#1a1a2e)">
-      <div class="sec-title">🎂 Aniversariante(s) HOJE!</div>
+      <div class="sec-title"><svg class=ico><use href=#i-gift></use></svg> Aniversariante(s) HOJE!</div>
       ${anivHoje.map(c=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0">
         <strong>${c.nome}</strong>
         ${c.whatsapp?`<a href="https://wa.me/55${c.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Olá '+c.nome+'! 🎂 Feliz aniversário! A Versatile tem um presente especial para você 🥳')}" target="_blank" class="btn xs primary">💬 Parabenizar</a>`:''}
@@ -1035,19 +1036,19 @@ function pgDashboard(){
     </div>`:'');
   })()}
   <div class="grid2">
-    <div class="card"><div class="sec-title">📈 Últimos 7 dias</div>
+    <div class="card"><div class="sec-title"><svg class=ico><use href=#i-trending></use></svg> Últimos 7 dias</div>
       <div class="sparkline">${days.map(d=>`<div class="spk" style="height:${Math.max(8,Math.round((d.v/maxD)*100))}%" title="${fmtDs(d.d)}: ${fmt(d.v)}"></div>`).join('')}</div>
       <div class="flex justify-between mt-2"><span class="text-xs text-dim">${fmtDs(days[0].d)}</span><span class="text-xs text-dim">${fmtDs(days[6].d)}</span></div>
     </div>
-    <div class="card"><div class="sec-title">🔥 Top Produtos (mês)</div>
+    <div class="card"><div class="sec-title"><svg class=ico><use href=#i-flame></use></svg> Top Produtos (mês)</div>
       ${rankProds('mes').slice(0,5).map((r,i)=>`<div class="rank-row"><div class="rank-n">${i+1}</div><div class="rank-bar-w"><div class="rank-lbl truncate">${r.nome}</div><div class="rank-bar-bg"><div class="rank-bar-f" style="width:${r.pct}%"></div></div></div><div class="rank-tot">${r.qtd}p</div></div>`).join('')||'<div class="empty"><p>Sem vendas ainda</p></div>'}
     </div>
   </div>
   <div class="grid2 mt-4">
-    <div class="card"><div class="sec-title">🧾 Vendas Recentes</div>
+    <div class="card"><div class="sec-title"><svg class=ico><use href=#i-receipt></use></svg> Vendas Recentes</div>
       ${[...db.vendas].sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;}).slice(0,6).map(v=>`<div class="flex justify-between items-center" style="padding:7px 0;border-bottom:1px solid var(--border)"><div><div class="font-med" style="font-size:13px">#${v.id} ${v.clienteNome||'<span class="text-dim">Sem cadastro</span>'}</div><div class="text-xs text-dim">${fmtD(v.data)} · ${v.pgto} · ${v.modalidade||'Presencial'}</div></div><div class="font-bold text-gold">${fmt(v.total)}</div></div>`).join('')||'<div class="empty"><p>Sem vendas</p></div>'}
     </div>
-    <div class="card"><div class="sec-title">⚠️ Estoque Baixo</div>
+    <div class="card"><div class="sec-title"><svg class=ico><use href=#i-alert></use></svg> Estoque Baixo</div>
       ${db.produtos.filter(p=>(p.qtd||0)<=(p.min||2)).map(p=>`<div class="flex justify-between items-center" style="padding:7px 0;border-bottom:1px solid var(--border)"><div><div class="font-med" style="font-size:13px">${p.nome}${p.tam?' T'+p.tam:''}</div><div class="text-xs text-dim">${p.marca||''}</div></div><span class="badge ${p.qtd===0?'red':'amber'}">${p.qtd===0?'Esgotado':p.qtd+' rest.'}</span></div>`).join('')||'<div class="empty" style="padding:14px"><p>Estoque OK ✓</p></div>'}
     </div>
   </div>`;
@@ -1082,7 +1083,7 @@ let gpCustom=[];
 
 function pgEstoque(){
   if(temPerm('estoque')){
-    document.getElementById('tbar-actions').innerHTML='<button class="btn" style="margin-right:6px" onclick="openImportModal()">📥 Importar Excel/CSV</button><button class="btn primary" onclick="openProdModal()">+ Novo Produto</button>';
+    document.getElementById('tbar-actions').innerHTML='<button class="btn" style="margin-right:6px" onclick="openImportModal()"><svg class=ico><use href=#i-download></use></svg> Importar Excel/CSV</button><button class="btn primary" onclick="openProdModal()">+ Novo Produto</button>';
   } else {
     document.getElementById('tbar-actions').innerHTML='';
   }
@@ -1091,7 +1092,7 @@ function pgEstoque(){
   const thAdmin=isAdmin()?'<th>Custo</th><th>Margem</th>':'';
   const thAcoes=admin?'<th></th>':'';
   document.getElementById('page').innerHTML=
-    '<div class="card mb-3"><div class="srch"><span class="srch-ic">🔍</span>'+
+    '<div class="card mb-3"><div class="srch"><span class="srch-ic"><svg class=ico><use href=#i-search></use></svg></span>'+
     '<input class="form-control" id="estoque-busca" placeholder="Buscar produto, marca, cor..." style="font-size:14px;height:42px;padding-left:36px" autofocus></div></div>'+
     (!admin?'<div style="padding:8px 14px;background:var(--bluedim);border:1px solid var(--blue);border-radius:var(--r);margin-bottom:12px;font-size:12px;color:var(--blue)">Modo visualização. Apenas administradores podem cadastrar ou editar produtos.</div>':'')+
     '<div class="card"><div class="table-wrap"><table>'+
@@ -1154,7 +1155,7 @@ function pgEstoque(){
           </div>
           <div class="modal-footer">
             <button class="btn" onclick="closeM('mprod')">Cancelar</button>
-            <button class="btn primary" onclick="salvarProd()">💾 Salvar Produto</button>
+            <button class="btn primary" onclick="salvarProd()"><svg class=ico><use href=#i-save></use></svg> Salvar Produto</button>
           </div>
         </div>
       </div>`;
@@ -1189,8 +1190,8 @@ function filterEstoque(q){
         }).join('')
       : (p.tam||'—');
     const tdAdmin=admin?'<td class="text-dim">'+(p.custo?fmt(p.custo):'—')+'</td><td>'+(margem!==null?'<span class="badge '+(margem>=30?'green':margem>=15?'amber':'red')+'">'+margem+'%</span>':'—')+'</td>':'';
-    const canEdit=temPerm('estoque');const tdAcoes=canEdit?('<td><div class="flex gap-2"><button class="btn xs" onclick="verHistoricoEstoque(&apos;'+p.id+'&apos;)">📋</button><button class="btn xs" onclick="abrirAjusteEstoque(&apos;'+p.id+'&apos;)">±</button><button class="btn xs" onclick="openProdModal(&apos;'+p.id+'&apos;)">✏️</button>'+( isAdmin()?'<button class="btn xs danger" onclick="delProd(&apos;'+p.id+'&apos;)">🗑</button>':'' )+'</div></td>'):'<td></td>';
-    const fotoHtml=p.foto?'<img src="'+p.foto+'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0">':'<div style="width:36px;height:36px;background:var(--bg4);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">👟</div>';
+    const canEdit=temPerm('estoque');const tdAcoes=canEdit?('<td><div class="flex gap-2"><button class="btn xs" onclick="verHistoricoEstoque(&apos;'+p.id+'&apos;)"><svg class=ico><use href=#i-clipboard></use></svg></button><button class="btn xs" onclick="abrirAjusteEstoque(&apos;'+p.id+'&apos;)">±</button><button class="btn xs" onclick="openProdModal(&apos;'+p.id+'&apos;)"><svg class=ico><use href=#i-edit></use></svg></button>'+( isAdmin()?'<button class="btn xs danger" onclick="delProd(&apos;'+p.id+'&apos;)"><svg class=ico><use href=#i-trash></use></svg></button>':'' )+'</div></td>'):'<td></td>';
+    const fotoHtml=p.foto?'<img src="'+p.foto+'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0">':'<div style="width:36px;height:36px;background:var(--bg4);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0"><svg class=ico><use href=#i-bag></use></svg></div>';
     return'<tr>'+
       '<td class="text-xs text-dim">'+(p.cod||'—')+'</td>'+
       '<td><div style="display:flex;align-items:center;gap:8px">'+fotoHtml+'<div><div class="td-name">'+p.nome+'</div><div style="font-size:11px;color:var(--text3)">'+(p.obs||'')+'</div></div></div></td>'+
@@ -1202,7 +1203,7 @@ function filterEstoque(q){
       '<td><span class="badge '+st+'">'+lab+'</span></td>'+
       tdAcoes+
       '</tr>';
-  }).join('')||(function(){return'<tr><td colspan="'+colSpan+'"><div class="empty"><div class="ei">📦</div><p>Nenhum produto</p></div></td></tr>';}());
+  }).join('')||(function(){return'<tr><td colspan="'+colSpan+'"><div class="empty"><div class="ei"><svg class=ico><use href=#i-box></use></svg></div><p>Nenhum produto</p></div></td></tr>';}());
 }
 
 function calcMarkup(){
@@ -1322,7 +1323,7 @@ function pgClientes(){
 function renderClientes(q=''){
   const fil=db.clientes.filter(c=>!q||[c.nome,c.cpf,c.email,c.whatsapp].join(' ').toLowerCase().includes(q.toLowerCase()));
   document.getElementById('page').innerHTML=`
-  <div class="card mb-3"><div class="srch"><span class="srch-ic">🔍</span><input class="form-control" placeholder="Buscar por nome, CPF, e-mail..." onkeyup="renderClientes(this.value)" value="${q}"></div></div>
+  <div class="card mb-3"><div class="srch"><span class="srch-ic"><svg class=ico><use href=#i-search></use></svg></span><input class="form-control" placeholder="Buscar por nome, CPF, e-mail..." onkeyup="renderClientes(this.value)" value="${q}"></div></div>
   <div class="card"><div class="table-wrap"><table>
     <thead><tr><th>Nome</th><th>CPF</th><th>Nasc.</th><th>WhatsApp</th><th>E-mail</th><th>Cadastro</th><th></th></tr></thead>
     <tbody>${fil.map(c=>`<tr>
@@ -1332,8 +1333,8 @@ function renderClientes(q=''){
       <td>${c.whatsapp?`<a href="https://wa.me/55${c.whatsapp.replace(/\D/g,'')}" target="_blank" style="color:var(--accent2)">${c.whatsapp}</a>`:'—'}</td>
       <td class="text-dim">${c.email||'—'}</td>
       <td class="text-xs text-dim">${fmtDs(c.criado)}</td>
-      <td><div class="flex gap-2"><button class="btn xs" onclick="openCliModal('${c.id}')">✏️</button><button class="btn xs danger" onclick="delCli('${c.id}')">🗑</button></div></td>
-    </tr>`).join('')||`<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><p>Nenhum cliente</p></div></td></tr>`}
+      <td><div class="flex gap-2"><button class="btn xs" onclick="openCliModal('${c.id}')"><svg class=ico><use href=#i-edit></use></svg></button><button class="btn xs danger" onclick="delCli('${c.id}')"><svg class=ico><use href=#i-trash></use></svg></button></div></td>
+    </tr>`).join('')||`<tr><td colspan="7"><div class="empty"><div class="ei"><svg class=ico><use href=#i-users></use></svg></div><p>Nenhum cliente</p></div></td></tr>`}
     </tbody>
   </table></div></div>
 
@@ -1350,7 +1351,7 @@ function renderClientes(q=''){
         <div class="form-group"><label class="form-label">E-mail</label><input class="form-control" id="cem" type="email" placeholder="email@exemplo.com"></div>
       </div>
       <div class="form-group"><label class="form-label">Endereço</label><input class="form-control" id="cend" placeholder="Rua, número, bairro..."></div>
-      <div class="modal-footer"><button class="btn" onclick="closeM('mcli')">Cancelar</button><button class="btn primary" onclick="salvarCli()">💾 Salvar</button></div>
+      <div class="modal-footer"><button class="btn" onclick="closeM('mcli')">Cancelar</button><button class="btn primary" onclick="salvarCli()"><svg class=ico><use href=#i-save></use></svg> Salvar</button></div>
     </div>
   </div>`;
 }
@@ -1389,13 +1390,13 @@ function pgVenda(){
       <!-- BARRA DE BUSCA + MODALIDADE -->
       <div style="padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center">
         <div class="srch" style="flex:1">
-          <span class="srch-ic">🔍</span>
+          <span class="srch-ic"><svg class=ico><use href=#i-search></use></svg></span>
           <input class="form-control" id="vs" placeholder="Buscar produto ou número..." oninput="debounceSearch(this.value)"
             style="font-size:14px;height:40px;padding-left:36px" autofocus>
         </div>
         <select class="form-control" id="v-modal" style="width:150px;height:40px;font-size:13px">
-          <option value="Presencial">🏪 Presencial</option>
-          <option value="Online">💻 Online</option>
+          <option value="Presencial">Presencial</option>
+          <option value="Online">Online</option>
         </select>
       </div>
 
@@ -1416,15 +1417,15 @@ function pgVenda(){
           <div>
             <label class="form-label">Pagamento</label>
             <select class="form-control" id="vpgto" onchange="onPgChange()" style="height:36px;font-size:13px">
-              <option value="Dinheiro">💵 Dinheiro</option>
-              <option value="PIX">📲 PIX</option>
-              <option value="Débito">💳 Débito</option>
-              <option value="Crédito">💳 Crédito</option>
-              <option value="Link de Pagamento">🔗 Link de Pagamento</option>
-              <option value="Boleto">📄 Boleto</option>
-              <option value="Transferência">🏦 Transferência</option>
-              <option value="Cheque">📝 Cheque</option>
-              <option value="Voucher">🎫 Voucher</option>
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="PIX">PIX</option>
+              <option value="Débito">Débito</option>
+              <option value="Crédito">Crédito</option>
+              <option value="Link de Pagamento">Link de Pagamento</option>
+              <option value="Boleto">Boleto</option>
+              <option value="Transferência">Transferência</option>
+              <option value="Cheque">Cheque</option>
+              <option value="Voucher">Voucher</option>
             </select>
           </div>
         </div>
@@ -1445,7 +1446,7 @@ function pgVenda(){
         <div style="margin-top:10px">
           <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);cursor:pointer">
             <input type="checkbox" id="usar-retroativa" onchange="toggleVendaRetroativa()" style="accent-color:var(--accent)">
-            🕐 Lançar venda retroativa (data antiga)
+            <svg class=ico><use href=#i-clock></use></svg> Lançar venda retroativa (data antiga)
           </label>
           <div id="retroativa-wrap" style="display:none;margin-top:8px;padding:10px;background:var(--bg3);border:1px solid var(--gold);border-radius:var(--r)">
             <div class="form-group">
@@ -1470,12 +1471,12 @@ function pgVenda(){
     <div style="display:flex;flex-direction:column;background:var(--bg2)">
       <!-- Header carrinho -->
       <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-        <span style="font-family:Arial;font-size:16px;font-weight:700">🛒 Carrinho</span>
+        <span style="font-family:Arial;font-size:16px;font-weight:700"><svg class=ico><use href=#i-bag></use></svg> Carrinho</span>
         <button class="btn xs danger" onclick="limpaCart()">Limpar</button>
       </div>
       <!-- Itens -->
       <div id="cbody" style="flex:1;overflow-y:auto;padding:8px">
-        <div class="empty"><div class="ei">🛒</div><p>Adicione produtos</p></div>
+        <div class="empty"><div class="ei"><svg class=ico><use href=#i-bag></use></svg></div><p>Adicione produtos</p></div>
       </div>
       <!-- Totais -->
       <div style="padding:14px 16px;border-top:1px solid var(--border);background:var(--bg3)">
@@ -1490,7 +1491,7 @@ function pgVenda(){
         </div>
         <button class="btn primary w-full" onclick="finalizarVenda()"
           style="justify-content:center;padding:13px;font-size:16px;font-weight:700;margin-top:8px;letter-spacing:.5px">
-          ✅ FINALIZAR VENDA
+          <svg class=ico><use href=#i-check></use></svg> FINALIZAR VENDA
         </button>
       </div>
     </div>
@@ -1518,7 +1519,7 @@ function renderPCards(q=''){
       <div class="pc-price">${fmt(c.preco)}</div>
       ${c.marca?'<span style="font-size:10px;color:var(--text3)">'+c.marca+'</span>':''}
     </div>
-  </div>`).join('')||'<div class="empty w-full" style="grid-column:1/-1"><div class="ei">📦</div><p>Nenhum produto disponível</p></div>';
+  </div>`).join('')||'<div class="empty w-full" style="grid-column:1/-1"><div class="ei"><svg class=ico><use href=#i-box></use></svg></div><p>Nenhum produto disponível</p></div>';
 }
 function buscaCli(q){
   const r=document.getElementById('vcr');if(!q){r.style.display='none';return;}
@@ -1541,7 +1542,7 @@ function addCart(pid,tam){
 }
 function renderCart(){
   const el=document.getElementById('cbody');if(!el)return;
-  if(!cart.length){el.innerHTML='<div class="empty"><div class="ei">🛒</div><p>Carrinho vazio</p></div>';calcTot();return;}
+  if(!cart.length){el.innerHTML='<div class="empty"><div class="ei"><svg class=ico><use href=#i-bag></use></svg></div><p>Carrinho vazio</p></div>';calcTot();return;}
   el.innerHTML=cart.map((ci,i)=>`<div class="cart-item">
     <div class="ci-info">
       <div class="ci-name">${ci.nome}</div>
@@ -1988,11 +1989,11 @@ function exibirModalRecibo(v){
   <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r3);width:100%;max-width:980px;max-height:96vh;display:flex;flex-direction:column;overflow:hidden;margin:auto">
     <!-- HEADER -->
     <div style="padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg3);flex-shrink:0">
-      <div style="font-family:var(--font-head);font-size:17px;font-weight:600">✏️ Editor de Recibo — #${v.id}</div>
+      <div style="font-family:var(--font-head);font-size:17px;font-weight:600"><svg class=ico><use href=#i-edit></use></svg> Editor de Recibo — #${v.id}</div>
       <div class="flex gap-2">
-        <button class="btn sm primary" onclick="imprimirRecibo()">🖨 Imprimir</button>
-        <button class="btn sm email ${hasEmail?'':'ghost'}" onclick="enviarEmail('${v.id}')">✉️ E-mail${hasEmail?' ('+cli.email.split('@')[0]+'...)':''}</button>
-        <button class="btn sm whats ${hasWA?'':'ghost'}" onclick="enviarWhatsApp('${v.id}')">💬 WhatsApp${hasWA?' ('+cli.whatsapp+')':''}</button>
+        <button class="btn sm primary" onclick="imprimirRecibo()"><svg class=ico><use href=#i-printer></use></svg> Imprimir</button>
+        <button class="btn sm email ${hasEmail?'':'ghost'}" onclick="enviarEmail('${v.id}')"><svg class=ico><use href=#i-chat></use></svg> E-mail${hasEmail?' ('+cli.email.split('@')[0]+'...)':''}</button>
+        <button class="btn sm whats ${hasWA?'':'ghost'}" onclick="enviarWhatsApp('${v.id}')"><svg class=ico><use href=#i-chat></use></svg> WhatsApp${hasWA?' ('+cli.whatsapp+')':''}</button>
         <button class="modal-close" onclick="fecharRecibo()">×</button>
       </div>
     </div>
@@ -2001,29 +2002,29 @@ function exibirModalRecibo(v){
       <!-- ESQUERDA: EDITOR -->
       <div class="recibo-editor-side left" style="overflow-y:auto">
         <div class="editor-scroll">
-          <div class="editor-section-title">🏪 Cabeçalho da Loja</div>
+          <div class="editor-section-title"><svg class=ico><use href=#i-store></use></svg> Cabeçalho da Loja</div>
           <div class="editor-field"><label>Nome da Loja</label><input id="re-nomeLoja" value="${data.nomeLoja}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Subtítulo</label><input id="re-subLoja" value="${data.subLoja}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Endereço</label><input id="re-endereco" value="${data.endereco}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>CNPJ / Telefone</label><input id="re-cnpjTel" value="${data.cnpjTel}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
 
-          <div class="editor-section-title" style="margin-top:14px">🧾 Dados da Venda</div>
+          <div class="editor-section-title" style="margin-top:14px"><svg class=ico><use href=#i-receipt></use></svg> Dados da Venda</div>
           <div class="editor-field"><label>Nº do Recibo</label><input id="re-vendaNum" value="${data.vendaNum}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Data / Hora</label><input id="re-dataHora" value="${data.dataHora}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Modalidade</label><input id="re-modalidade" value="${data.modalidade}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
 
-          <div class="editor-section-title" style="margin-top:14px">👤 Cliente</div>
+          <div class="editor-section-title" style="margin-top:14px"><svg class=ico><use href=#i-user></use></svg> Cliente</div>
           <div class="editor-field"><label>Nome do Cliente</label><input id="re-clienteNome" value="${data.clienteNome}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>CPF</label><input id="re-cpf" value="${data.cpf}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>WhatsApp</label><input id="re-whatsapp" value="${data.whatsapp}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>E-mail</label><input id="re-email" value="${data.email}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Vendedor</label><input id="re-vendedor" value="${data.vendedor}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
 
-          <div class="editor-section-title" style="margin-top:14px">📦 Itens</div>
+          <div class="editor-section-title" style="margin-top:14px"><svg class=ico><use href=#i-box></use></svg> Itens</div>
           <div id="itens-editor">${itensEditor}</div>
           <button class="btn xs" style="margin-top:6px" onclick="adicionarItemRecibo()">+ Adicionar item</button>
 
-          <div class="editor-section-title" style="margin-top:14px">💰 Valores</div>
+          <div class="editor-section-title" style="margin-top:14px"><svg class=ico><use href=#i-wallet></use></svg> Valores</div>
           <div class="editor-field"><label>Subtotal</label><input id="re-subtotal" value="${data.subtotal}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Desconto</label><input id="re-desconto" value="${data.desconto}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>TOTAL</label><input id="re-total" value="${data.total}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
@@ -2031,10 +2032,10 @@ function exibirModalRecibo(v){
           <div class="editor-field"><label>Valor Recebido</label><input id="re-recebido" value="${data.recebido}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Troco</label><input id="re-troco" value="${data.troco}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
 
-          <div class="editor-section-title" style="margin-top:14px">📝 Informações Extras</div>
+          <div class="editor-section-title" style="margin-top:14px"><svg class=ico><use href=#i-edit></use></svg> Informações Extras</div>
           <div class="editor-field"><label>Observações / Informações adicionais</label><textarea id="re-obsExtra" rows="3" placeholder="Ex: Produto sujeito a troca em até 7 dias com nota fiscal..." oninput="atualizarPreviewRecibo(currentReciboVenda)">${data.obsExtra}</textarea></div>
 
-          <div class="editor-section-title" style="margin-top:14px">🏁 Rodapé</div>
+          <div class="editor-section-title" style="margin-top:14px"><svg class=ico><use href=#i-document></use></svg> Rodapé</div>
           <div class="editor-field"><label>Linha 1</label><input id="re-rodape1" value="${data.rodape1}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Linha 2</label><input id="re-rodape2" value="${data.rodape2}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
 
@@ -2159,7 +2160,7 @@ function pgHistorico(){
   document.getElementById('tbar-actions').innerHTML='';
   document.getElementById('page').innerHTML=`
   <div class="card mb-3"><div class="flex gap-3 items-center flex-wrap">
-    <div class="flex-1 srch"><span class="srch-ic">🔍</span><input class="form-control" placeholder="Buscar nº, cliente, vendedor..." id="hs" oninput="debounceFiltHist()"></div>
+    <div class="flex-1 srch"><span class="srch-ic"><svg class=ico><use href=#i-search></use></svg></span><input class="form-control" placeholder="Buscar nº, cliente, vendedor..." id="hs" oninput="debounceFiltHist()"></div>
     <div class="flex gap-2 items-center">
       <input class="form-control" type="date" id="hi" style="width:135px" onchange="filtHist()">
       <span class="text-dim">até</span>
@@ -2172,7 +2173,7 @@ function pgHistorico(){
   </table></div></div>`;
 }
 function genLinhasHist(arr){
-  if(!arr.length)return`<tr><td colspan="11"><div class="empty"><div class="ei">🧾</div><p>Sem vendas</p></div></td></tr>`;
+  if(!arr.length)return`<tr><td colspan="11"><div class="empty"><div class="ei"><svg class=ico><use href=#i-receipt></use></svg></div><p>Sem vendas</p></div></td></tr>`;
   return arr.map(v=>{
     const its=v.itens||[];
     const MAX=2;
@@ -2192,7 +2193,7 @@ function genLinhasHist(arr){
       <td class="text-red">${v.desconto?fmt(v.desconto):'—'}</td>
       <td><strong class="text-gold">${fmt(v.total)}</strong></td>
       <td>${chips}</td>
-      <td><div class="flex gap-1"><button class="btn xs" onclick="imprimirReciboById('${v.id}')">🖨 Recibo</button>${(isAdmin()||temPerm('cancelar_venda'))?`<button class="btn xs danger" onclick="excluirVenda('${v.id}')" title="Cancelar venda e devolver estoque">↩ Cancelar</button>`:''}</div></td>
+      <td><div class="flex gap-1"><button class="btn xs" onclick="imprimirReciboById('${v.id}')"><svg class=ico><use href=#i-printer></use></svg> Recibo</button>${(isAdmin()||temPerm('cancelar_venda'))?`<button class="btn xs danger" onclick="excluirVenda('${v.id}')" title="Cancelar venda e devolver estoque"><svg class=ico><use href=#i-exchange></use></svg> Cancelar</button>`:''}</div></td>
     </tr><tr class="h-exp-row"><td colspan="11"><div class="h-exp-inner" id="hexp-${v.id}"><div class="h-exp-content"><div class="h-exp-grid">${grid}</div></div></div></td></tr>`;
   }).join('');
 }
@@ -2292,7 +2293,7 @@ function filtHist(){
 // CAIXA — fechamento (admin e vendedor)
 // ============================================================
 function pgCaixa(){
-  document.getElementById('tbar-actions').innerHTML=`<button class="btn primary" onclick="fecharCaixa()">🔒 Fechar Caixa Agora</button>`;
+  document.getElementById('tbar-actions').innerHTML=`<button class="btn primary" onclick="fecharCaixa()"><svg class=ico><use href=#i-lock></use></svg> Fechar Caixa Agora</button>`;
   renderCaixa();
 }
 function renderCaixa(){
@@ -2307,18 +2308,18 @@ function renderCaixa(){
   const caixasHoje=db.caixas.filter(c=>c.data&&c.data.startsWith(today())&&(isAdmin()||c.vendedorId===ses.usuario.id));
   document.getElementById('page').innerHTML=`
   <div class="grid3 mb-4">
-    <div class="metric-card"><div class="mi">🛍</div><div class="metric-label">Vendas Hoje</div><div class="metric-val text-green">${fmt(totalHoje)}</div><div class="metric-sub">${vsHoje.length} venda(s)</div></div>
-    <div class="metric-card"><div class="mi">🧾</div><div class="metric-label">Transações</div><div class="metric-val">${vsHoje.length}</div><div class="metric-sub">registradas hoje</div></div>
-    <div class="metric-card"><div class="mi">📅</div><div class="metric-label">Data</div><div class="metric-val" style="font-size:16px">${new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-bag></use></svg></div><div class="metric-label">Vendas Hoje</div><div class="metric-val text-green">${fmt(totalHoje)}</div><div class="metric-sub">${vsHoje.length} venda(s)</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-receipt></use></svg></div><div class="metric-label">Transações</div><div class="metric-val">${vsHoje.length}</div><div class="metric-sub">registradas hoje</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-cal></use></svg></div><div class="metric-label">Data</div><div class="metric-val" style="font-size:16px">${new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}</div></div>
   </div>
   <div class="grid2">
     <div class="card">
-      <div class="sec-title">💳 Vendas por Forma de Pagamento (hoje)</div>
+      <div class="sec-title"><svg class=ico><use href=#i-card></use></svg> Vendas por Forma de Pagamento (hoje)</div>
       ${Object.entries(pgtos).map(([k,v])=>`<div class="flex justify-between items-center" style="padding:8px 0;border-bottom:1px solid var(--border)"><span class="font-med">${k}</span><span class="font-bold text-gold">${fmt(v)}</span></div>`).join('')||'<div class="empty" style="padding:14px"><p>Nenhuma venda hoje</p></div>'}
       ${Object.keys(pgtos).length?`<div class="flex justify-between items-center" style="padding:10px 0;font-family:var(--font-head);font-size:17px;font-weight:700"><span>TOTAL</span><span class="text-green">${fmt(totalHoje)}</span></div>`:''}
     </div>
     <div class="card">
-      <div class="sec-title">📋 Fechamentos Anteriores</div>
+      <div class="sec-title"><svg class=ico><use href=#i-clipboard></use></svg> Fechamentos Anteriores</div>
       ${caixasHoje.length?caixasHoje.reverse().map(c=>`<div class="fechamento-box mb-3">
         <div class="flex justify-between"><span class="font-semi">Fechado às ${new Date(c.hora).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span><span class="font-bold text-gold">${fmt(c.total)}</span></div>
         <div class="text-xs text-dim mt-2">${c.vendedorNome} · ${c.qtdVendas} venda(s) · ${c.obs||''}</div>
@@ -2328,7 +2329,7 @@ function renderCaixa(){
 
   <div class="modal-backdrop hidden" id="mfechamento">
     <div class="modal modal-sm">
-      <div class="modal-header"><div class="modal-title">🔒 Fechamento de Caixa</div><button class="modal-close" onclick="closeM('mfechamento')">×</button></div>
+      <div class="modal-header"><div class="modal-title"><svg class=ico><use href=#i-lock></use></svg> Fechamento de Caixa</div><button class="modal-close" onclick="closeM('mfechamento')">×</button></div>
       <div style="background:var(--bg3);border-radius:var(--r);padding:12px;margin-bottom:14px">
         <div class="flex justify-between"><span class="text-dim">Data:</span><strong>${new Date().toLocaleDateString('pt-BR')}</strong></div>
         <div class="flex justify-between mt-2"><span class="text-dim">Hora de Fechamento:</span><strong>${new Date().toLocaleTimeString('pt-BR')}</strong></div>
@@ -2337,7 +2338,7 @@ function renderCaixa(){
         <div class="flex justify-between mt-2"><span class="text-dim">Transações:</span><strong>${vsHoje.length}</strong></div>
       </div>
       <div class="form-group"><label class="form-label">Observações</label><textarea class="form-control" id="fcobs" rows="2" placeholder="Ocorrências, informações do caixa..."></textarea></div>
-      <div class="modal-footer"><button class="btn" onclick="closeM('mfechamento')">Cancelar</button><button class="btn primary" onclick="confirmarFechamento()">✅ Confirmar Fechamento</button></div>
+      <div class="modal-footer"><button class="btn" onclick="closeM('mfechamento')">Cancelar</button><button class="btn primary" onclick="confirmarFechamento()"><svg class=ico><use href=#i-check></use></svg> Confirmar Fechamento</button></div>
     </div>
   </div>`;
 }
@@ -2377,14 +2378,14 @@ function renderRanking(){
       <button class="tab-btn ${periodo==='tudo'?'active':''}" onclick="_rankPeriodo='tudo';renderRanking()">Tudo</button>
     </div>
     <div class="grid2">
-      <div class="card"><div class="sec-title">🏆 Por Pares Vendidos</div>
+      <div class="card"><div class="sec-title"><svg class=ico><use href=#i-trophy></use></svg> Por Pares Vendidos</div>
         ${arr.length?arr.slice(0,10).map((r,i)=>`<div class="rank-row"><div class="rank-n" style="${i<3?'color:var(--amber);font-size:14px':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div><div class="rank-bar-w"><div class="rank-lbl">${r.nome} <span class="text-dim text-xs">${r.marca}</span></div><div class="rank-bar-bg"><div class="rank-bar-f" style="width:${r.pct}%"></div></div></div><div class="rank-tot">${r.qtd}p</div></div>`).join(''):'<div class="empty"><p>Sem dados</p></div>'}
       </div>
-      <div class="card"><div class="sec-title">💵 Por Faturamento</div>
+      <div class="card"><div class="sec-title"><svg class=ico><use href=#i-cash></use></svg> Por Faturamento</div>
         ${[...arr].sort((a,b)=>b.val-a.val).slice(0,10).map((r,i)=>{const pct=Math.round((r.val/maxV)*100);return`<div class="rank-row"><div class="rank-n" style="${i<3?'color:var(--amber);font-size:14px':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div><div class="rank-bar-w"><div class="rank-lbl">${r.nome}</div><div class="rank-bar-bg"><div class="rank-bar-f" style="width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--gold))"></div></div></div><div class="rank-tot" style="color:var(--blue)">${fmt(r.val)}</div></div>`;}).join('')||'<div class="empty"><p>Sem dados</p></div>'}
       </div>
     </div>
-    <div class="card mt-4"><div class="sec-title">📋 Detalhamento</div>
+    <div class="card mt-4"><div class="sec-title"><svg class=ico><use href=#i-clipboard></use></svg> Detalhamento</div>
       <div class="table-wrap"><table>
         <thead><tr><th>#</th><th>Produto</th><th>Marca</th><th>Pares</th><th>Faturamento</th><th>Estoque</th></tr></thead>
         <tbody>${arr.map((r,i)=>`<tr><td>${i+1}</td><td class="td-name">${r.nome}</td><td class="text-dim">${r.marca}</td><td><strong>${r.qtd}</strong></td><td class="text-gold font-bold">${fmt(r.val)}</td><td><span class="badge ${r.qtdAtual===0?'red':r.qtdAtual<=2?'amber':'green'}">${r.qtdAtual}</span></td></tr>`).join('')||'<tr><td colspan="6"><div class="empty"><p>Sem dados</p></div></td></tr>'}
@@ -2437,7 +2438,7 @@ function renderVendedores(mesRef){
       const pct=parseFloat(document.getElementById('pct-com')?.value)||5;
       const com=u.totalVendas*(pct/100);
       return`<div class="metric-card">
-        <div class="mi">👤</div>
+        <div class="mi"><svg class=ico><use href=#i-user></use></svg></div>
         <div class="metric-label">${u.nome} <span class="badge ${u.role==='admin'?'admin':'wine'} text-xs">${u.role}</span></div>
         <div class="metric-val text-gold">${fmt(u.totalVendas)}</div>
         <div class="metric-sub">${u.qtdVendas} venda(s) · ticket: ${fmt(u.ticket)}</div>
@@ -2449,7 +2450,7 @@ function renderVendedores(mesRef){
   </div>
 
   <div class="card">
-    <div class="sec-title">📋 Vendas por Vendedor — ${mesRef}</div>
+    <div class="sec-title"><svg class=ico><use href=#i-clipboard></use></svg> Vendas por Vendedor — ${mesRef}</div>
     ${dadosVend.map(u=>{
       const pct=parseFloat(document.getElementById('pct-com')?.value)||5;
       const com=u.totalVendas*(pct/100);
@@ -2497,10 +2498,10 @@ function renderFin(){
   const sm=db.movimentos.filter(m=>m.tipo==='saida'&&m.data?.startsWith(thisMonth())).reduce((s,m)=>s+m.val,0);
   document.getElementById('page').innerHTML=`
   <div class="grid4 mb-4">
-    <div class="metric-card"><div class="mi">📈</div><div class="metric-label">Total Entradas</div><div class="metric-val text-green">${fmt(ent)}</div></div>
-    <div class="metric-card"><div class="mi">📉</div><div class="metric-label">Total Saídas</div><div class="metric-val text-red">${fmt(sai)}</div></div>
-    <div class="metric-card"><div class="mi">🏦</div><div class="metric-label">Saldo em Caixa</div><div class="metric-val ${sal>=0?'text-green':'text-red'}">${fmt(sal)}</div></div>
-    <div class="metric-card"><div class="mi">📅</div><div class="metric-label">Resultado do Mês</div><div class="metric-val ${em-sm>=0?'text-green':'text-red'}">${fmt(em-sm)}</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-trending></use></svg></div><div class="metric-label">Total Entradas</div><div class="metric-val text-green">${fmt(ent)}</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-trending></use></svg></div><div class="metric-label">Total Saídas</div><div class="metric-val text-red">${fmt(sai)}</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-wallet></use></svg></div><div class="metric-label">Saldo em Caixa</div><div class="metric-val ${sal>=0?'text-green':'text-red'}">${fmt(sal)}</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-cal></use></svg></div><div class="metric-label">Resultado do Mês</div><div class="metric-val ${em-sm>=0?'text-green':'text-red'}">${fmt(em-sm)}</div></div>
   </div>
   <div class="card"><div class="sec-title">Fluxo de Caixa</div>
     <div class="table-wrap"><table>
@@ -2510,8 +2511,8 @@ function renderFin(){
         <td><span class="badge ${m.tipo==='entrada'?'green':'red'}">${m.tipo==='entrada'?'↑ Entrada':'↓ Saída'}</span></td>
         <td>${m.desc}</td>
         <td class="${m.tipo==='entrada'?'text-green':'text-red'} font-bold">${m.tipo==='entrada'?'+':'-'}${fmt(m.val)}</td>
-        <td><button class="btn xs danger" onclick="delMov('${m.id}')">🗑</button></td>
-      </tr>`).join('')||'<tr><td colspan="5"><div class="empty"><div class="ei">💰</div><p>Sem movimentos</p></div></td></tr>'}
+        <td><button class="btn xs danger" onclick="delMov('${m.id}')"><svg class=ico><use href=#i-trash></use></svg></button></td>
+      </tr>`).join('')||'<tr><td colspan="5"><div class="empty"><div class="ei"><svg class=ico><use href=#i-wallet></use></svg></div><p>Sem movimentos</p></div></td></tr>'}
       </tbody>
     </table></div>
   </div>
@@ -2556,10 +2557,10 @@ function renderUsers(){
     <tbody>${db.usuarios.map(u=>`<tr>
       <td class="td-name">${u.nome}</td>
       <td class="text-dim">${u.username}</td>
-      <td><span class="badge ${u.role==='admin'?'admin':'wine'}">${u.role==='admin'?'🔑 Admin':'🛍 Vendedor'}</span></td>
+      <td><span class="badge ${u.role==='admin'?'admin':'wine'}">${u.role==='admin'?'Admin':'Vendedor'}</span></td>
       <td><span class="badge ${u.ativo?'green':'red'}">${u.ativo?'Ativo':'Inativo'}</span></td>
       <td class="text-xs text-dim">${fmtDs(u.criado)}</td>
-      <td><div class="flex gap-2"><button class="btn xs" onclick="openUserM('${u.id}')">✏️ Editar</button>${u.id!==ses.usuario.id?`<button class="btn xs danger" onclick="delUser('${u.id}')">🗑</button>`:''}</div></td>
+      <td><div class="flex gap-2"><button class="btn xs" onclick="openUserM('${u.id}')"><svg class=ico><use href=#i-edit></use></svg> Editar</button>${u.id!==ses.usuario.id?`<button class="btn xs danger" onclick="delUser('${u.id}')"><svg class=ico><use href=#i-trash></use></svg></button>`:''}</div></td>
     </tr>`).join('')}
     </tbody>
   </table></div></div>
@@ -2570,14 +2571,14 @@ function renderUsers(){
       <div class="form-group"><label class="form-label">Nome Completo *</label><input class="form-control" id="un" placeholder="Nome"></div>
       <div class="form-group"><label class="form-label">Usuário (login) *</label><input class="form-control" id="uu" placeholder="Ex: maria.vendas"></div>
       <div class="form-group"><label class="form-label">Senha</label><input class="form-control" type="password" id="us" placeholder="Deixe em branco para manter"></div>
-      <div class="form-group"><label class="form-label">Perfil</label><select class="form-control" id="ur" onchange="togglePermEditor()"><option value="vendedor">🛍 Vendedor</option><option value="admin">🔑 Administrador</option></select></div>
+      <div class="form-group"><label class="form-label">Perfil</label><select class="form-control" id="ur" onchange="togglePermEditor()"><option value="vendedor">Vendedor</option><option value="admin">Administrador</option></select></div>
       <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="uativo"><option value="true">Ativo</option><option value="false">Inativo</option></select></div>
       <div id="perm-editor" style="display:none;margin-bottom:12px">
         <div class="sep"></div>
         <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);font-weight:700;margin-bottom:10px">Permissões de Acesso</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px" id="perm-checks"></div>
       </div>
-      <div class="modal-footer"><button class="btn" onclick="closeM('musr')">Cancelar</button><button class="btn primary" onclick="salvarUser()">💾 Salvar</button></div>
+      <div class="modal-footer"><button class="btn" onclick="closeM('musr')">Cancelar</button><button class="btn primary" onclick="salvarUser()"><svg class=ico><use href=#i-save></use></svg> Salvar</button></div>
     </div>
   </div>`;
 }
@@ -2905,7 +2906,7 @@ async function registrarAudit(acao, detalhe, extra){
 // Página de Auditoria
 function pgAuditoria(){
   document.getElementById('tbar-actions').innerHTML =
-    '<button class="btn" onclick="exportAudit()">📊 Exportar Excel</button>';
+    '<button class="btn" onclick="exportAudit()"><svg class=ico><use href=#i-bar></use></svg> Exportar Excel</button>';
   renderAuditoria();
 }
 
@@ -2928,7 +2929,7 @@ function renderAuditoria(filtro){
   <div class="card mb-3">
     <div class="flex gap-3 items-center">
       <div class="flex-1 srch">
-        <span class="srch-ic">🔍</span>
+        <span class="srch-ic"><svg class=ico><use href=#i-search></use></svg></span>
         <input class="form-control" placeholder="Buscar usuário, ação, detalhe..." id="audit-q"
           oninput="renderAuditoria(this.value)" style="padding-left:36px">
       </div>
@@ -2951,7 +2952,7 @@ function renderAuditoria(filtro){
             <td><span class="badge gray">${ICON[r.acao]||'📝'} ${r.acao}</span></td>
             <td class="text-sm" style="color:var(--text2)">${r.detalhe||'—'}</td>
           </tr>`).join('') :
-          `<tr><td colspan="4"><div class="empty"><div class="ei">📋</div>
+          `<tr><td colspan="4"><div class="empty"><div class="ei"><svg class=ico><use href=#i-clipboard></use></svg></div>
           <p>Nenhum registro encontrado</p></div></td></tr>`}
         </tbody>
       </table>
@@ -3131,7 +3132,7 @@ function execImport(){
 // ============================================================
 function pgEtiquetas(){
   document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn primary" onclick="imprimirEtiquetas()">🖨 Imprimir Etiquetas</button>';
+    '<button class="btn primary" onclick="imprimirEtiquetas()"><svg class=ico><use href=#i-printer></use></svg> Imprimir Etiquetas</button>';
   renderEtiquetas();
 }
 
@@ -3144,7 +3145,7 @@ function renderEtiquetas(filtro){
   document.getElementById('page').innerHTML = `
   <div class="card mb-3">
     <div class="flex gap-3 items-center">
-      <div class="flex-1 srch"><span class="srch-ic">🔍</span>
+      <div class="flex-1 srch"><span class="srch-ic"><svg class=ico><use href=#i-search></use></svg></span>
         <input class="form-control" placeholder="Buscar produto..." oninput="renderEtiquetas(this.value)" style="padding-left:36px">
       </div>
       <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
@@ -3233,7 +3234,7 @@ function imprimirEtiquetas(){
     .ref { font-size:8px; color:#999; }
   </style></head><body>
   <div class="no-print">
-    <button onclick="window.print()">🖨 Imprimir</button>
+    <button onclick="window.print()"><svg class=ico><use href=#i-printer></use></svg> Imprimir</button>
     <button onclick="window.close()">✕ Fechar</button>
     <span style="font-size:12px;color:#666;margin-left:8px">${etqs.length} etiqueta(s) — papel: A4 ou bobina 60mm</span>
   </div>
@@ -3312,17 +3313,17 @@ function renderAniversariantes(mesSel){
     ${aniv.length ? `<div style="display:grid;gap:10px">
       ${aniv.map(c=>`
       <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:${c.ehHoje?'var(--accentdim,#2a1a2a)':'var(--bg3)'};border:1px solid ${c.ehHoje?'var(--accent)':'var(--border)'};border-radius:var(--r);${c.jaPassou?'opacity:.6':''}">
-        <div style="font-size:28px">🎂</div>
+        <div style="font-size:28px"><svg class=ico><use href=#i-gift></use></svg></div>
         <div style="flex:1">
           <div style="font-weight:700;font-size:14px;color:var(--text)">${c.nome} ${c.ehHoje?'🎉 HOJE!':''}</div>
           <div style="font-size:12px;color:var(--text2)">Dia ${c.dia} de ${MESES[mesAtual]} ${c.jaPassou?'· já passou':''}</div>
           ${c.whatsapp?`<div style="font-size:12px;color:var(--text3)">${c.whatsapp}</div>`:''}
         </div>
         ${c.whatsapp?`<a href="https://wa.me/55${c.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Olá '+c.nome+'! 🎂 A Versatile deseja um feliz aniversário! Temos um presente especial para você. Passe na loja ou entre em contato 🥳')}"
-          target="_blank" class="btn primary" style="white-space:nowrap">💬 Parabenizar</a>`:''}
+          target="_blank" class="btn primary" style="white-space:nowrap"><svg class=ico><use href=#i-chat></use></svg> Parabenizar</a>`:''}
       </div>`).join('')}
     </div>` :
-    `<div class="empty"><div class="ei">🎂</div><p>Nenhum aniversariante em ${MESES[mesAtual]}</p><p class="text-dim text-xs">Cadastre a data de nascimento dos clientes para ver aqui</p></div>`}
+    `<div class="empty"><div class="ei"><svg class=ico><use href=#i-gift></use></svg></div><p>Nenhum aniversariante em ${MESES[mesAtual]}</p><p class="text-dim text-xs">Cadastre a data de nascimento dos clientes para ver aqui</p></div>`}
   </div>`;
 }
 
@@ -3362,7 +3363,7 @@ function calcLucroVenda(v){
 
 function pgLucratividade(){
   document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn" onclick="expLucro(true)">📊 Excel</button>';
+    '<button class="btn" onclick="expLucro(true)"><svg class=ico><use href=#i-bar></use></svg> Excel</button>';
   renderLucratividade();
 }
 
@@ -3398,11 +3399,11 @@ function renderLucratividade(iniVal, fimVal){
   </div>
 
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px">
-    <div class="metric-card"><div class="mi">💵</div><div class="metric-label">Faturamento Bruto</div><div class="metric-val">${fmt(totBruto)}</div></div>
-    <div class="metric-card"><div class="mi">🏦</div><div class="metric-label">Taxa Maquininha</div><div class="metric-val text-red">- ${fmt(totTaxa)}</div></div>
-    <div class="metric-card"><div class="mi">📥</div><div class="metric-label">Líquido Recebido</div><div class="metric-val text-blue">${fmt(totLiquido)}</div></div>
-    <div class="metric-card"><div class="mi">📦</div><div class="metric-label">Custo dos Produtos</div><div class="metric-val text-red">- ${fmt(totCusto)}</div></div>
-    <div class="metric-card"><div class="mi">💰</div><div class="metric-label">Lucro Real</div><div class="metric-val ${totLucro>=0?'text-green':'text-red'}">${fmt(totLucro)}<div class="metric-sub">${margGeral.toFixed(1)}% margem</div></div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-cash></use></svg></div><div class="metric-label">Faturamento Bruto</div><div class="metric-val">${fmt(totBruto)}</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-wallet></use></svg></div><div class="metric-label">Taxa Maquininha</div><div class="metric-val text-red">- ${fmt(totTaxa)}</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-download></use></svg></div><div class="metric-label">Líquido Recebido</div><div class="metric-val text-blue">${fmt(totLiquido)}</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-box></use></svg></div><div class="metric-label">Custo dos Produtos</div><div class="metric-val text-red">- ${fmt(totCusto)}</div></div>
+    <div class="metric-card"><div class="mi"><svg class=ico><use href=#i-wallet></use></svg></div><div class="metric-label">Lucro Real</div><div class="metric-val ${totLucro>=0?'text-green':'text-red'}">${fmt(totLucro)}<div class="metric-sub">${margGeral.toFixed(1)}% margem</div></div></div>
   </div>
 
   <div class="card">
@@ -3425,7 +3426,7 @@ function renderLucratividade(iniVal, fimVal){
           <td class="text-right ${l.lucro>=0?'text-green':'text-red'} font-bold">${fmt(l.lucro)}</td>
           <td class="text-right ${l.margem>=30?'text-green':l.margem>=15?'text-gold':'text-red'}">${l.margem.toFixed(1)}%</td>
         </tr>`).join('') :
-        '<tr><td colspan="9"><div class="empty"><div class="ei">💰</div><p>Nenhuma venda no período</p></div></td></tr>'}
+        '<tr><td colspan="9"><div class="empty"><div class="ei"><svg class=ico><use href=#i-wallet></use></svg></div><p>Nenhuma venda no período</p></div></td></tr>'}
       </tbody>
       ${rows.length?`<tfoot><tr style="background:var(--bg3);font-weight:700">
         <td colspan="4">TOTAL</td>
@@ -3512,7 +3513,7 @@ function abrirModalMeta(){
   const bd=document.createElement('div');
   bd.className='modal-backdrop';bd.id='mmeta';
   bd.innerHTML=`<div class="modal modal-sm">
-    <div class="modal-header"><div class="modal-title">🎯 Definir Metas de Vendas</div>
+    <div class="modal-header"><div class="modal-title"><svg class=ico><use href=#i-target></use></svg> Definir Metas de Vendas</div>
     <button class="modal-close" onclick="document.getElementById('mmeta').remove()">×</button></div>
     <div class="form-group"><label class="form-label">Meta Mensal (R$)</label>
       <input class="form-control" type="number" id="meta-mes" value="${m.mes||0}" placeholder="Ex: 10000"></div>
@@ -3522,7 +3523,7 @@ function abrirModalMeta(){
       <input class="form-control" type="number" id="meta-dia" value="${m.dia||0}" placeholder="Ex: 500"></div>
     <div class="modal-footer">
       <button class="btn" onclick="document.getElementById('mmeta').remove()">Cancelar</button>
-      <button class="btn primary" onclick="confirmarMetas()">💾 Salvar Metas</button>
+      <button class="btn primary" onclick="confirmarMetas()"><svg class=ico><use href=#i-save></use></svg> Salvar Metas</button>
     </div></div>`;
   document.body.appendChild(bd);
 }
@@ -3682,7 +3683,7 @@ function renderConfiguracoes(){
 
     <!-- DADOS DA LOJA -->
     <div class="card">
-      <div class="sec-title">🏪 Dados da Loja</div>
+      <div class="sec-title"><svg class=ico><use href=#i-store></use></svg> Dados da Loja</div>
       <div class="form-group"><label class="form-label">Nome da Loja</label>
         <input class="form-control" id="cfg-nome" value="${loja.nome||'VERSATILE'}"></div>
       <div class="form-group"><label class="form-label">Subtítulo</label>
@@ -3695,12 +3696,12 @@ function renderConfiguracoes(){
         <input class="form-control" id="cfg-tel" value="${loja.tel||'(63) 0000-0000'}"></div>
       <div class="form-group"><label class="form-label">Site / Instagram</label>
         <input class="form-control" id="cfg-site" value="${loja.site||''}" placeholder="@versatile ou www..."></div>
-      <button class="btn primary w-full mt-2" onclick="salvarCfgLoja()">💾 Salvar Dados da Loja</button>
+      <button class="btn primary w-full mt-2" onclick="salvarCfgLoja()"><svg class=ico><use href=#i-save></use></svg> Salvar Dados da Loja</button>
     </div>
 
     <!-- TAXAS DA MAQUININHA -->
     <div class="card">
-      <div class="sec-title">💳 Taxas da Maquininha (InfinitePay)</div>
+      <div class="sec-title"><svg class=ico><use href=#i-card></use></svg> Taxas da Maquininha (InfinitePay)</div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Altere quando a operadora mudar as taxas. Os cálculos de lucratividade e simulação de venda serão atualizados automaticamente.</div>
 
       <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">PIX</div>
@@ -3753,23 +3754,23 @@ function renderConfiguracoes(){
         ${[7,8,9,10,11,12].map(n=>`<div class="form-group"><label class="form-label">${n}x (%)</label>
           <input class="form-control" type="number" step="0.01" id="t-lea${n}" value="${((TAXAS.link.elo_amex.parcelas[n-1]?.taxa||0)*100).toFixed(2)}"></div>`).join('')}
       </div>
-      <button class="btn primary w-full mt-2" onclick="salvarCfgTaxas()">💾 Salvar Todas as Taxas</button>
+      <button class="btn primary w-full mt-2" onclick="salvarCfgTaxas()"><svg class=ico><use href=#i-save></use></svg> Salvar Todas as Taxas</button>
 
     </div>
 
     <!-- COMISSÕES PADRÃO -->
     <div class="card">
-      <div class="sec-title">📈 Comissões dos Vendedores</div>
+      <div class="sec-title"><svg class=ico><use href=#i-trending></use></svg> Comissões dos Vendedores</div>
       <div class="form-group"><label class="form-label">% de Comissão Padrão</label>
         <input class="form-control" type="number" step="0.5" id="cfg-com" value="${com.pct||5}" min="0" max="50">
         <div class="text-xs text-dim mt-1">Aplicado no relatório de Comissões para todos os vendedores</div>
       </div>
-      <button class="btn primary w-full mt-2" onclick="salvarCfgComissao()">💾 Salvar Comissão</button>
+      <button class="btn primary w-full mt-2" onclick="salvarCfgComissao()"><svg class=ico><use href=#i-save></use></svg> Salvar Comissão</button>
     </div>
 
     <!-- PREFERÊNCIAS DO SISTEMA -->
     <div class="card">
-      <div class="sec-title">⚙️ Preferências do Sistema</div>
+      <div class="sec-title"><svg class=ico><use href=#i-gear></use></svg> Preferências do Sistema</div>
       <div class="form-group"><label class="form-label">Estoque mínimo padrão (pares)</label>
         <input class="form-control" type="number" id="cfg-minest" value="${c.minEstoque||2}" min="1">
         <div class="text-xs text-dim mt-1">Alerta quando produto ficar abaixo deste número</div>
@@ -3791,7 +3792,7 @@ function renderConfiguracoes(){
           Abrir recibo automaticamente após venda
         </label>
       </div>
-      <button class="btn primary w-full mt-2" onclick="salvarCfgPrefs()">💾 Salvar Preferências</button>
+      <button class="btn primary w-full mt-2" onclick="salvarCfgPrefs()"><svg class=ico><use href=#i-save></use></svg> Salvar Preferências</button>
     </div>
 
   </div>`;
@@ -3910,12 +3911,12 @@ function renderCupons(){
           <td><span class="badge ${c.ativo?'green':'gray'}">${c.ativo?'Ativo':'Inativo'}</span></td>
           <td class="flex gap-1">
             <button class="btn xs" onclick="toggleCupom(${i})">${c.ativo?'Desativar':'Ativar'}</button>
-            <button class="btn xs danger" onclick="deleteCupom(${i})">🗑</button>
+            <button class="btn xs danger" onclick="deleteCupom(${i})"><svg class=ico><use href=#i-trash></use></svg></button>
           </td>
         </tr>`).join('')}
       </tbody>
     </table></div>`:
-    '<div class="empty"><div class="ei">🎫</div><p>Nenhum cupom cadastrado</p></div>'}
+    '<div class="empty"><div class="ei"><svg class=ico><use href=#i-ticket></use></svg></div><p>Nenhum cupom cadastrado</p></div>'}
   </div>`;
 }
 function openCupomModal(){
@@ -3992,7 +3993,7 @@ function renderCategorias(){
     <div id="cats-list" style="margin-bottom:12px">
       ${cats.map((c,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
         <span style="flex:1;font-size:14px">${c}</span>
-        <button class="btn xs danger" onclick="deleteCat(${i})">🗑</button>
+        <button class="btn xs danger" onclick="deleteCat(${i})"><svg class=ico><use href=#i-trash></use></svg></button>
       </div>`).join('')}
     </div>
     <div class="flex gap-2">
@@ -4032,14 +4033,14 @@ function verHistoricoCliente(clienteId){
   const bd=document.createElement('div');bd.className='modal-backdrop';bd.id='mhistcli';
   bd.innerHTML=`<div class="modal modal-lg">
     <div class="modal-header">
-      <div class="modal-title">📋 Histórico — ${cli.nome}</div>
+      <div class="modal-title"><svg class=ico><use href=#i-clipboard></use></svg> Histórico — ${cli.nome}</div>
       <button class="modal-close" onclick="document.getElementById('mhistcli').remove()">×</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
       <div class="metric-card"><div class="metric-label">Compras</div><div class="metric-val">${vendas.length}</div></div>
       <div class="metric-card"><div class="metric-label">Total gasto</div><div class="metric-val text-green">${fmt(total)}</div></div>
       <div class="metric-card"><div class="metric-label">Ticket médio</div><div class="metric-val text-gold">${fmt(vendas.length?total/vendas.length:0)}</div></div>
-      <div class="metric-card"><div class="metric-label">Pontos</div><div class="metric-val text-wine">⭐ ${pontos}</div></div>
+      <div class="metric-card"><div class="metric-label">Pontos</div><div class="metric-val text-wine"><svg class=ico><use href=#i-star></use></svg> ${pontos}</div></div>
     </div>
     ${vendas.length?`<div class="table-wrap"><table>
       <thead><tr><th>Venda</th><th>Data</th><th>Itens</th><th>Pagamento</th><th>Total</th><th></th></tr></thead>
@@ -4050,11 +4051,11 @@ function verHistoricoCliente(clienteId){
           <td class="text-xs">${(v.itens||[]).map(i=>i.qtd+'x '+i.nome+(i.tam?' Nº'+i.tam:'')).join(', ')}</td>
           <td><span class="badge wine">${v.pgto}</span></td>
           <td class="font-bold">${fmt(v.total)}</td>
-          <td><button class="btn xs" onclick="imprimirReciboById('${v.id}')">🖨</button></td>
+          <td><button class="btn xs" onclick="imprimirReciboById('${v.id}')"><svg class=ico><use href=#i-printer></use></svg></button></td>
         </tr>`).join('')}
       </tbody>
     </table></div>`:
-    '<div class="empty"><div class="ei">🛍</div><p>Nenhuma compra registrada</p></div>'}
+    '<div class="empty"><div class="ei"><svg class=ico><use href=#i-bag></use></svg></div><p>Nenhuma compra registrada</p></div>'}
     <div class="modal-footer"><button class="btn" onclick="document.getElementById('mhistcli').remove()">Fechar</button></div>
   </div>`;
   document.body.appendChild(bd);
@@ -4085,7 +4086,7 @@ function renderPontos(){
   document.getElementById('page').innerHTML=`
   <div class="grid2 mb-4">
     <div class="card">
-      <div class="sec-title">⚙️ Configurar Programa de Pontos</div>
+      <div class="sec-title"><svg class=ico><use href=#i-gear></use></svg> Configurar Programa de Pontos</div>
       <div class="form-group"><label class="form-label">Status</label>
         <select class="form-control" id="pts-ativo">
           <option value="true" ${cfg.ativo?'selected':''}>Ativo</option>
@@ -4096,10 +4097,10 @@ function renderPontos(){
       <div class="form-group"><label class="form-label">Valor de 1 ponto (R$)</label>
         <input class="form-control" type="number" id="pts-val" value="${cfg.valor_ponto}" step="0.1" min="0.01">
         <div class="text-xs text-dim mt-1">Ex: 0,50 = 100 pontos valem R$ 50,00</div></div>
-      <button class="btn primary w-full mt-2" onclick="salvarPontosConfig()">💾 Salvar Configuração</button>
+      <button class="btn primary w-full mt-2" onclick="salvarPontosConfig()"><svg class=ico><use href=#i-save></use></svg> Salvar Configuração</button>
     </div>
     <div class="card">
-      <div class="sec-title">📊 Resumo</div>
+      <div class="sec-title"><svg class=ico><use href=#i-bar></use></svg> Resumo</div>
       <div style="font-size:13px;color:var(--text2);line-height:2">
         <div>Clientes com pontos: <strong>${ranking.length}</strong></div>
         <div>Total de pontos emitidos: <strong>${ranking.reduce((s,c)=>s+c.pontos,0)}</strong></div>
@@ -4108,18 +4109,18 @@ function renderPontos(){
     </div>
   </div>
   <div class="card">
-    <div class="sec-title">🏆 Clientes com Pontos</div>
+    <div class="sec-title"><svg class=ico><use href=#i-trophy></use></svg> Clientes com Pontos</div>
     ${ranking.length?`<div class="table-wrap"><table>
       <thead><tr><th>#</th><th>Cliente</th><th>WhatsApp</th><th>Pontos</th><th>Valor dos Pontos</th></tr></thead>
       <tbody>${ranking.map((c,i)=>`<tr>
         <td>${i+1}</td>
         <td><strong>${c.nome}</strong></td>
         <td>${c.whatsapp||'—'}</td>
-        <td><span class="badge wine">⭐ ${c.pontos}</span></td>
+        <td><span class="badge wine"><svg class=ico><use href=#i-star></use></svg> ${c.pontos}</span></td>
         <td class="text-green font-bold">${fmt(c.pontos*cfg.valor_ponto)}</td>
       </tr>`).join('')}</tbody>
     </table></div>`:
-    '<div class="empty"><div class="ei">⭐</div><p>Nenhum cliente com pontos ainda</p></div>'}
+    '<div class="empty"><div class="ei"><svg class=ico><use href=#i-star></use></svg></div><p>Nenhum cliente com pontos ainda</p></div>'}
   </div>`;
 }
 function salvarPontosConfig(){
@@ -4146,7 +4147,7 @@ function salvarTagsCliente(clienteId,tags){
 }
 function pgSegmentacao(){
   document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn primary" onclick="enviarWALote()">💬 Enviar WhatsApp em Lote</button>';
+    '<button class="btn primary" onclick="enviarWALote()"><svg class=ico><use href=#i-chat></use></svg> Enviar WhatsApp em Lote</button>';
   renderSegmentacao();
 }
 function renderSegmentacao(filtroTag){
@@ -4185,7 +4186,7 @@ function renderSegmentacao(filtroTag){
           <td>${c.vendas}</td>
           <td class="text-green">${fmt(c.total)}</td>
           <td>${c.tags.map(t=>`<span class="badge wine" style="margin-right:3px">${t}</span>`).join('')}</td>
-          <td><button class="btn xs" onclick="editarTagsCliente('${c.id}')">🏷 Tags</button></td>
+          <td><button class="btn xs" onclick="editarTagsCliente('${c.id}')"><svg class=ico><use href=#i-tag></use></svg> Tags</button></td>
         </tr>`).join('')}
       </tbody>
     </table></div>
@@ -4246,7 +4247,7 @@ function enviarWALote(){
 // ============================================================
 function pgComparativo(){
   document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn" onclick="expComparativo()">📊 Excel</button>';
+    '<button class="btn" onclick="expComparativo()"><svg class=ico><use href=#i-bar></use></svg> Excel</button>';
   renderComparativo();
 }
 function renderComparativo(){
@@ -4264,7 +4265,7 @@ function renderComparativo(){
   const maxFat=Math.max(...meses.map(m=>m.fat),1);
   document.getElementById('page').innerHTML=`
   <div class="card mb-4">
-    <div class="sec-title">📈 Faturamento — Últimos 12 meses</div>
+    <div class="sec-title"><svg class=ico><use href=#i-trending></use></svg> Faturamento — Últimos 12 meses</div>
     <div style="display:flex;align-items:flex-end;gap:4px;height:160px;padding-top:10px">
       ${meses.map(m=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
         <div style="font-size:10px;color:var(--text3);text-align:center">${m.fat>0?fmt(m.fat).replace('R$ ',''):''}</div>
@@ -4312,7 +4313,7 @@ function expComparativo(){
 // ============================================================
 function pgDRE(){
   document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn" onclick="expDRE()">📊 Excel</button>';
+    '<button class="btn" onclick="expDRE()"><svg class=ico><use href=#i-bar></use></svg> Excel</button>';
   renderDRE();
 }
 function renderDRE(anoSel){
@@ -4400,12 +4401,12 @@ function renderFornecedores(){
         <td>${f.email||'—'}</td>
         <td>${f.cats||'—'}</td>
         <td class="flex gap-1">
-          <button class="btn xs" onclick="openFornModal(${i})">✏️</button>
-          <button class="btn xs danger" onclick="deleteForn(${i})">🗑</button>
+          <button class="btn xs" onclick="openFornModal(${i})"><svg class=ico><use href=#i-edit></use></svg></button>
+          <button class="btn xs danger" onclick="deleteForn(${i})"><svg class=ico><use href=#i-trash></use></svg></button>
         </td>
       </tr>`).join('')}</tbody>
     </table></div>`:
-    '<div class="empty"><div class="ei">🏭</div><p>Nenhum fornecedor cadastrado</p></div>'}
+    '<div class="empty"><div class="ei"><svg class=ico><use href=#i-truck></use></svg></div><p>Nenhum fornecedor cadastrado</p></div>'}
   </div>`;
 }
 function openFornModal(idx){
@@ -4431,7 +4432,7 @@ function openFornModal(idx){
       <textarea class="form-control" id="fn-obs" rows="2">${f.obs||''}</textarea></div>
     <div class="modal-footer">
       <button class="btn" onclick="document.getElementById('mforn').remove()">Cancelar</button>
-      <button class="btn primary" onclick="salvarForn(${idx})">💾 Salvar</button>
+      <button class="btn primary" onclick="salvarForn(${idx})"><svg class=ico><use href=#i-save></use></svg> Salvar</button>
     </div></div>`;
   document.body.appendChild(bd);
 }
@@ -4462,7 +4463,7 @@ function deleteForn(i){
 // ============================================================
 function pgOrdemCompra(){
   document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn primary" onclick="gerarOrdemPDF()">🖨 Imprimir Ordem</button>';
+    '<button class="btn primary" onclick="gerarOrdemPDF()"><svg class=ico><use href=#i-printer></use></svg> Imprimir Ordem</button>';
   renderOrdemCompra();
 }
 function renderOrdemCompra(){
@@ -4507,7 +4508,7 @@ function renderOrdemCompra(){
       </tbody>
     </table></div>
   </div>`:
-  '<div class="card"><div class="empty"><div class="ei">✅</div><p>Estoque em dia!</p></div></div>'}`;
+  '<div class="card"><div class="empty"><div class="ei"><svg class=ico><use href=#i-check></use></svg></div><p>Estoque em dia!</p></div></div>'}`;
 }
 function gerarOrdemPDF(){
   const itens=[...document.querySelectorAll('.rep-sel:checked')].map(el=>{
@@ -4522,7 +4523,7 @@ function gerarOrdemPDF(){
   <style>body{font-family:Arial;padding:30px;font-size:13px}h2{color:#5c1a2a}table{width:100%;border-collapse:collapse}
   th,td{border:1px solid #ccc;padding:8px}th{background:#5c1a2a;color:#fff}.no-print{margin-bottom:20px}
   @media print{.no-print{display:none}}</style></head><body>
-  <div class="no-print"><button onclick="window.print()">🖨 Imprimir</button></div>
+  <div class="no-print"><button onclick="window.print()"><svg class=ico><use href=#i-printer></use></svg> Imprimir</button></div>
   <h2>VERSATILE — Ordem de Compra</h2>
   <p>Data: ${new Date().toLocaleDateString('pt-BR')} | Total: ${itens.length} itens</p>
   <table><thead><tr><th>Produto</th><th>Referência</th><th>Qtd. Repor</th><th>Fornecedor</th></tr></thead>
@@ -4603,14 +4604,14 @@ function atualizarPreviewImpressao(){
 function renderCfgImpressao(){
   const c=getCfgImpressao();
   document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn primary" onclick="testarImpressao()">🖨 Testar Impressão</button>';
+    '<button class="btn primary" onclick="testarImpressao()"><svg class=ico><use href=#i-printer></use></svg> Testar Impressão</button>';
   document.getElementById('page').innerHTML=`
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
 
     <!-- CONFIGURAÇÕES -->
     <div style="display:flex;flex-direction:column;gap:14px">
       <div class="card">
-        <div class="sec-title">📐 Tamanho do Papel</div>
+        <div class="sec-title"><svg class=ico><use href=#i-document></use></svg> Tamanho do Papel</div>
         <div class="form-row col2">
           <div class="form-group">
             <label class="form-label">Largura do papel (mm)</label>
@@ -4626,7 +4627,7 @@ function renderCfgImpressao(){
       </div>
 
       <div class="card">
-        <div class="sec-title">🔤 Tipografia</div>
+        <div class="sec-title"><svg class=ico><use href=#i-document></use></svg> Tipografia</div>
         <div class="form-row col2">
           <div class="form-group">
             <label class="form-label">Tamanho do texto (px)</label>
@@ -4642,7 +4643,7 @@ function renderCfgImpressao(){
       </div>
 
       <div class="card">
-        <div class="sec-title">⚙️ Configurações do Ctrl+P</div>
+        <div class="sec-title"><svg class=ico><use href=#i-gear></use></svg> Configurações do Ctrl+P</div>
         <div style="background:var(--bg3);border-radius:var(--r);padding:12px 14px;font-size:13px;line-height:2;color:var(--text2)">
           <div><strong style="color:var(--text)">Impressora:</strong> Selecione sua LabelPrinter/Térmica</div>
           <div><strong style="color:var(--text)">Tamanho do papel:</strong> impressão recibo (80×200mm)</div>
@@ -4657,14 +4658,14 @@ function renderCfgImpressao(){
       </div>
 
       <button class="btn primary w-full" onclick="salvarCfgImpressao()" style="padding:12px;font-size:15px">
-        💾 Salvar Configurações de Impressão
+        <svg class=ico><use href=#i-save></use></svg> Salvar Configurações de Impressão
       </button>
     </div>
 
     <!-- PREVIEW AO VIVO -->
     <div>
       <div class="card mb-3">
-        <div class="sec-title">👁 Pré-visualização</div>
+        <div class="sec-title"><svg class=ico><use href=#i-search></use></svg> Pré-visualização</div>
         <div class="text-xs text-dim mb-2">Simulação do recibo na largura configurada</div>
       </div>
       <div style="background:#e8e8e8;padding:16px;border-radius:var(--r);display:flex;justify-content:center">
@@ -4754,7 +4755,7 @@ function verHistoricoEstoque(prodId){
   const bd=document.createElement('div');bd.className='modal-backdrop';bd.id='mmovest';
   bd.innerHTML=`<div class="modal modal-lg">
     <div class="modal-header">
-      <div class="modal-title">📦 Histórico — ${p.nome}</div>
+      <div class="modal-title"><svg class=ico><use href=#i-box></use></svg> Histórico — ${p.nome}</div>
       <button class="modal-close" onclick="closeM('mmovest')">×</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
@@ -4773,7 +4774,7 @@ function verHistoricoEstoque(prodId){
         <td class="text-xs text-dim">${m.usuario}</td>
       </tr>`).join('')}</tbody>
     </table></div>`:
-    '<div class="empty"><div class="ei">📋</div><p>Sem histórico ainda</p><p class="text-dim text-xs">As movimentações aparecerão aqui</p></div>'}
+    '<div class="empty"><div class="ei"><svg class=ico><use href=#i-clipboard></use></svg></div><p>Sem histórico ainda</p><p class="text-dim text-xs">As movimentações aparecerão aqui</p></div>'}
     <div class="modal-footer"><button class="btn" onclick="closeM('mmovest')">Fechar</button></div>
   </div>`;
   document.body.appendChild(bd);
@@ -4788,15 +4789,15 @@ function abrirAjusteEstoque(prodId){
   const bd=document.createElement('div');bd.className='modal-backdrop';bd.id='majest';
   bd.innerHTML=`<div class="modal modal-sm">
     <div class="modal-header">
-      <div class="modal-title">✏️ Ajuste de Estoque — ${p.nome}</div>
+      <div class="modal-title"><svg class=ico><use href=#i-edit></use></svg> Ajuste de Estoque — ${p.nome}</div>
       <button class="modal-close" onclick="closeM('majest')">×</button>
     </div>
     <div class="form-group"><label class="form-label">Tipo de Ajuste</label>
       <select class="form-control" id="aj-tipo">
-        <option value="ENTRADA">📥 Entrada de mercadoria (compra)</option>
-        <option value="AJUSTE">✏️ Ajuste de contagem</option>
-        <option value="PERDA">⚠️ Perda / Avaria</option>
-        <option value="CONTAGEM">📋 Contagem física</option>
+        <option value="ENTRADA">Entrada de mercadoria (compra)</option>
+        <option value="AJUSTE">Ajuste de contagem</option>
+        <option value="PERDA">Perda / Avaria</option>
+        <option value="CONTAGEM">Contagem física</option>
       </select>
     </div>
     ${p.grade&&p.grade.length?`<div class="form-group"><label class="form-label">Número</label>
@@ -4810,7 +4811,7 @@ function abrirAjusteEstoque(prodId){
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeM('majest')">Cancelar</button>
-      <button class="btn primary" onclick="confirmarAjusteEstoque('${prodId}')">✅ Confirmar Ajuste</button>
+      <button class="btn primary" onclick="confirmarAjusteEstoque('${prodId}')"><svg class=ico><use href=#i-check></use></svg> Confirmar Ajuste</button>
     </div>
   </div>`;
   document.body.appendChild(bd);
@@ -4871,7 +4872,7 @@ async function gradeRapida(prodId, tam, delta){
 // ============================================================
 function pgTrocas(){
   document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn primary" onclick="abrirNovaTroca()">🔄 Nova Troca</button>';
+    '<button class="btn primary" onclick="abrirNovaTroca()"><svg class=ico><use href=#i-exchange></use></svg> Nova Troca</button>';
   renderTrocas();
 }
 
@@ -4887,7 +4888,7 @@ function renderTrocas(filtro){
   document.getElementById('page').innerHTML=`
   <div class="card mb-3">
     <div class="flex gap-3 items-center">
-      <div class="flex-1 srch"><span class="srch-ic">🔍</span>
+      <div class="flex-1 srch"><span class="srch-ic"><svg class=ico><use href=#i-search></use></svg></span>
         <input class="form-control" placeholder="Buscar por venda, produto, vendedor..." oninput="renderTrocas(this.value)" style="padding-left:36px">
       </div>
       <span class="text-dim text-xs">${lista.length} troca(s)</span>
@@ -4910,10 +4911,10 @@ function renderTrocas(filtro){
           ${t.difVal>0?'Cliente pagou +'+fmt(t.difVal):t.difVal<0?'Loja devolveu '+fmt(Math.abs(t.difVal)):'Sem diferença'}
         </td>
         <td><span class="badge green">Concluída</span></td>
-        <td><button class="btn xs" onclick="verComprovanteTroca('${t.id}')">🖨 Comprovante</button></td>
+        <td><button class="btn xs" onclick="verComprovanteTroca('${t.id}')"><svg class=ico><use href=#i-printer></use></svg> Comprovante</button></td>
       </tr>`).join('')}</tbody>
     </table></div>`:
-    '<div class="empty"><div class="ei">🔄</div><p>Nenhuma troca registrada</p></div>'}
+    '<div class="empty"><div class="ei"><svg class=ico><use href=#i-exchange></use></svg></div><p>Nenhuma troca registrada</p></div>'}
   </div>`;
 }
 
@@ -4921,7 +4922,7 @@ function abrirNovaTroca(){
   const bd=document.createElement('div');bd.className='modal-backdrop';bd.id='mtroca';
   bd.innerHTML=`<div class="modal modal-lg">
     <div class="modal-header">
-      <div class="modal-title">🔄 Registrar Troca</div>
+      <div class="modal-title"><svg class=ico><use href=#i-exchange></use></svg> Registrar Troca</div>
       <button class="modal-close" onclick="closeM('mtroca')">×</button>
     </div>
 
@@ -4952,7 +4953,7 @@ function abrirNovaTroca(){
         </div>
         <!-- PRODUTO QUE SAI -->
         <div style="background:var(--bg3);border-radius:var(--r);padding:12px">
-          <div class="sec-title" style="color:var(--green);margin-bottom:10px">📥 Produto que Sai (sai do estoque)</div>
+          <div class="sec-title" style="color:var(--green);margin-bottom:10px"><svg class=ico><use href=#i-download></use></svg> Produto que Sai (sai do estoque)</div>
           <div class="form-group"><label class="form-label">Produto</label>
             <select class="form-control" id="tr-prod-sai" onchange="onTrocaProdSaiChange()">
               <option value="">Selecione...</option>
@@ -4969,7 +4970,7 @@ function abrirNovaTroca(){
 
       <!-- DIFERENÇA DE VALOR -->
       <div id="tr-dif-area" style="margin-top:12px;padding:12px;background:var(--bg3);border-radius:var(--r)">
-        <div class="sec-title" style="margin-bottom:8px">💰 Diferença de Valor</div>
+        <div class="sec-title" style="margin-bottom:8px"><svg class=ico><use href=#i-wallet></use></svg> Diferença de Valor</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
           <div><div class="text-xs text-dim">Produto devolvido</div><div id="tr-val-dev" class="font-bold">—</div></div>
           <div><div class="text-xs text-dim">Produto que sai</div><div id="tr-val-sai" class="font-bold">—</div></div>
@@ -4979,10 +4980,10 @@ function abrirNovaTroca(){
           <div class="form-row col2">
             <div class="form-group"><label class="form-label">Forma de pagamento da diferença</label>
               <select class="form-control" id="tr-pgto">
-                <option value="Dinheiro">💵 Dinheiro</option>
-                <option value="PIX">📲 PIX</option>
-                <option value="Débito">💳 Débito</option>
-                <option value="Crédito">💳 Crédito</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="PIX">PIX</option>
+                <option value="Débito">Débito</option>
+                <option value="Crédito">Crédito</option>
               </select>
             </div>
             <div class="form-group"><label class="form-label">Observação</label>
@@ -4995,7 +4996,7 @@ function abrirNovaTroca(){
 
     <div class="modal-footer">
       <button class="btn" onclick="closeM('mtroca')">Cancelar</button>
-      <button class="btn primary" id="tr-btn-confirmar" style="display:none" onclick="confirmarTroca()">✅ Confirmar Troca</button>
+      <button class="btn primary" id="tr-btn-confirmar" style="display:none" onclick="confirmarTroca()"><svg class=ico><use href=#i-check></use></svg> Confirmar Troca</button>
     </div>
   </div>`;
   document.body.appendChild(bd);
@@ -5179,7 +5180,7 @@ function verComprovanteTroca(id){
     @media print{body{padding:0}.no-print{display:none}}
   </style></head><body>
   <div class="no-print" style="text-align:center;padding:8px 0">
-    <button onclick="window.print()" style="padding:4px 14px;background:#5c1a2a;color:#fff;border:none;border-radius:4px;cursor:pointer">🖨 Imprimir</button>
+    <button onclick="window.print()" style="padding:4px 14px;background:#5c1a2a;color:#fff;border:none;border-radius:4px;cursor:pointer"><svg class=ico><use href=#i-printer></use></svg> Imprimir</button>
   </div>
   <div class="c b" style="font-size:16px">VERSATILE</div>
   <div class="c" style="font-size:11px">LOJA DE CALÇADOS</div>
@@ -5260,7 +5261,7 @@ function pgNuvemShop(){
   const cfg = getNuvemShopCfg();
   const conectado = !!(cfg.token && cfg.storeUrl);
   document.getElementById('tbar-actions').innerHTML = conectado
-    ? `<button class="btn primary" onclick="nsSincronizarAgora()">🔄 Sincronizar Agora</button>`
+    ? `<button class="btn primary" onclick="nsSincronizarAgora()"><svg class=ico><use href=#i-exchange></use></svg> Sincronizar Agora</button>`
     : '';
 
   const statusBadge = conectado
@@ -5269,17 +5270,17 @@ function pgNuvemShop(){
 
   document.getElementById('page').innerHTML = `
   <div class="tab-row mb-0" id="ns-tabs">
-    <button class="tab-btn active" onclick="nsTab('config')">⚙️ Configuração</button>
-    <button class="tab-btn" onclick="nsTab('pedidos')">📦 Pedidos Online</button>
+    <button class="tab-btn active" onclick="nsTab('config')"><svg class=ico><use href=#i-gear></use></svg> Configuração</button>
+    <button class="tab-btn" onclick="nsTab('pedidos')"><svg class=ico><use href=#i-box></use></svg> Pedidos Online</button>
     <button class="tab-btn" onclick="nsTab('estoque')">🗄️ Estoque</button>
-    <button class="tab-btn" onclick="nsTab('envios')">🚚 Envios</button>
+    <button class="tab-btn" onclick="nsTab('envios')"><svg class=ico><use href=#i-truck></use></svg> Envios</button>
   </div>
 
   <!-- TAB CONFIG -->
   <div id="ns-tab-config" class="ns-tab" style="margin-top:16px">
     <div class="card mb-3" style="border-color:#3a3060">
       <div class="flex" style="gap:12px;align-items:center;margin-bottom:16px">
-        <div style="background:linear-gradient(135deg,#5b21b6,#7c3aed);border-radius:10px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">☁️</div>
+        <div style="background:linear-gradient(135deg,#5b21b6,#7c3aed);border-radius:10px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0"><svg class=ico><use href=#i-cloud></use></svg></div>
         <div>
           <div style="font-weight:700;font-size:15px">NuvemShop</div>
           <div style="font-size:12px;color:var(--text3)">Integração com sua loja online</div>
@@ -5302,7 +5303,7 @@ function pgNuvemShop(){
         <div style="font-size:11px;color:var(--text3);margin-top:4px">Encontre em: Painel NuvemShop → Meus aplicativos → Aplicativos criados → Token</div>
       </div>
       <div style="display:flex;gap:10px;margin-top:4px">
-        <button class="btn primary" onclick="nsSalvarConfig()">💾 Salvar Configuração</button>
+        <button class="btn primary" onclick="nsSalvarConfig()"><svg class=ico><use href=#i-save></use></svg> Salvar Configuração</button>
         <button class="btn" onclick="nsTestarConexao()">🔌 Testar Conexão</button>
         ${conectado?`<button class="btn danger" onclick="nsDesconectar()">Desconectar</button>`:''}
       </div>
@@ -5310,7 +5311,7 @@ function pgNuvemShop(){
 
     <div class="grid2">
       <div class="card">
-        <div class="sec-title">📋 O que será sincronizado</div>
+        <div class="sec-title"><svg class=ico><use href=#i-clipboard></use></svg> O que será sincronizado</div>
         <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
             <input type="checkbox" ${cfg.syncEstoque?'checked':''} onchange="nsSaveCfgToggle('syncEstoque',this.checked)" style="accent-color:var(--accent)">
@@ -5327,9 +5328,9 @@ function pgNuvemShop(){
         </div>
       </div>
       <div class="card">
-        <div class="sec-title">📊 Última sincronização</div>
+        <div class="sec-title"><svg class=ico><use href=#i-bar></use></svg> Última sincronização</div>
         ${cfg.ultimaSync
-          ? `<div style="font-size:13px;color:var(--green);margin-bottom:6px">✅ ${cfg.ultimaSync}</div><div style="font-size:12px;color:var(--text3)">Próxima: automática em ${cfg.syncAuto?'~15 min':'—'}</div>`
+          ? `<div style="font-size:13px;color:var(--green);margin-bottom:6px"><svg class=ico><use href=#i-check></use></svg> ${cfg.ultimaSync}</div><div style="font-size:12px;color:var(--text3)">Próxima: automática em ${cfg.syncAuto?'~15 min':'—'}</div>`
           : `<div style="font-size:13px;color:var(--text3)">Nenhuma sincronização realizada ainda.</div>`
         }
         <div style="margin-top:12px;padding:10px;background:var(--bg3);border-radius:var(--r);font-size:12px;color:var(--text3)">
@@ -5369,7 +5370,7 @@ function pgNuvemShop(){
               <td>
                 <div class="flex gap-1">
                   ${p.status==='pago'?`<button class="btn xs primary" onclick="nsImportarPedido('${p.id}')" title="Importar como venda no PDV">⬇️ Importar</button>`:''}
-                  ${p.status==='pago'&&p.envio==='Pendente'?`<button class="btn xs" onclick="nsGerarEnvio('${p.id}')" title="Gerar envio">🚚 Enviar</button>`:''}
+                  ${p.status==='pago'&&p.envio==='Pendente'?`<button class="btn xs" onclick="nsGerarEnvio('${p.id}')" title="Gerar envio"><svg class=ico><use href=#i-truck></use></svg> Enviar</button>`:''}
                 </div>
               </td>
             </tr>`;
@@ -5387,7 +5388,7 @@ function pgNuvemShop(){
           <div class="sec-title" style="margin-bottom:4px">Espelho de Estoque — PDV ↔ NuvemShop</div>
           <div style="font-size:12px;color:var(--text3)">Divergências precisam ser sincronizadas</div>
         </div>
-        <button class="btn primary" onclick="nsSincronizarEstoque()">🔄 Sincronizar Estoque</button>
+        <button class="btn primary" onclick="nsSincronizarEstoque()"><svg class=ico><use href=#i-exchange></use></svg> Sincronizar Estoque</button>
       </div>
     </div>
     <div class="table-wrap card">
@@ -5400,7 +5401,7 @@ function pgNuvemShop(){
             <td style="text-align:center">${e.diverge?`<strong class="text-red">${e.ns}</strong>`:`<strong>${e.ns}</strong>`}</td>
             <td style="text-align:center">
               ${e.diverge
-                ? `<span class="badge" style="background:#3d2000;color:#fb923c;border:1px solid #5a3000">⚠️ Divergente</span>`
+                ? `<span class="badge" style="background:#3d2000;color:#fb923c;border:1px solid #5a3000"><svg class=ico><use href=#i-alert></use></svg> Divergente</span>`
                 : `<span class="badge green">✓ Sincronizado</span>`}
             </td>
             <td>${e.diverge?`<button class="btn xs primary" onclick="nsSincronizarProduto('${e.prodNome}')">Sincronizar</button>`:''}</td>
@@ -5421,11 +5422,11 @@ function pgNuvemShop(){
   <!-- TAB ENVIOS -->
   <div id="ns-tab-envios" class="ns-tab" style="display:none;margin-top:16px">
     <div class="card mb-3" style="border-color:#3a3060">
-      <div class="sec-title">🚚 Pedidos para Enviar</div>
+      <div class="sec-title"><svg class=ico><use href=#i-truck></use></svg> Pedidos para Enviar</div>
       <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Pedidos pagos que aguardam despacho</div>
       ${(()=>{
         const pendentes = NS_PEDIDOS_MOCK.filter(p=>p.status==='pago'&&p.envio==='Pendente');
-        if(!pendentes.length) return '<div class="empty"><div class="ei">✅</div>Nenhum pedido pendente de envio</div>';
+        if(!pendentes.length) return '<div class="empty"><div class="ei"><svg class=ico><use href=#i-check></use></svg></div>Nenhum pedido pendente de envio</div>';
         return pendentes.map(p=>`
           <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
             <div style="flex:1;min-width:180px">
@@ -5435,20 +5436,20 @@ function pgNuvemShop(){
             </div>
             <strong class="text-gold">${fmt(p.total)}</strong>
             <span class="badge" style="background:#1a1a3d;color:#818cf8;border:1px solid #2d2d6e">Aguard. envio</span>
-            <button class="btn xs primary" onclick="nsGerarEnvio('${p.id}')">🚚 Gerar Envio</button>
+            <button class="btn xs primary" onclick="nsGerarEnvio('${p.id}')"><svg class=ico><use href=#i-truck></use></svg> Gerar Envio</button>
           </div>
         `).join('');
       })()}
     </div>
     <div class="card">
-      <div class="sec-title">📍 Rastreamento</div>
+      <div class="sec-title"><svg class=ico><use href=#i-target></use></svg> Rastreamento</div>
       ${NS_PEDIDOS_MOCK.filter(p=>p.rastreio).map(p=>`
         <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap">
           <strong style="color:#a78bfa;min-width:90px">${p.id}</strong>
           <span style="flex:1;font-size:13px">${p.cliente}</span>
           <code style="font-size:12px;background:var(--bg3);padding:3px 8px;border-radius:6px;border:1px solid var(--border)">${p.rastreio}</code>
           <span class="badge ${p.envio==='Entregue'?'green':'blue'}">${p.envio}</span>
-          <button class="btn xs" onclick="nsRastrear('${p.rastreio}')">📍 Rastrear</button>
+          <button class="btn xs" onclick="nsRastrear('${p.rastreio}')"><svg class=ico><use href=#i-target></use></svg> Rastrear</button>
         </div>
       `).join('')}
     </div>
