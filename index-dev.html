@@ -356,6 +356,23 @@ tbody tr:hover td{background:var(--bg3)}
 
 /* ====== ÍCONES ====== */
 .ico{width:18px;height:18px;display:inline-block;vertical-align:-.15em;fill:none;stroke:currentColor;flex-shrink:0}
+/* ====== LOADING ====== */
+.gload{position:fixed;inset:0;z-index:9998}
+.gload-card{background:rgba(10,6,14,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center}
+.gl-box{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r2);padding:26px 36px;text-align:center;box-shadow:var(--shadow-lg);min-width:230px}
+.gl-spin{width:42px;height:42px;margin:0 auto 14px;display:block;animation:spin 1s linear infinite}
+.gl-box-msg{font-size:13px;color:var(--text2);letter-spacing:.3px}
+.gload-splash{display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;color:#f4e7eb;background:linear-gradient(152deg,#732235 0%,#3d1521 46%,#150a11 100%)}
+.gl-grain{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:150px;opacity:.13;mix-blend-mode:overlay;pointer-events:none}
+.gl-ghost{position:absolute;left:50%;top:50%;transform:translateX(-50%);margin-top:-280px;font-family:var(--font-head);font-size:560px;line-height:.7;font-weight:700;color:#fff;opacity:.045;pointer-events:none;user-select:none}
+.gl-mark{position:relative;z-index:2;width:60px;height:68px;animation:breathe 2.4s ease-in-out infinite}
+.gl-wm{position:relative;z-index:2;font-family:var(--font-head);font-size:28px;font-weight:700;letter-spacing:8px;padding-left:8px;margin-top:20px}
+.gl-bar{position:relative;z-index:2;width:170px;height:2px;background:rgba(255,255,255,.16);border-radius:2px;overflow:hidden;margin-top:24px}
+.gl-bar i{position:absolute;left:0;top:0;height:100%;width:42%;border-radius:2px;background:linear-gradient(90deg,transparent,#ccac7c,transparent);animation:slide 1.4s ease-in-out infinite}
+.gl-msg{position:relative;z-index:2;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#d9b5bf;opacity:.8;margin-top:20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes breathe{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+@keyframes slide{0%{left:-42%}100%{left:100%}}
 /* ====== HAMBURGER ====== */
 .hamburger{display:none;background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:4px 6px;line-height:1;border-radius:var(--r)}
 .hamburger:hover{background:var(--bg3)}
@@ -747,15 +764,7 @@ async function deleteUsuario(id){
 // ============================================================
 // LOADING GLOBAL
 // ============================================================
-function showGlobalLoading(show){
-  let el=document.getElementById('gloading');
-  if(!el&&show){
-    el=document.createElement('div');el.id='gloading';
-    el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)';
-    el.innerHTML='<div style="text-align:center;color:#fff"><div style="font-size:28px;margin-bottom:10px">⟳</div><div style="font-size:13px;letter-spacing:1px">Sincronizando com o banco de dados...</div></div>';
-    document.body.appendChild(el);
-  } else if(el&&!show){ el.remove(); }
-}
+function showGlobalLoading(show){ showLoading(show,'Sincronizando com o banco de dados...'); }
 
 
 // ============================================================
@@ -770,13 +779,20 @@ function debounceSearch(v){
 function showLoading(show,msg){
   msg=msg||'Carregando...';
   let el=document.getElementById('gloading');
-  if(show&&!el){
-    el=document.createElement('div');el.id='gloading';
-    el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9998;display:flex;align-items:center;justify-content:center';
-    el.innerHTML='<div style="text-align:center;color:#fff;padding:20px;background:rgba(255,255,255,.1);border-radius:12px"><div style="font-size:26px;margin-bottom:8px">&#8987;</div><div style="font-size:12px;letter-spacing:1px">'+msg+'</div></div>';
-    document.body.appendChild(el);
-  }else if(!show&&el){el.remove();}
-  else if(show&&el){const d=el.querySelector('div div:last-child');if(d)d.textContent=msg;}
+  if(!show){ if(el)el.remove(); return; }
+  const splash=/banco de dados|sincronizando|conectando/i.test(msg);
+  if(!el){ el=document.createElement('div'); el.id='gloading'; document.body.appendChild(el); }
+  if(splash){
+    const label=msg.replace(/\.\.\.$/,'').split(/ com | ao /)[0];
+    el.className='gload gload-splash';
+    el.innerHTML='<div class="gl-grain"></div><div class="gl-ghost">V</div>'
+      +'<svg class="gl-mark" viewBox="0 0 44 50" fill="none"><polygon points="22,38 4,6 10,6 22,30 34,6 40,6" fill="#f0dfe4"/><path d="M30,4 Q40,4 40,14 Q40,24 22,38" fill="none" stroke="#ccac7c" stroke-width="1.5"/></svg>'
+      +'<div class="gl-wm">VERSATILE</div><div class="gl-bar"><i></i></div>'
+      +'<div class="gl-msg">'+label+'</div>';
+  } else {
+    el.className='gload gload-card';
+    el.innerHTML='<div class="gl-box"><svg class="gl-spin" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="20" stroke="var(--border2)" stroke-width="4"/><circle cx="25" cy="25" r="20" stroke="var(--accent2)" stroke-width="4" stroke-linecap="round" stroke-dasharray="80 132"/></svg><div class="gl-box-msg">'+msg+'</div></div>';
+  }
 }
 // HELPERS
 // ============================================================
