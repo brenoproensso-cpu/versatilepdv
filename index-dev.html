@@ -193,7 +193,33 @@ tbody tr:hover td{background:var(--bg3)}
 .login-logo-area{text-align:center;margin-bottom:30px}
 .login-logo-v{margin:0 auto 10px}
 .login-logo-name{font-family:var(--font-head);font-size:34px;font-weight:700;letter-spacing:6px;color:var(--text);line-height:1}
-.login-logo-tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent2);margin-top:5px;font-weight:600}
+.login-logo-tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent2);margin-top:5px;font-weight:600} 
+/* ====== LOGIN EDITORIAL ====== */
+#login-screen{padding:0}
+.auth{position:absolute;inset:0;display:grid;grid-template-columns:1.08fr .92fr}
+.brand-panel{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:56px 58px;color:#f4e7eb;background:linear-gradient(152deg,#732235 0%,#3d1521 46%,#150a11 100%)}
+.brand-panel .grain{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:150px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.brand-panel .ghost-v{position:absolute;right:-7%;bottom:-22%;font-family:var(--font-head);font-size:560px;line-height:.7;font-weight:700;color:#fff;opacity:.05;pointer-events:none;user-select:none}
+.bp-top{position:relative;z-index:2;display:flex;align-items:center;gap:16px}
+.bp-mark{font-size:11px;letter-spacing:3.5px;font-weight:700;text-transform:uppercase;color:#e6c6cf;white-space:nowrap}
+.bp-rule{flex:1;height:1px;background:linear-gradient(90deg,rgba(204,172,124,.75),transparent)}
+.bp-hero{position:relative;z-index:2}
+.hero-word{font-family:var(--font-head);font-size:47px;font-weight:600;letter-spacing:6px;line-height:1;padding-left:6px}
+.hero-rule{width:66px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin-top:26px;opacity:.9}
+.bp-foot{position:relative;z-index:2;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#d9b5bf;opacity:.75}
+.form-panel{background:var(--bg);display:flex;align-items:center;justify-content:center;padding:48px}
+.form-inner{width:100%;max-width:352px}
+.greet-sm{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:12px}
+.greet{font-family:var(--font-head);font-size:40px;font-weight:600;line-height:1.05;margin-bottom:40px;letter-spacing:.3px}
+.ufield{margin-bottom:26px}
+.ufield label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);font-weight:700;margin-bottom:11px}
+.ufield input{width:100%;border:none;border-bottom:1.5px solid var(--border2);background:transparent;color:var(--text);font-size:16px;padding:8px 2px;outline:none;transition:border-color .2s}
+.ufield input:focus{border-color:var(--accent2)}
+.ufield input::placeholder{color:var(--text3)}
+.big-btn{width:100%;justify-content:center;padding:15px;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:8px}
+.fp-foot{font-size:11px;color:var(--text3);margin-top:26px;letter-spacing:.4px}
+@media(max-width:760px){.auth{grid-template-columns:1fr}.brand-panel{display:none}.form-panel{padding:32px 22px}}
+
 
 /* ====== VENDA ====== */
 .venda-layout{display:grid;grid-template-columns:1fr 380px;gap:14px;height:calc(100vh - 130px);overflow:hidden}
@@ -470,25 +496,24 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
 
 <!-- ===== LOGIN ===== -->
 <div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo-area">
-      <svg class="login-logo-v" width="44" height="50" viewBox="0 0 44 50">
-        <polygon points="22,38 4,6 10,6 22,30 34,6 40,6" fill="#5c1a2a"/>
-        <path d="M30,4 Q40,4 40,14 Q40,24 22,38" fill="none" stroke="#5c1a2a" stroke-width="1.5"/>
-      </svg>
-      <div class="login-logo-name">VERSATILE</div>
-      <div class="login-logo-tag">Sistema de Gestão</div>
+  <div class="auth">
+    <div class="brand-panel">
+      <div class="grain"></div><div class="ghost-v">V</div>
+      <div class="bp-top"><span class="bp-mark">Boutique de Calçados</span><span class="bp-rule"></span></div>
+      <div class="bp-hero"><div class="hero-word">VERSATILE</div><div class="hero-rule"></div></div>
+      <div class="bp-foot">Palmas · Tocantins</div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Usuário</label>
-      <input class="form-control" id="lu" placeholder="Nome de usuário" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="username">
+    <div class="form-panel">
+      <div class="form-inner">
+        <div class="greet-sm">Bem-vinda de volta</div>
+        <h1 class="greet">Acesse sua conta</h1>
+        <div class="ufield"><label>Usuário</label><input id="lu" placeholder="Seu nome de usuário" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="username"></div>
+        <div class="ufield"><label>Senha</label><input id="lp" type="password" placeholder="••••••••••" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password"></div>
+        <div id="lerr" class="hidden" style="color:var(--red);font-size:12px;margin-bottom:14px;padding:9px 11px;background:var(--reddim);border:1px solid var(--red);border-radius:var(--r);text-align:center"></div>
+        <button class="btn primary big-btn" onclick="doLogin()">Entrar</button>
+        <div class="fp-foot">Acesso restrito à equipe Versatile</div>
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Senha</label>
-      <input class="form-control" id="lp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password">
-    </div>
-    <div id="lerr" class="hidden" style="color:var(--red);font-size:12px;margin-bottom:10px;padding:8px;background:var(--reddim);border-radius:var(--r);text-align:center"></div>
-    <button class="btn primary w-full" style="justify-content:center;padding:11px;font-size:14px;letter-spacing:.5px" onclick="doLogin()">Entrar</button>
   </div>
 </div>
 
