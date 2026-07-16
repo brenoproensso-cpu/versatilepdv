@@ -3629,6 +3629,15 @@ function renderConfiguracoes(){
   };
 
   document.getElementById('page').innerHTML = `
+  <div class="card" style="margin-bottom:16px;border-color:var(--wine3)">
+    <div class="sec-title">🔔 Notificações no Celular</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">Receba um aviso no seu celular a cada nova venda registrada. Importante: ative <strong>pelo app instalado na tela inicial</strong> (no iPhone precisa ser o ícone do PDV, não o Safari).</p>
+    <div class="flex" style="gap:8px;flex-wrap:wrap">
+      <button class="btn primary" onclick="ativarNotificacoes()">🔔 Ativar neste aparelho</button>
+      <button class="btn" onclick="desativarNotificacoes()">Desativar</button>
+    </div>
+    <div id="notif-status" style="font-size:12px;color:var(--text3);margin-top:10px"></div>
+  </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
 
     <!-- DADOS DA LOJA -->
@@ -5176,6 +5185,43 @@ async function carregarTrocasSupabase(){
       }catch(e){}
     }
   }catch(e){ console.warn('Erro ao carregar trocas:',e.message); }
+}
+
+// ============================================================
+// NOTIFICAÇÕES PUSH (Web Push)
+// ============================================================
+const VAPID_PUBLIC='BC6dNtFXUYNeSnNkPQPC7MAm4wpDhjOsIKpg_EiD02HNbK-rqmgTg5NaI6H2U8ZhrPgF0MMHAIssVy9ijdCUC-I';
+function _urlB64ToUint8(base64String){
+  const padding='='.repeat((4-base64String.length%4)%4);
+  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  const raw=atob(base64);const arr=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
+  return arr;
+}
+async function ativarNotificacoes(){
+  const st=document.getElementById('notif-status');
+  try{
+    if(!('serviceWorker' in navigator)||!('PushManager' in window)){notify('Este aparelho não suporta notificações. No iPhone, abra pelo app da tela inicial (iOS 16.4+).','warn');return;}
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){notify('Permissão de notificação negada','warn');return;}
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_urlB64ToUint8(VAPID_PUBLIC)});
+    const j=sub.toJSON();
+    const r=await fetch(SB_URL+'/rest/v1/push_subscriptions?on_conflict=endpoint',{method:'POST',headers:Object.assign(sbH(),{'Prefer':'resolution=ignore-duplicates'}),body:JSON.stringify({endpoint:sub.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,user_agent:navigator.userAgent,label:(ses&&ses.usuario&&ses.usuario.nome)||''})});
+    if(!r.ok&&r.status!==409){const t=await r.text();throw new Error('HTTP '+r.status+' '+t.slice(0,90));}
+    if(st){st.textContent='✓ Notificações ativas neste aparelho.';st.style.color='var(--green)';}
+    notify('Notificações ativadas! Você será avisado a cada venda.','ok');
+  }catch(e){notify('Erro ao ativar: '+e.message,'err');console.error('push:',e);}
+}
+async function desativarNotificacoes(){
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    const sub=await reg.pushManager.getSubscription();
+    if(sub){await fetch(SB_URL+'/rest/v1/push_subscriptions?endpoint=eq.'+encodeURIComponent(sub.endpoint),{method:'DELETE',headers:sbH()});await sub.unsubscribe();}
+    const st=document.getElementById('notif-status');if(st){st.textContent='Notificações desativadas neste aparelho.';st.style.color='var(--text3)';}
+    notify('Notificações desativadas','warn');
+  }catch(e){notify('Erro: '+e.message,'err');}
 }
 
 // INIT
