@@ -5208,7 +5208,8 @@ async function ativarNotificacoes(){
     let sub=await reg.pushManager.getSubscription();
     if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_urlB64ToUint8(VAPID_PUBLIC)});
     const j=sub.toJSON();
-    const r=await fetch(SB_URL+'/rest/v1/push_subscriptions?on_conflict=endpoint',{method:'POST',headers:Object.assign(sbH(),{'Prefer':'resolution=ignore-duplicates'}),body:JSON.stringify({endpoint:sub.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,user_agent:navigator.userAgent,label:(ses&&ses.usuario&&ses.usuario.nome)||''})});
+    await fetch(SB_URL+'/rest/v1/push_subscriptions?endpoint=eq.'+encodeURIComponent(sub.endpoint),{method:'DELETE',headers:sbH()}).catch(()=>{});
+    const r=await fetch(SB_URL+'/rest/v1/push_subscriptions',{method:'POST',headers:Object.assign(sbH(),{'Prefer':'return=minimal'}),body:JSON.stringify({endpoint:sub.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,user_agent:navigator.userAgent,label:(ses&&ses.usuario&&ses.usuario.nome)||''})});
     if(!r.ok&&r.status!==409){const t=await r.text();throw new Error('HTTP '+r.status+' '+t.slice(0,90));}
     if(st){st.textContent='✓ Notificações ativas neste aparelho.';st.style.color='var(--green)';}
     notify('Notificações ativadas! Você será avisado a cada venda.','ok');
