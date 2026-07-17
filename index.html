@@ -242,6 +242,8 @@ tbody tr:hover td{background:var(--bg3)}
 /* ====== THEME TOGGLE ====== */
 .theme-btn{width:34px;height:34px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
 .theme-btn:hover{background:var(--bg4);color:var(--text)}
+@keyframes btnSpin{to{transform:rotate(360deg)}}
+.spinning{animation:btnSpin .8s linear infinite}
 
 /* ====== SPARKLINE ====== */
 .sparkline{display:flex;align-items:flex-end;gap:3px;height:40px}
@@ -442,6 +444,7 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
       <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
       <div class="topbar-title" id="tbar-title">Painel</div>
       <div class="flex gap-2" id="tbar-actions"></div>
+      <button class="theme-btn" id="btn-refresh" onclick="refreshDataNow()" title="Atualizar dados" style="flex-shrink:0">⟳</button>
     </div>
     <div class="content" id="page"></div>
   </main>
@@ -773,6 +776,7 @@ async function doLogin(){
     registrarAudit('LOGIN','Acesso ao sistema');
     carregarAuditoria();
     rtStart();
+    startAutoRefreshLoop();
     buildNav();goTo('dashboard');
   }catch(e){
     showLoading(false);console.error('LOGIN:',e);
@@ -784,6 +788,7 @@ function doLogout(){
   ses=null;cart=[];
   db={usuarios:[],produtos:[],clientes:[],vendas:[],movimentos:[],caixas:[]};
   rtStop();
+  stopAutoRefreshLoop();
   document.getElementById('app').classList.add('hidden');
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('lu').value='';document.getElementById('lp').value='';
@@ -802,12 +807,38 @@ function rtStart(){
     .on('postgres_changes',{event:'*',schema:'public',table:'clientes'},p=>rtHandle('clientes',p))
     .on('postgres_changes',{event:'*',schema:'public',table:'movimentos'},p=>rtHandle('movimentos',p))
     .on('postgres_changes',{event:'*',schema:'public',table:'caixas'},p=>rtHandle('caixas',p))
-    .subscribe();
+    .subscribe(status=>{
+      // Conexão caiu (rede, app em segundo plano, etc.) — reconecta sozinho
+      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
+        rtStop();
+        setTimeout(()=>{ if(ses) rtStart(); },3000);
+      }
+    });
 }
 function rtStop(){
   if(_rtChannel){_rtChannel.unsubscribe();_rtChannel=null;}
   if(_sbClient){_sbClient.removeAllChannels();_sbClient=null;}
 }
+// --- Recuperação ao voltar o foco/aba/conexão (celular trava socket em segundo plano) ---
+let _rtHealthBusy=false;
+async function checkRealtimeHealth(){
+  if(!ses||_rtHealthBusy) return;
+  _rtHealthBusy=true;
+  try{
+    const state=_rtChannel&&_rtChannel.state;
+    if(!_rtChannel||state==='closed'||state==='errored'){ rtStop(); rtStart(); }
+    await refreshDataSilent();
+  }finally{ _rtHealthBusy=false; }
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') checkRealtimeHealth(); });
+window.addEventListener('focus',checkRealtimeHealth);
+window.addEventListener('online',checkRealtimeHealth);
+let _autoRefreshTimer=null;
+function startAutoRefreshLoop(){
+  stopAutoRefreshLoop();
+  _autoRefreshTimer=setInterval(()=>{ if(ses&&document.visibilityState==='visible') refreshDataSilent(); },45000);
+}
+function stopAutoRefreshLoop(){ if(_autoRefreshTimer){clearInterval(_autoRefreshTimer);_autoRefreshTimer=null;} }
 function rtHandle(table,payload){
   const ev=payload.eventType;
   const row=payload.new||{};
@@ -2741,8 +2772,7 @@ function buildReciboData(v){
 }
 
 
-async function loadAll(){
-  showLoading(true,'Conectando ao banco de dados...');
+async function _fetchAndApplyData(){
   const erros = [];
   const resultados = {};
 
@@ -2792,6 +2822,11 @@ async function loadAll(){
   if(cx.length) db.caixas=(cx).map(r=>({id:r.id,data:r.data,hora:r.hora,vendedorId:r.vendedor_id,vendedorNome:r.vendedor_nome,total:parseFloat(r.total||0),qtdVendas:r.qtd_vendas||0,obs:r.obs})).sort((a,b)=>b.data>a.data?1:-1);
 
   saveLocal();
+  return {erros, resultados, tabelas};
+}
+async function loadAll(){
+  showLoading(true,'Conectando ao banco de dados...');
+  const {erros, resultados, tabelas} = await _fetchAndApplyData();
   showLoading(false);
 
   // Mostrar diagnóstico visível se houver erros OU se produtos vazios
@@ -2822,6 +2857,33 @@ async function loadAll(){
   carregarMetas();
   carregarMovEstoque();
   carregarTrocasSupabase();
+}
+
+// Evita atualizar por baixo dos panos uma venda em andamento ou um modal aberto
+function _paginaSeguraParaRerender(){
+  if(curPage==='venda') return false;
+  if(document.querySelector('.modal-backdrop:not(.hidden)')) return false;
+  return true;
+}
+// Atualização silenciosa (sem overlay) — usada pela reconexão automática e pelo botão manual
+async function refreshDataSilent(){
+  try{ await _fetchAndApplyData(); }
+  catch(e){ console.warn('Atualização em segundo plano falhou:',e); return false; }
+  if(curPage==='venda'){ renderPCards(); }              // só atualiza estoque exibido, sem tocar no formulário
+  else if(_paginaSeguraParaRerender() && curPage){ goTo(curPage); }
+  return true;
+}
+async function refreshDataNow(){
+  const btn=document.getElementById('btn-refresh');
+  if(btn) btn.classList.add('spinning');
+  try{
+    const ok=await refreshDataSilent();
+    notify(ok?'Dados atualizados!':'Não foi possível atualizar agora','ok');
+  }catch(e){
+    notify('Erro ao atualizar: '+e.message,'err');
+  }finally{
+    if(btn) setTimeout(()=>btn.classList.remove('spinning'),400);
+  }
 }
 
 
