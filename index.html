@@ -90,6 +90,7 @@ a{color:inherit;text-decoration:none}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.grid6{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
 
 /* ====== CARDS ====== */
 .card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r2);padding:16px;transition:background .2s}
@@ -317,7 +318,7 @@ tbody tr:hover td{background:var(--bg3)}
 /* ====== RESPONSIVE ====== */
 @media(max-width:900px){
   .venda-layout{grid-template-columns:1fr;height:auto}
-  .grid4,.grid5{grid-template-columns:1fr 1fr}
+  .grid4,.grid5,.grid6{grid-template-columns:1fr 1fr}
   .grid3{grid-template-columns:1fr 1fr}
 }
 @media(max-width:768px){
@@ -329,7 +330,7 @@ tbody tr:hover td{background:var(--bg3)}
   .topbar{padding:0 12px}
   .topbar-title{font-size:16px}
   .content{padding:12px 10px}
-  .grid4,.grid5{grid-template-columns:1fr 1fr}
+  .grid4,.grid5,.grid6{grid-template-columns:1fr 1fr}
   .grid3{grid-template-columns:1fr 1fr}
   .grid2{grid-template-columns:1fr}
   .metric-card{padding:12px}
@@ -358,7 +359,7 @@ tbody tr:hover td{background:var(--bg3)}
   .qty-btn{width:28px;height:28px;font-size:16px}
 }
 @media(max-width:400px){
-  .grid4,.grid5,.grid3,.grid2{grid-template-columns:1fr}
+  .grid4,.grid5,.grid6,.grid3,.grid2{grid-template-columns:1fr}
   .metric-val{font-size:20px}
   .topbar-title{font-size:15px}
   .prod-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
@@ -980,13 +981,15 @@ function pgDashboard(){
   const pares=db.produtos.reduce((s,p)=>s+(p.qtd||0),0);
   const baixo=db.produtos.filter(p=>(p.qtd||0)<=(p.min||2)).length;
   const ticket=vm.length?tm/vm.length:0;
+  const paresMes=vm.reduce((s,v)=>s+(v.itens||[]).reduce((si,i)=>si+(i.qtd||1),0),0);
   const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const ds=d.toISOString().slice(0,10);days.push({d:ds,v:db.vendas.filter(x=>x.data&&x.data.startsWith(ds)).reduce((s,x)=>s+x.total,0)});}
   const maxD=Math.max(...days.map(d=>d.v),1);
   document.getElementById('tbar-actions').innerHTML='<button class="btn" onclick="abrirModalMeta()">🎯 Definir Metas</button>';
   document.getElementById('page').innerHTML=`
-  <div class="grid5 mb-4">
+  <div class="grid6 mb-4">
     <div class="metric-card"><div class="mi">💵</div><div class="metric-label">Vendas Hoje</div><div class="metric-val text-green">${fmt(th)}</div><div class="metric-sub">${vh.length} venda(s)</div></div>
     <div class="metric-card"><div class="mi">📅</div><div class="metric-label">Vendas no Mês</div><div class="metric-val text-wine">${fmt(tm)}</div><div class="metric-sub">${vm.length} venda(s)</div></div>
+    <div class="metric-card"><div class="mi">👟</div><div class="metric-label">Pares Vendidos</div><div class="metric-val text-blue">${paresMes}</div><div class="metric-sub">este mês</div></div>
     <div class="metric-card"><div class="mi">🎯</div><div class="metric-label">Ticket Médio</div><div class="metric-val text-gold">${fmt(ticket)}</div><div class="metric-sub">este mês</div></div>
     <div class="metric-card"><div class="mi">📦</div><div class="metric-label">Total Estoque</div><div class="metric-val">${pares}</div><div class="metric-sub ${baixo>0?'text-red':'text-green'}">${baixo>0?baixo+' prod. c/ estoque baixo':'OK'}</div></div>
     <div class="metric-card"><div class="mi">👤</div><div class="metric-label">Clientes</div><div class="metric-val text-blue">${db.clientes.length}</div><div class="metric-sub">cadastrados</div></div>
@@ -2352,6 +2355,7 @@ function renderRanking(){
   function render(){
     const arr=rankProds(periodo);
     const maxV=arr.reduce((m,r)=>Math.max(m,r.val),1);
+    const totalPares=arr.reduce((s,r)=>s+r.qtd,0);
     document.getElementById('page').innerHTML=`
     <div class="tab-row" style="max-width:300px;margin-bottom:16px">
       <button class="tab-btn ${periodo==='hoje'?'active':''}" onclick="_rankPeriodo='hoje';renderRanking()">Hoje</button>
@@ -2366,7 +2370,7 @@ function renderRanking(){
         ${[...arr].sort((a,b)=>b.val-a.val).slice(0,10).map((r,i)=>{const pct=Math.round((r.val/maxV)*100);return`<div class="rank-row"><div class="rank-n" style="${i<3?'color:var(--amber);font-size:14px':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div><div class="rank-bar-w"><div class="rank-lbl">${r.nome}</div><div class="rank-bar-bg"><div class="rank-bar-f" style="width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--gold))"></div></div></div><div class="rank-tot" style="color:var(--blue)">${fmt(r.val)}</div></div>`;}).join('')||'<div class="empty"><p>Sem dados</p></div>'}
       </div>
     </div>
-    <div class="card mt-4"><div class="sec-title">📋 Detalhamento</div>
+    <div class="card mt-4"><div class="sec-title">📋 Detalhamento <span class="text-dim" style="font-weight:400;font-size:12px">— ${totalPares} par(es) ${periodo==='hoje'?'hoje':periodo==='mes'?'no mês':'no total'}</span></div>
       <div class="table-wrap"><table>
         <thead><tr><th>#</th><th>Produto</th><th>Marca</th><th>Pares</th><th>Faturamento</th><th>Estoque</th></tr></thead>
         <tbody>${arr.map((r,i)=>`<tr><td>${i+1}</td><td class="td-name">${r.nome}</td><td class="text-dim">${r.marca}</td><td><strong>${r.qtd}</strong></td><td class="text-gold font-bold">${fmt(r.val)}</td><td><span class="badge ${r.qtdAtual===0?'red':r.qtdAtual<=2?'amber':'green'}">${r.qtdAtual}</span></td></tr>`).join('')||'<tr><td colspan="6"><div class="empty"><p>Sem dados</p></div></td></tr>'}
