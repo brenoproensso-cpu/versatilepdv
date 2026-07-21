@@ -49,6 +49,19 @@ button{font-family:var(--font-body);cursor:pointer}
 input,select,textarea{font-family:var(--font-body)}
 a{color:inherit;text-decoration:none}
 .hidden{display:none!important}
+.show-mobile-inline{display:none}
+.estoque-cards-view{display:none}
+.prod-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r2);padding:12px;margin-bottom:10px}
+.prod-card-top{display:flex;gap:10px;align-items:flex-start}
+.prod-card-foto{width:44px;height:44px;background:var(--bg4);border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.prod-card-info{flex:1;min-width:0}
+.prod-card-name{font-weight:600;font-size:14px}
+.prod-card-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.prod-card-price{font-weight:700;color:var(--gold);font-size:15px;white-space:nowrap}
+.prod-card-mid{margin-top:10px}
+.prod-card-grade{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
+.prod-card-acts{display:flex;gap:6px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px;flex-wrap:wrap}
+.prod-card-acts .btn{flex:1;justify-content:center;min-width:70px}
 .flex{display:flex}.flex-col{flex-direction:column}
 .items-center{align-items:center}.justify-between{justify-content:space-between}.justify-end{justify-content:flex-end}
 .gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}
@@ -322,6 +335,10 @@ tbody tr:hover td{background:var(--bg3)}
   .grid3{grid-template-columns:1fr 1fr}
 }
 @media(max-width:768px){
+  .hide-mobile{display:none}
+  .show-mobile-inline{display:inline}
+  .estoque-table-view{display:none}
+  .estoque-cards-view{display:block}
   .hamburger{display:flex}
   .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(-100%);transition:transform .25s ease;width:260px;min-width:260px;box-shadow:4px 0 24px rgba(0,0,0,.4)}
   .sidebar.open{transform:translateX(0)}
@@ -1080,35 +1097,55 @@ const GRADES={
 };
 let gpCustom=[];
 
+let _estFiltro=null;
 function pgEstoque(){
-  if(temPerm('estoque')){
-    document.getElementById('tbar-actions').innerHTML='<button class="btn" style="margin-right:6px" onclick="openImportModal()">📥 Importar Excel/CSV</button><button class="btn primary" onclick="openProdModal()">+ Novo Produto</button>';
+  const admin=temPerm('estoque');
+  if(admin){
+    document.getElementById('tbar-actions').innerHTML=
+      '<button class="btn" onclick="openImportModal()" title="Importar Excel/CSV">📥<span class="hide-mobile"> Importar Excel/CSV</span></button>'+
+      '<button class="btn primary" onclick="openProdModal()" title="Novo Produto">+<span class="hide-mobile"> Novo Produto</span><span class="show-mobile-inline"> Produto</span></button>';
   } else {
     document.getElementById('tbar-actions').innerHTML='';
   }
-  // Renderizar layout UMA VEZ — a busca só atualiza o tbody
-  const admin=temPerm('estoque');
+  _estFiltro={tab:'com',marca:'todas',categoria:'todas',ordenar:'nome',busca:''};
   const thAdmin=isAdmin()?'<th>Custo</th><th>Margem</th>':'';
   const thAcoes=admin?'<th></th>':'';
   document.getElementById('page').innerHTML=
     '<div class="card mb-3"><div class="srch"><span class="srch-ic">🔍</span>'+
     '<input class="form-control" id="estoque-busca" placeholder="Buscar produto, marca, cor..." style="font-size:14px;height:42px;padding-left:36px" autofocus></div></div>'+
     (!admin?'<div style="padding:8px 14px;background:var(--bluedim);border:1px solid var(--blue);border-radius:var(--r);margin-bottom:12px;font-size:12px;color:var(--blue)">Modo visualização. Apenas administradores podem cadastrar ou editar produtos.</div>':'')+
-    '<div class="card"><div class="table-wrap"><table>'+
+    '<div class="card mb-4">'+
+      '<div class="tab-row" style="max-width:420px;margin-bottom:0" id="estoque-tabs"></div>'+
+      '<div class="flex gap-3" style="align-items:flex-end;flex-wrap:wrap;margin-top:14px">'+
+        '<div class="form-group" style="margin-bottom:0;min-width:150px"><label class="form-label">Marca</label><select class="form-control" id="estoque-marca"></select></div>'+
+        '<div class="form-group" style="margin-bottom:0;min-width:150px"><label class="form-label">Categoria</label><select class="form-control" id="estoque-cat"></select></div>'+
+        '<div class="form-group" style="margin-bottom:0;min-width:190px"><label class="form-label">Ordenar por</label><select class="form-control" id="estoque-ord">'+
+          '<option value="nome">Nome (A-Z)</option><option value="estoque-asc">Estoque: menor → maior</option><option value="estoque-desc">Estoque: maior → menor</option><option value="margem">Margem</option>'+
+        '</select></div>'+
+      '</div>'+
+    '</div>'+
+    '<div id="estoque-aviso"></div>'+
+    '<div class="card estoque-table-view"><div class="table-wrap"><table>'+
     '<thead><tr><th>Cód.</th><th>Produto</th><th>Marca/Cor</th><th>Números</th>'+thAdmin+'<th>Venda</th><th>Pares</th><th>Status</th>'+thAcoes+'</tr></thead>'+
     '<tbody id="estoque-tbody"></tbody>'+
     '</table></div></div>'+
+    '<div class="estoque-cards-view" id="estoque-cards"></div>'+
     '<div id="estoque-modal-area"></div>';
+  // Bind filtros
+  document.getElementById('estoque-marca').onchange=function(){_estFiltro.marca=this.value;renderEstoqueList();};
+  document.getElementById('estoque-cat').onchange=function(){_estFiltro.categoria=this.value;renderEstoqueList();};
+  document.getElementById('estoque-ord').onchange=function(){_estFiltro.ordenar=this.value;renderEstoqueList();};
   // Bind search
   const input=document.getElementById('estoque-busca');
   let timer=null;
   input.addEventListener('input',function(){
     clearTimeout(timer);
-    timer=setTimeout(function(){ filterEstoque(input.value); },150);
+    timer=setTimeout(function(){ _estFiltro.busca=input.value; renderEstoqueList(); },150);
   });
-  filterEstoque('');
+  popularFiltrosEstoque();
+  renderEstoqueList();
   // Criar modal de produto (quem tem perm de estoque)
-  if(temPerm('estoque')){
+  if(admin){
     const ma=document.getElementById('estoque-modal-area');
     if(ma&&!document.getElementById('mprod')){
       ma.innerHTML=`
@@ -1163,46 +1200,114 @@ function pgEstoque(){
   }
 }
 
-function filterEstoque(q){
-  const admin=isAdmin();
-  const colSpan=admin?10:7;
-  const fil=db.produtos.filter(p=>!q||[p.nome,p.marca,p.cod,p.cor,p.obs].join(' ').toLowerCase().includes(q.toLowerCase()));
+function estCalcProd(p){
+  const tot=p.grade?p.grade.reduce((s,g)=>s+g.q,0):(p.qtd||0);
+  const st=tot===0?'red':tot<=(p.min||2)?'amber':'green';
+  const lab=tot===0?'Esgotado':tot<=(p.min||2)?'Baixo':'OK';
+  const margem=p.custo&&p.preco?Math.round(((p.preco-p.custo)/p.preco)*100):null;
+  return {tot,st,lab,margem};
+}
+function estGradeTabela(p,canEdit){
+  if(!p.grade||!p.grade.length) return p.tam||'—';
+  return p.grade.map(g=>{
+    const cor=g.q===0?'red':g.q<=1?'amber':'green';
+    if(!canEdit){
+      return '<span class="badge '+cor+'" style="margin:1px;font-size:11px">'+g.n+'('+g.q+')</span>';
+    }
+    return '<span style="display:inline-flex;align-items:center;gap:2px;margin:1px;border:1px solid var(--border);border-radius:4px;padding:1px 2px;background:var(--bg3)">'+
+      '<button class="btn xs" style="padding:0 4px;min-width:18px" onclick="event.stopPropagation();gradeRapida(\''+p.id+'\','+g.n+',-1)">-</button>'+
+      '<span class="badge '+cor+'" data-gq="'+p.id+'-'+g.n+'" style="font-size:11px;min-width:34px;text-align:center">'+g.n+'('+g.q+')</span>'+
+      '<button class="btn xs" style="padding:0 4px;min-width:18px" onclick="event.stopPropagation();gradeRapida(\''+p.id+'\','+g.n+',1)">+</button>'+
+      '</span>';
+  }).join('');
+}
+function estGradeChips(p){
+  if(!p.grade||!p.grade.length) return p.tam?'<span class="badge gray">'+p.tam+'</span>':'';
+  return p.grade.map(g=>{
+    const cor=g.q===0?'red':g.q<=1?'amber':'green';
+    return '<span class="badge '+cor+'">'+g.n+'('+g.q+')</span>';
+  }).join('');
+}
+function estRowTabela(p,isAdm,canEdit){
+  const {tot,st,lab,margem}=estCalcProd(p);
+  const grVisual=estGradeTabela(p,canEdit);
+  const tdAdmin=isAdm?'<td class="text-dim">'+(p.custo?fmt(p.custo):'—')+'</td><td>'+(margem!==null?'<span class="badge '+(margem>=30?'green':margem>=15?'amber':'red')+'">'+margem+'%</span>':'—')+'</td>':'';
+  const tdAcoes=canEdit?('<td><div class="flex gap-2"><button class="btn xs" onclick="verHistoricoEstoque(&apos;'+p.id+'&apos;)">📋</button><button class="btn xs" onclick="abrirAjusteEstoque(&apos;'+p.id+'&apos;)">±</button><button class="btn xs" onclick="openProdModal(&apos;'+p.id+'&apos;)">✏️</button>'+( isAdm?'<button class="btn xs danger" onclick="delProd(&apos;'+p.id+'&apos;)">🗑</button>':'' )+'</div></td>'):'';
+  const fotoHtml=p.foto?'<img src="'+p.foto+'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0">':'<div style="width:36px;height:36px;background:var(--bg4);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">👟</div>';
+  return'<tr>'+
+    '<td class="text-xs text-dim">'+(p.cod||'—')+'</td>'+
+    '<td><div style="display:flex;align-items:center;gap:8px">'+fotoHtml+'<div><div class="td-name">'+p.nome+'</div><div style="font-size:11px;color:var(--text3)">'+(p.obs||'')+'</div></div></div></td>'+
+    '<td>'+(p.marca||'—')+(p.cor?' · '+p.cor:'')+'</td>'+
+    '<td style="font-size:12px;color:var(--text2)"><div style="display:flex;flex-wrap:wrap;gap:1px;max-width:280px">'+grVisual+'</div></td>'+
+    tdAdmin+
+    '<td class="font-bold text-gold">'+fmt(p.preco)+'</td>'+
+    '<td class="font-bold" data-gtot="'+p.id+'">'+tot+'</td>'+
+    '<td><span class="badge '+st+'">'+lab+'</span></td>'+
+    tdAcoes+
+    '</tr>';
+}
+function estCardMobile(p,isAdm,canEdit){
+  const {tot,st,lab,margem}=estCalcProd(p);
+  const fotoHtml=p.foto?'<img src="'+p.foto+'" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0">':'<div class="prod-card-foto">👟</div>';
+  const acoes=canEdit?('<div class="prod-card-acts"><button class="btn xs" onclick="verHistoricoEstoque(&apos;'+p.id+'&apos;)">📋 Histórico</button><button class="btn xs" onclick="abrirAjusteEstoque(&apos;'+p.id+'&apos;)">± Ajustar</button><button class="btn xs" onclick="openProdModal(&apos;'+p.id+'&apos;)">✏️ Editar</button>'+( isAdm?'<button class="btn xs danger" onclick="delProd(&apos;'+p.id+'&apos;)">🗑</button>':'' )+'</div>'):'';
+  const subInfo=isAdm?('Custo '+(p.custo?fmt(p.custo):'—')+(margem!==null?' · Margem <span class="badge '+(margem>=30?'green':margem>=15?'amber':'red')+'" style="font-size:10px">'+margem+'%</span>':'')):[p.marca,p.obs].filter(Boolean).join(' · ');
+  return '<div class="prod-card">'+
+    '<div class="prod-card-top">'+fotoHtml+
+    '<div class="prod-card-info"><div class="prod-card-name">'+p.nome+'</div><div class="prod-card-sub">'+subInfo+'</div></div>'+
+    '<div class="prod-card-price">'+fmt(p.preco)+'</div>'+
+    '</div>'+
+    '<div class="prod-card-mid"><span class="badge '+st+'" data-gtotlab="'+p.id+'">'+lab+' · '+tot+' par'+(tot===1?'':'es')+'</span></div>'+
+    '<div class="prod-card-grade">'+estGradeChips(p)+'</div>'+
+    acoes+
+    '</div>';
+}
+function popularFiltrosEstoque(){
+  const marcas=[...new Set(db.produtos.map(p=>p.marca).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  const cats=[...new Set(db.produtos.map(p=>p.obs).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  const selM=document.getElementById('estoque-marca');
+  if(selM) selM.innerHTML='<option value="todas">Todas</option>'+marcas.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
+  const selC=document.getElementById('estoque-cat');
+  if(selC) selC.innerHTML='<option value="todas">Todas</option>'+cats.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+}
+function estSetTab(tab){ _estFiltro.tab=tab; renderEstoqueList(); }
+function renderEstoqueList(){
+  if(!_estFiltro) return;
+  const canEdit=temPerm('estoque');
+  const isAdm=isAdmin();
+  const q=(_estFiltro.busca||'').toLowerCase();
+  let base=db.produtos.filter(p=>!q||[p.nome,p.marca,p.cod,p.cor,p.obs].join(' ').toLowerCase().includes(q));
+  if(_estFiltro.marca!=='todas') base=base.filter(p=>(p.marca||'')===_estFiltro.marca);
+  if(_estFiltro.categoria!=='todas') base=base.filter(p=>(p.obs||'')===_estFiltro.categoria);
+
+  const comCount=base.filter(p=>estCalcProd(p).tot>0).length;
+  const semCount=base.filter(p=>estCalcProd(p).tot===0).length;
+
+  const tabsEl=document.getElementById('estoque-tabs');
+  if(tabsEl) tabsEl.innerHTML=
+    '<button class="tab-btn '+(_estFiltro.tab==='com'?'active':'')+'" onclick="estSetTab(\'com\')">Com Estoque ('+comCount+')</button>'+
+    '<button class="tab-btn '+(_estFiltro.tab==='sem'?'active':'')+'" onclick="estSetTab(\'sem\')">Sem Estoque ('+semCount+')</button>';
+
+  let list=base.filter(p=> _estFiltro.tab==='com' ? estCalcProd(p).tot>0 : estCalcProd(p).tot===0 );
+
+  const ord=_estFiltro.ordenar;
+  list=[...list].sort((a,b)=>{
+    if(ord==='estoque-asc') return estCalcProd(a).tot-estCalcProd(b).tot;
+    if(ord==='estoque-desc') return estCalcProd(b).tot-estCalcProd(a).tot;
+    if(ord==='margem'){ const ma=estCalcProd(a).margem,mb=estCalcProd(b).margem; return (mb??-1)-(ma??-1); }
+    return (a.nome||'').localeCompare(b.nome||'','pt-BR');
+  });
+
+  const avisoEl=document.getElementById('estoque-aviso');
+  if(avisoEl) avisoEl.innerHTML = (_estFiltro.tab==='sem'&&list.length)
+    ? '<div style="padding:8px 14px;background:var(--reddim);border:1px solid var(--red);border-radius:var(--r);margin-bottom:14px;font-size:12px;color:var(--red)">'+list.length+' produto(s) sem estoque — repor ou desativar</div>'
+    : '';
+
+  const colSpan=4+(isAdm?2:0)+3+(canEdit?1:0);
   const tbody=document.getElementById('estoque-tbody');
-  if(!tbody)return;
-  tbody.innerHTML=fil.map(p=>{
-    const tot=p.grade?p.grade.reduce((s,g)=>s+g.q,0):(p.qtd||0);
-    const st=tot===0?'red':tot<=(p.min||2)?'amber':'green';
-    const lab=tot===0?'Esgotado':tot<=(p.min||2)?'Baixo':'OK';
-    const margem=p.custo&&p.preco?Math.round(((p.preco-p.custo)/p.preco)*100):null;
-    const grStr=p.grade?p.grade.map(g=>g.n+'('+g.q+')').join(' '):(p.tam||'—');
-    const grVisual = p.grade && p.grade.length
-      ? p.grade.map(g=>{
-          const cor = g.q===0?'red':g.q<=1?'amber':'green';
-          if(!temPerm('estoque')){
-            return '<span class="badge '+cor+'" style="margin:1px;font-size:11px">'+g.n+'('+g.q+')</span>';
-          }
-          return '<span style="display:inline-flex;align-items:center;gap:2px;margin:1px;border:1px solid var(--border);border-radius:4px;padding:1px 2px;background:var(--bg3)">'+
-            '<button class="btn xs" style="padding:0 4px;min-width:18px" onclick="event.stopPropagation();gradeRapida(\''+p.id+'\','+g.n+',-1)">-</button>'+
-            '<span class="badge '+cor+'" id="gq-'+p.id+'-'+g.n+'" style="font-size:11px;min-width:34px;text-align:center">'+g.n+'('+g.q+')</span>'+
-            '<button class="btn xs" style="padding:0 4px;min-width:18px" onclick="event.stopPropagation();gradeRapida(\''+p.id+'\','+g.n+',1)">+</button>'+
-            '</span>';
-        }).join('')
-      : (p.tam||'—');
-    const tdAdmin=admin?'<td class="text-dim">'+(p.custo?fmt(p.custo):'—')+'</td><td>'+(margem!==null?'<span class="badge '+(margem>=30?'green':margem>=15?'amber':'red')+'">'+margem+'%</span>':'—')+'</td>':'';
-    const canEdit=temPerm('estoque');const tdAcoes=canEdit?('<td><div class="flex gap-2"><button class="btn xs" onclick="verHistoricoEstoque(&apos;'+p.id+'&apos;)">📋</button><button class="btn xs" onclick="abrirAjusteEstoque(&apos;'+p.id+'&apos;)">±</button><button class="btn xs" onclick="openProdModal(&apos;'+p.id+'&apos;)">✏️</button>'+( isAdmin()?'<button class="btn xs danger" onclick="delProd(&apos;'+p.id+'&apos;)">🗑</button>':'' )+'</div></td>'):'<td></td>';
-    const fotoHtml=p.foto?'<img src="'+p.foto+'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0">':'<div style="width:36px;height:36px;background:var(--bg4);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">👟</div>';
-    return'<tr>'+
-      '<td class="text-xs text-dim">'+(p.cod||'—')+'</td>'+
-      '<td><div style="display:flex;align-items:center;gap:8px">'+fotoHtml+'<div><div class="td-name">'+p.nome+'</div><div style="font-size:11px;color:var(--text3)">'+(p.obs||'')+'</div></div></div></td>'+
-      '<td>'+(p.marca||'—')+(p.cor?' · '+p.cor:'')+'</td>'+
-      '<td style="font-size:12px;color:var(--text2)"><div style="display:flex;flex-wrap:wrap;gap:1px;max-width:280px">'+grVisual+'</div></td>'+
-      tdAdmin+
-      '<td class="font-bold text-gold">'+fmt(p.preco)+'</td>'+
-      '<td class="font-bold" id="gtot-'+p.id+'">'+tot+'</td>'+
-      '<td><span class="badge '+st+'">'+lab+'</span></td>'+
-      tdAcoes+
-      '</tr>';
-  }).join('')||(function(){return'<tr><td colspan="'+colSpan+'"><div class="empty"><div class="ei">📦</div><p>Nenhum produto</p></div></td></tr>';}());
+  if(tbody) tbody.innerHTML=list.map(p=>estRowTabela(p,isAdm,canEdit)).join('')||'<tr><td colspan="'+colSpan+'"><div class="empty"><div class="ei">📦</div><p>Nenhum produto</p></div></td></tr>';
+
+  const cardsEl=document.getElementById('estoque-cards');
+  if(cardsEl) cardsEl.innerHTML=list.map(p=>estCardMobile(p,isAdm,canEdit)).join('')||'<div class="empty"><div class="ei">📦</div><p>Nenhum produto</p></div>';
 }
 
 function calcMarkup(){
@@ -5001,11 +5106,9 @@ async function gradeRapida(prodId, tam, delta){
   }
   await saveProduto(p);
   addMovEstoque(prodId,delta>0?'ENTRADA':'AJUSTE',delta,'Ajuste rápido',tam||null);
-  // Atualizar só o badge sem re-renderizar tudo
-  const el=document.getElementById('gq-'+prodId+'-'+(tam||'u'));
-  if(el) el.textContent=tam?p.grade.find(x=>x.n===tam)?.q||0:p.qtd;
-  const totalEl=document.getElementById('gtot-'+prodId);
-  if(totalEl) totalEl.textContent=p.qtd;
+  // Atualizar badges na tabela e nos cards (as duas visualizações coexistem no DOM)
+  document.querySelectorAll('[data-gq="'+prodId+'-'+(tam||'u')+'"]').forEach(el=>{el.textContent=tam?(tam+'('+(p.grade.find(x=>x.n===tam)?.q||0)+')'):p.qtd;});
+  document.querySelectorAll('[data-gtot="'+prodId+'"]').forEach(el=>{el.textContent=p.qtd;});
   notify('Estoque atualizado','ok',1500);
 }
 
