@@ -617,7 +617,7 @@ async function saveVenda(obj){
   await sbPost('vendas',row);db.vendas.unshift({...obj});saveLocal();
 }
 async function saveMovimento(obj){
-  const row={tipo:obj.tipo,descricao:obj.desc,val:obj.val,data:obj.data,venda_id:obj.vendaId||null};
+  const row={tipo:obj.tipo,descricao:obj.desc,val:obj.val,data:obj.data,venda_id:obj.vendaId||null,categoria:obj.categoria||null};
   const n=await sbPost('movimentos',row);obj.id=n.id;db.movimentos.unshift({...obj});saveLocal();
 }
 async function deleteMovimento(id){await sbDelete('movimentos','id=eq.'+id);db.movimentos=db.movimentos.filter(x=>x.id!==id);saveLocal();}
@@ -2471,33 +2471,108 @@ function renderVendedores(mesRef){
 // ============================================================
 // FINANCEIRO
 // ============================================================
+const FIN_CATS_SAIDA=['Fornecedor / Mercadoria','Aluguel','Salários / Comissão','Contas (água, luz, internet)','Impostos / Taxas','Marketing','Manutenção','Outros'];
+const FIN_CATS_ENTRADA=['Empréstimo','Aporte','Reembolso','Outros'];
+const FIN_CAT_COR={'Fornecedor / Mercadoria':'amber','Aluguel':'blue','Salários / Comissão':'wine','Contas (água, luz, internet)':'blue','Impostos / Taxas':'red','Marketing':'gold','Manutenção':'amber','Empréstimo':'blue','Aporte':'green','Reembolso':'gold','Outros':'gray'};
+const FIN_MESES=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function finFmtMes(ym){ if(!ym) return ''; const [y,m]=ym.split('-').map(Number); return FIN_MESES[m]+'/'+y; }
+function finUltimoDiaMes(ym){ const [y,m]=ym.split('-').map(Number); return new Date(y,m,0).toISOString().slice(0,10); }
+let _finFiltro=null;
 function pgFinanceiro(){
   document.getElementById('tbar-actions').innerHTML=`<button class="btn primary" onclick="addMovM()">+ Novo Movimento</button>`;
+  _finFiltro={periodo:'mes',mesEsc:thisMonth(),de:thisMonth()+'-01',ate:today(),tipo:'todos',origem:'todos',categoria:'todos'};
   renderFin();
 }
+function finPeriodoRange(){
+  const f=_finFiltro;
+  if(f.periodo==='tudo') return {de:null,ate:null};
+  if(f.periodo==='personalizado') return {de:f.de||null,ate:f.ate||null};
+  let ym=thisMonth();
+  if(f.periodo==='mesPassado'){ const d=new Date(); d.setMonth(d.getMonth()-1); ym=d.toISOString().slice(0,7); }
+  if(f.periodo==='mesEscolhido') ym=f.mesEsc||thisMonth();
+  return {de:ym+'-01', ate:finUltimoDiaMes(ym)};
+}
+function finPeriodoLabel(){
+  const f=_finFiltro;
+  if(f.periodo==='mes') return 'Este Mês';
+  if(f.periodo==='mesPassado') return 'Mês Passado';
+  if(f.periodo==='mesEscolhido') return finFmtMes(f.mesEsc);
+  if(f.periodo==='personalizado') return (f.de?fmtDs(f.de):'?')+' até '+(f.ate?fmtDs(f.ate):'?');
+  return 'Tudo';
+}
+function finSetPeriodo(p){
+  _finFiltro.periodo=p;
+  if(p==='mesEscolhido'&&!_finFiltro.mesEsc) _finFiltro.mesEsc=thisMonth();
+  if(p==='personalizado'&&!_finFiltro.de){ _finFiltro.de=thisMonth()+'-01'; _finFiltro.ate=today(); }
+  renderFin();
+}
+function finSetCampo(campo,v){ _finFiltro[campo]=v; renderFin(); }
 function renderFin(){
-  const ent=db.movimentos.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.val,0);
-  const sai=db.movimentos.filter(m=>m.tipo==='saida').reduce((s,m)=>s+m.val,0);
-  const sal=ent-sai;
-  const em=db.movimentos.filter(m=>m.tipo==='entrada'&&m.data?.startsWith(thisMonth())).reduce((s,m)=>s+m.val,0);
-  const sm=db.movimentos.filter(m=>m.tipo==='saida'&&m.data?.startsWith(thisMonth())).reduce((s,m)=>s+m.val,0);
+  const f=_finFiltro;
+  const {de,ate}=finPeriodoRange();
+  let movs=[...db.movimentos];
+  if(de) movs=movs.filter(m=>m.data&&m.data.slice(0,10)>=de);
+  if(ate) movs=movs.filter(m=>m.data&&m.data.slice(0,10)<=ate);
+  if(f.tipo!=='todos') movs=movs.filter(m=>m.tipo===f.tipo);
+  if(f.origem==='vendas') movs=movs.filter(m=>!!m.vendaId);
+  if(f.origem==='manual') movs=movs.filter(m=>!m.vendaId);
+  if(f.categoria!=='todos') movs=movs.filter(m=>m.categoria===f.categoria);
+
+  const receitaVendas=movs.filter(m=>m.tipo==='entrada'&&m.vendaId).reduce((s,m)=>s+m.val,0);
+  const outrasEntradas=movs.filter(m=>m.tipo==='entrada'&&!m.vendaId).reduce((s,m)=>s+m.val,0);
+  const saidas=movs.filter(m=>m.tipo==='saida').reduce((s,m)=>s+m.val,0);
+  const resultado=receitaVendas+outrasEntradas-saidas;
+  const saldoAcumulado=db.movimentos.reduce((s,m)=>s+(m.tipo==='entrada'?m.val:-m.val),0);
+  const periodoLabel=finPeriodoLabel();
+  const todasCategorias=[...new Set(db.movimentos.map(m=>m.categoria).filter(Boolean))].sort();
+
   document.getElementById('page').innerHTML=`
-  <div class="grid4 mb-4">
-    <div class="metric-card"><div class="mi">📈</div><div class="metric-label">Total Entradas</div><div class="metric-val text-green">${fmt(ent)}</div></div>
-    <div class="metric-card"><div class="mi">📉</div><div class="metric-label">Total Saídas</div><div class="metric-val text-red">${fmt(sai)}</div></div>
-    <div class="metric-card"><div class="mi">🏦</div><div class="metric-label">Saldo em Caixa</div><div class="metric-val ${sal>=0?'text-green':'text-red'}">${fmt(sal)}</div></div>
-    <div class="metric-card"><div class="mi">📅</div><div class="metric-label">Resultado do Mês</div><div class="metric-val ${em-sm>=0?'text-green':'text-red'}">${fmt(em-sm)}</div></div>
+  <div class="card mb-4">
+    <div class="tab-row" style="max-width:640px;margin-bottom:0">
+      <button class="tab-btn ${f.periodo==='mes'?'active':''}" onclick="finSetPeriodo('mes')">Este Mês</button>
+      <button class="tab-btn ${f.periodo==='mesPassado'?'active':''}" onclick="finSetPeriodo('mesPassado')">Mês Passado</button>
+      <button class="tab-btn ${f.periodo==='mesEscolhido'?'active':''}" onclick="finSetPeriodo('mesEscolhido')">Escolher Mês</button>
+      <button class="tab-btn ${f.periodo==='personalizado'?'active':''}" onclick="finSetPeriodo('personalizado')">Personalizado</button>
+      <button class="tab-btn ${f.periodo==='tudo'?'active':''}" onclick="finSetPeriodo('tudo')">Tudo</button>
+    </div>
+    <div class="flex gap-3" style="align-items:flex-end;flex-wrap:wrap;margin-top:14px">
+      ${f.periodo==='mesEscolhido'?`<div class="form-group" style="margin-bottom:0"><label class="form-label">Mês</label><input class="form-control" type="month" value="${f.mesEsc||thisMonth()}" onchange="_finFiltro.mesEsc=this.value;renderFin()"></div>`:''}
+      ${f.periodo==='personalizado'?`<div class="form-group" style="margin-bottom:0"><label class="form-label">De</label><input class="form-control" type="date" value="${f.de||''}" onchange="finSetCampo('de',this.value)"></div><div class="form-group" style="margin-bottom:0"><label class="form-label">Até</label><input class="form-control" type="date" value="${f.ate||''}" onchange="finSetCampo('ate',this.value)"></div>`:''}
+      <div class="form-group" style="margin-bottom:0;min-width:150px"><label class="form-label">Tipo</label><select class="form-control" onchange="finSetCampo('tipo',this.value)">
+        <option value="todos" ${f.tipo==='todos'?'selected':''}>Todas</option>
+        <option value="entrada" ${f.tipo==='entrada'?'selected':''}>Entradas</option>
+        <option value="saida" ${f.tipo==='saida'?'selected':''}>Saídas</option>
+      </select></div>
+      <div class="form-group" style="margin-bottom:0;min-width:150px"><label class="form-label">Origem</label><select class="form-control" onchange="finSetCampo('origem',this.value)">
+        <option value="todos" ${f.origem==='todos'?'selected':''}>Todas</option>
+        <option value="vendas" ${f.origem==='vendas'?'selected':''}>Vendas</option>
+        <option value="manual" ${f.origem==='manual'?'selected':''}>Manual</option>
+      </select></div>
+      <div class="form-group" style="margin-bottom:0;min-width:170px"><label class="form-label">Categoria</label><select class="form-control" onchange="finSetCampo('categoria',this.value)">
+        <option value="todos" ${f.categoria==='todos'?'selected':''}>Todas</option>
+        ${todasCategorias.map(c=>`<option value="${c}" ${f.categoria===c?'selected':''}>${c}</option>`).join('')}
+      </select></div>
+    </div>
   </div>
-  <div class="card"><div class="sec-title">Fluxo de Caixa</div>
+  <div class="grid5 mb-4">
+    <div class="metric-card"><div class="mi">🛍</div><div class="metric-label">Receita de Vendas</div><div class="metric-val text-green">${fmt(receitaVendas)}</div><div class="metric-sub">${periodoLabel}</div></div>
+    <div class="metric-card"><div class="mi">➕</div><div class="metric-label">Outras Entradas</div><div class="metric-val text-blue">${fmt(outrasEntradas)}</div><div class="metric-sub">${periodoLabel}</div></div>
+    <div class="metric-card"><div class="mi">📉</div><div class="metric-label">Saídas / Despesas</div><div class="metric-val text-red">${fmt(saidas)}</div><div class="metric-sub">${periodoLabel}</div></div>
+    <div class="metric-card"><div class="mi">📅</div><div class="metric-label">Resultado do Período</div><div class="metric-val ${resultado>=0?'text-green':'text-red'}">${fmt(resultado)}</div><div class="metric-sub">entradas − saídas</div></div>
+    <div class="metric-card"><div class="mi">🏦</div><div class="metric-label">Saldo Acumulado</div><div class="metric-val ${saldoAcumulado>=0?'text-wine':'text-red'}">${fmt(saldoAcumulado)}</div><div class="metric-sub">total, desde o início</div></div>
+  </div>
+  <div class="card"><div class="sec-title">Fluxo de Caixa <span class="text-dim" style="font-weight:400;font-size:12px">— ${periodoLabel} · ${movs.length} registro(s)</span></div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th></th></tr></thead>
-      <tbody>${[...db.movimentos].sort((a,b)=>b.data>a.data?1:-1).map(m=>`<tr>
+      <thead><tr><th>Data</th><th>Origem</th><th>Tipo</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th></th></tr></thead>
+      <tbody>${[...movs].sort((a,b)=>b.data>a.data?1:-1).map(m=>`<tr>
         <td class="text-dim text-xs">${fmtDia(m.data)}</td>
+        <td>${m.vendaId?'<span class="badge wine">🛍 Venda</span>':'<span class="badge gray">✍️ Manual</span>'}</td>
         <td><span class="badge ${m.tipo==='entrada'?'green':'red'}">${m.tipo==='entrada'?'↑ Entrada':'↓ Saída'}</span></td>
+        <td>${m.categoria?`<span class="badge ${FIN_CAT_COR[m.categoria]||'gray'}">${m.categoria}</span>`:'<span class="text-dim">—</span>'}</td>
         <td>${m.desc}</td>
         <td class="${m.tipo==='entrada'?'text-green':'text-red'} font-bold">${m.tipo==='entrada'?'+':'-'}${fmt(m.val)}</td>
         <td><button class="btn xs danger" onclick="delMov('${m.id}')">🗑</button></td>
-      </tr>`).join('')||'<tr><td colspan="5"><div class="empty"><div class="ei">💰</div><p>Sem movimentos</p></div></td></tr>'}
+      </tr>`).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">💰</div><p>Sem movimentos no período</p></div></td></tr>'}
       </tbody>
     </table></div>
   </div>
@@ -2505,7 +2580,8 @@ function renderFin(){
   <div class="modal-backdrop hidden" id="mmov">
     <div class="modal modal-sm">
       <div class="modal-header"><div class="modal-title">Novo Movimento</div><button class="modal-close" onclick="closeM('mmov')">×</button></div>
-      <div class="form-group"><label class="form-label">Tipo</label><select class="form-control" id="mt"><option value="entrada">↑ Entrada</option><option value="saida">↓ Saída / Despesa</option></select></div>
+      <div class="form-group"><label class="form-label">Tipo</label><select class="form-control" id="mt" onchange="finAtualizarCategorias()"><option value="entrada">↑ Entrada</option><option value="saida">↓ Saída / Despesa</option></select></div>
+      <div class="form-group"><label class="form-label">Categoria</label><select class="form-control" id="mcat"></select></div>
       <div class="form-group"><label class="form-label">Descrição *</label><input class="form-control" id="md" placeholder="Ex: Compra de fornecedor..."></div>
       <div class="form-group"><label class="form-label">Valor (R$) *</label><input class="form-control" type="number" id="mv" min="0" placeholder="0,00"></div>
       <div class="form-group"><label class="form-label">Data</label><input class="form-control" type="date" id="mdt"></div>
@@ -2513,13 +2589,19 @@ function renderFin(){
     </div>
   </div>`;
 }
-function addMovM(){if(!document.getElementById('mmov'))renderFin();setTimeout(()=>{document.getElementById('mdt').value=today();openM('mmov');},30);}
+function finAtualizarCategorias(){
+  const tipo=document.getElementById('mt')?.value||'entrada';
+  const cats=tipo==='saida'?FIN_CATS_SAIDA:FIN_CATS_ENTRADA;
+  const sel=document.getElementById('mcat');
+  if(sel) sel.innerHTML=cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+function addMovM(){if(!document.getElementById('mmov'))renderFin();setTimeout(()=>{document.getElementById('mdt').value=today();finAtualizarCategorias();openM('mmov');},30);}
 function salvarMov(){
   const desc=document.getElementById('md').value.trim();
   const val=parseFloat(document.getElementById('mv').value)||0;
   if(!desc){notify('Informe a descrição','warn');return;}
   if(!val){notify('Informe o valor','warn');return;}
-  const obj={tipo:document.getElementById('mt').value,desc,val,data:document.getElementById('mdt').value||today()};
+  const obj={tipo:document.getElementById('mt').value,desc,val,data:document.getElementById('mdt').value||today(),categoria:document.getElementById('mcat').value||null};
   saveMovimento(obj).then(()=>{closeM('mmov');renderFin();notify('Registrado!');}).catch(e=>{notify('Erro: '+e.message,'err');});
 }
 function delMov(id){
@@ -2743,8 +2825,8 @@ function expF(xl){
   if(ini)f=f.filter(m=>m.data&&m.data>=ini);
   if(fim)f=f.filter(m=>m.data&&m.data<=fim);
   if(!f.length){notify('Nenhum movimento','warn');return;}
-  const h=['Data','Tipo','Descricao','Valor'];
-  const r=f.map(m=>[m.data||'',m.tipo==='entrada'?'Entrada':'Saida',m.desc,Number(m.val).toFixed(2)]);
+  const h=['Data','Origem','Tipo','Categoria','Descricao','Valor'];
+  const r=f.map(m=>[m.data||'',m.vendaId?'Venda':'Manual',m.tipo==='entrada'?'Entrada':'Saida',m.categoria||'',m.desc,Number(m.val).toFixed(2)]);
   xl?dlXL('Financeiro_Versatile.xls',h,r):dlFile('Financeiro_Versatile.csv',toCSV(h,r),'text/csv');
 }
 
@@ -2822,7 +2904,7 @@ async function _fetchAndApplyData(){
   if(pr.length) db.produtos=(pr).map(r=>({id:r.id,cod:r.cod,nome:r.nome,marca:r.marca,cor:r.cor,custo:parseFloat(r.custo||0),preco:parseFloat(r.preco||0),min:r.min||2,obs:r.obs,grade:r.grade||[],qtd:r.qtd||0,tam:r.tam,foto:r.foto||null}));
   if(cl.length) db.clientes=(cl).map(r=>({id:r.id,nome:r.nome,cpf:r.cpf,nasc:r.nasc,whatsapp:r.whatsapp,email:r.email,end:r.endereco,obs:r.obs,criado:r.criado}));
   if(vn.length) db.vendas=(vn).map(r=>({id:r.id,data:r.data,clienteId:r.cliente_id,clienteNome:r.cliente_nome||'',pgto:r.pgto,recebido:parseFloat(r.recebido||0),troco:parseFloat(r.troco||0),modalidade:r.modalidade||'Presencial',itens:r.itens||[],subtotal:parseFloat(r.subtotal||0),desconto:parseFloat(r.desconto||0),total:parseFloat(r.total||0),vendedor:r.vendedor_nome,vendedorId:r.vendedor_id})).sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;});
-  if(mv.length) db.movimentos=(mv).map(r=>({id:r.id,tipo:r.tipo,desc:r.descricao,val:parseFloat(r.val||0),data:r.data,vendaId:r.venda_id})).sort((a,b)=>b.data>a.data?1:-1);
+  if(mv.length) db.movimentos=(mv).map(r=>({id:r.id,tipo:r.tipo,desc:r.descricao,val:parseFloat(r.val||0),data:r.data,vendaId:r.venda_id,categoria:r.categoria||null})).sort((a,b)=>b.data>a.data?1:-1);
   if(cx.length) db.caixas=(cx).map(r=>({id:r.id,data:r.data,hora:r.hora,vendedorId:r.vendedor_id,vendedorNome:r.vendedor_nome,total:parseFloat(r.total||0),qtdVendas:r.qtd_vendas||0,obs:r.obs})).sort((a,b)=>b.data>a.data?1:-1);
 
   saveLocal();
