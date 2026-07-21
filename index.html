@@ -1037,10 +1037,25 @@ function pgDashboard(){
     </div>
   </div>`;
 }
+function rankPeriodoRange(periodo){
+  if(periodo==='hoje') return {de:today(),ate:today()};
+  if(periodo==='mes') return {de:thisMonth()+'-01', ate:finUltimoDiaMes(thisMonth())};
+  if(periodo==='mesPassado'){ const d=new Date(); d.setMonth(d.getMonth()-1); const ym=d.toISOString().slice(0,7); return {de:ym+'-01', ate:finUltimoDiaMes(ym)}; }
+  if(periodo==='mesEscolhido'){ const ym=_rankMesEsc||thisMonth(); return {de:ym+'-01', ate:finUltimoDiaMes(ym)}; }
+  return {de:null,ate:null};
+}
+function rankPeriodoLabel(periodo){
+  if(periodo==='hoje') return 'hoje';
+  if(periodo==='mes') return 'no mês';
+  if(periodo==='mesPassado') return 'no mês passado';
+  if(periodo==='mesEscolhido') return 'em '+finFmtMes(_rankMesEsc||thisMonth());
+  return 'no total';
+}
 function rankProds(periodo){
+  const {de,ate}=rankPeriodoRange(periodo);
   let vs=db.vendas;
-  if(periodo==='mes')vs=vs.filter(v=>v.data&&v.data.startsWith(thisMonth()));
-  if(periodo==='hoje')vs=vs.filter(v=>v.data&&v.data.startsWith(today()));
+  if(de) vs=vs.filter(v=>v.data&&v.data.slice(0,10)>=de);
+  if(ate) vs=vs.filter(v=>v.data&&v.data.slice(0,10)<=ate);
   const m={};
   vs.forEach(v=>(v.itens||[]).forEach(i=>{
     if(!m[i.id])m[i.id]={id:i.id,nome:i.nome,marca:i.marca||'',qtd:0,val:0,qtdAtual:(db.produtos.find(x=>x.id===i.id)?.qtd||0)};
@@ -2345,9 +2360,11 @@ function confirmarFechamento(){
 // RANKING
 // ============================================================
 let _rankPeriodo='tudo';
+let _rankMesEsc=null;
 function pgRanking(){
   document.getElementById('tbar-actions').innerHTML='';
   _rankPeriodo='tudo';
+  _rankMesEsc=null;
   renderRanking();
 }
 function renderRanking(){
@@ -2357,10 +2374,15 @@ function renderRanking(){
     const maxV=arr.reduce((m,r)=>Math.max(m,r.val),1);
     const totalPares=arr.reduce((s,r)=>s+r.qtd,0);
     document.getElementById('page').innerHTML=`
-    <div class="tab-row" style="max-width:300px;margin-bottom:16px">
-      <button class="tab-btn ${periodo==='hoje'?'active':''}" onclick="_rankPeriodo='hoje';renderRanking()">Hoje</button>
-      <button class="tab-btn ${periodo==='mes'?'active':''}" onclick="_rankPeriodo='mes';renderRanking()">Mês</button>
-      <button class="tab-btn ${periodo==='tudo'?'active':''}" onclick="_rankPeriodo='tudo';renderRanking()">Tudo</button>
+    <div class="card mb-4">
+      <div class="tab-row" style="max-width:560px;margin-bottom:0">
+        <button class="tab-btn ${periodo==='hoje'?'active':''}" onclick="_rankPeriodo='hoje';renderRanking()">Hoje</button>
+        <button class="tab-btn ${periodo==='mes'?'active':''}" onclick="_rankPeriodo='mes';renderRanking()">Este Mês</button>
+        <button class="tab-btn ${periodo==='mesPassado'?'active':''}" onclick="_rankPeriodo='mesPassado';renderRanking()">Mês Passado</button>
+        <button class="tab-btn ${periodo==='mesEscolhido'?'active':''}" onclick="_rankPeriodo='mesEscolhido';if(!_rankMesEsc)_rankMesEsc=thisMonth();renderRanking()">Escolher Mês</button>
+        <button class="tab-btn ${periodo==='tudo'?'active':''}" onclick="_rankPeriodo='tudo';renderRanking()">Tudo</button>
+      </div>
+      ${periodo==='mesEscolhido'?`<div class="form-group" style="margin:14px 0 0;max-width:200px"><label class="form-label">Mês</label><input class="form-control" type="month" value="${_rankMesEsc||thisMonth()}" onchange="_rankMesEsc=this.value;renderRanking()"></div>`:''}
     </div>
     <div class="grid2">
       <div class="card"><div class="sec-title">🏆 Por Pares Vendidos</div>
@@ -2370,7 +2392,7 @@ function renderRanking(){
         ${[...arr].sort((a,b)=>b.val-a.val).slice(0,10).map((r,i)=>{const pct=Math.round((r.val/maxV)*100);return`<div class="rank-row"><div class="rank-n" style="${i<3?'color:var(--amber);font-size:14px':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div><div class="rank-bar-w"><div class="rank-lbl">${r.nome}</div><div class="rank-bar-bg"><div class="rank-bar-f" style="width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--gold))"></div></div></div><div class="rank-tot" style="color:var(--blue)">${fmt(r.val)}</div></div>`;}).join('')||'<div class="empty"><p>Sem dados</p></div>'}
       </div>
     </div>
-    <div class="card mt-4"><div class="sec-title">📋 Detalhamento <span class="text-dim" style="font-weight:400;font-size:12px">— ${totalPares} par(es) ${periodo==='hoje'?'hoje':periodo==='mes'?'no mês':'no total'}</span></div>
+    <div class="card mt-4"><div class="sec-title">📋 Detalhamento <span class="text-dim" style="font-weight:400;font-size:12px">— ${totalPares} par(es) ${rankPeriodoLabel(periodo)}</span></div>
       <div class="table-wrap"><table>
         <thead><tr><th>#</th><th>Produto</th><th>Marca</th><th>Pares</th><th>Faturamento</th><th>Estoque</th></tr></thead>
         <tbody>${arr.map((r,i)=>`<tr><td>${i+1}</td><td class="td-name">${r.nome}</td><td class="text-dim">${r.marca}</td><td><strong>${r.qtd}</strong></td><td class="text-gold font-bold">${fmt(r.val)}</td><td><span class="badge ${r.qtdAtual===0?'red':r.qtdAtual<=2?'amber':'green'}">${r.qtdAtual}</span></td></tr>`).join('')||'<tr><td colspan="6"><div class="empty"><p>Sem dados</p></div></td></tr>'}
