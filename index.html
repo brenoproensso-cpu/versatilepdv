@@ -10,41 +10,56 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <title>Versatile — PDV</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 /* ====== TOKENS ====== */
 [data-theme="dark"]{
-  --bg:#0e0d0f;--bg2:#161419;--bg3:#1e1b22;--bg4:#262230;
-  --border:#2e2a38;--border2:#3d3850;
-  --text:#f5f0ff;--text2:#9690b0;--text3:#5a5470;
-  --card-bg:#161419;--topbar-bg:#161419;--sidebar-bg:#0e0d0f;
-  --input-bg:#1e1b22;--shadow:0 4px 28px rgba(0,0,0,.55);
+  --bg:#141019;--bg2:#1c1622;--bg3:#241d2b;--bg4:#2e2637;
+  --border:#2a2334;--border2:#392f47;
+  --text:#f6f1f8;--text2:#b4aac0;--text3:#79708a;
+  --card-bg:#1a1420;--topbar-bg:#161019;--sidebar-bg:#100c15;
+  --input-bg:#1e1826;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.45);
+  --shadow:0 10px 34px -10px rgba(0,0,0,.65);
+  --shadow-lg:0 28px 64px -14px rgba(0,0,0,.72);
+  --ring:rgba(192,80,104,.45);
+  --green:#5cc08a;--greendim:#16382a;
+  --red:#e5788a;--reddim:#3a1822;
+  --amber:#e2ac57;--amberdim:#3a2b14;
+  --blue:#74acea;--bluedim:#16273f;
+  --gold:#ccac7c;--golddim:#33280f;
+  --winedim:#331621;--winetext:#edb7c6;
 }
 [data-theme="light"]{
-  --bg:#f8f6fc;--bg2:#ffffff;--bg3:#f2effa;--bg4:#eae6f5;
-  --border:#e0dced;--border2:#ccc8e0;
-  --text:#1a1825;--text2:#6b6585;--text3:#a09cba;
-  --card-bg:#ffffff;--topbar-bg:#ffffff;--sidebar-bg:#f8f6fc;
-  --input-bg:#f2effa;--shadow:0 2px 16px rgba(80,40,100,.08);
+  --bg:#faf7f9;--bg2:#ffffff;--bg3:#f4eef2;--bg4:#ebe3e9;
+  --border:#efe6ec;--border2:#ddd1db;
+  --text:#221a28;--text2:#6a5f72;--text3:#a89eb1;
+  --card-bg:#ffffff;--topbar-bg:#fffffff2;--sidebar-bg:#f7f2f6;
+  --input-bg:#f6f1f5;
+  --shadow-sm:0 1px 2px rgba(60,30,50,.06);
+  --shadow:0 12px 34px -12px rgba(80,40,70,.18);
+  --shadow-lg:0 26px 54px -16px rgba(80,40,70,.24);
+  --ring:rgba(139,45,67,.30);
+  --green:#2f9d63;--greendim:#e3f4ea;
+  --red:#cd4459;--reddim:#fbe5e9;
+  --amber:#b17b1f;--amberdim:#f6ecd7;
+  --blue:#3070bf;--bluedim:#e6eefa;
+  --gold:#9a7736;--golddim:#f2ebd8;
+  --winedim:#f6e5ec;--winetext:#8b2d43;
 }
 :root{
-  --wine:#5c1a2a;--wine2:#7a2338;--wine3:#3d0e1c;
-  --winedim:#2a0d15;--winetext:#f5b8c8;
-  --accent:#8b2d42;--accent2:#a83654;--accentglow:#c44d6a;
-  --gold:#c9a96e;--golddim:#2a2010;
-  --green:#4ade80;--greendim:#0d2a18;
-  --red:#f87171;--reddim:#2a0d0d;
-  --amber:#fbbf24;--amberdim:#2a1d05;
-  --blue:#60a5fa;--bluedim:#071a36;
-  --r:8px;--r2:12px;--r3:18px;
-  --font-head:Arial,'Cormorant Garamond',serif;
-  --font-body:Arial,'DM Sans',sans-serif;
+  --wine:#8b2d43;--wine2:#a5384f;--wine3:#5c1a2a;
+  --accent:#a5384f;--accent2:#c05068;--accentglow:#d76a82;
+  --r:9px;--r2:14px;--r3:20px;
+  --font-head:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --font-body:'DM Sans',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;transition:background .2s,color .2s}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+.ico{width:18px;height:18px;display:inline-block;vertical-align:-.15em;fill:none;stroke:currentColor;stroke-width:1.6;flex-shrink:0}
 button{font-family:var(--font-body);cursor:pointer}
 input,select,textarea{font-family:var(--font-body)}
 a{color:inherit;text-decoration:none}
@@ -108,7 +123,8 @@ a{color:inherit;text-decoration:none}
 /* ====== CARDS ====== */
 .card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r2);padding:16px;transition:background .2s}
 .metric-card{position:relative;overflow:hidden;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r2);padding:16px}
-.metric-card .mi{font-size:24px;position:absolute;top:14px;right:14px;opacity:.2}
+.metric-card .mi{position:absolute;top:16px;right:16px;opacity:.35;color:var(--accent2)}
+.metric-card .mi .ico{width:22px;height:22px}
 .metric-label{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:7px}
 .metric-val{font-family:var(--font-head);font-size:26px;font-weight:700;line-height:1}
 .metric-sub{font-size:11px;color:var(--text3);margin-top:5px}
@@ -181,18 +197,57 @@ tbody tr:hover td{background:var(--bg3)}
 @keyframes nIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes nOut{from{transform:translateX(0);opacity:1}to{transform:translateX(110%);opacity:0}}
 
-/* ====== LOGIN ====== */
-#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500}
-.login-box{background:var(--card-bg);border:1px solid var(--border2);border-radius:var(--r3);padding:40px 36px;width:400px;max-width:92vw;box-shadow:var(--shadow)}
-.login-logo-area{text-align:center;margin-bottom:28px}
-.login-logo-v{margin:0 auto 8px}
-.login-logo-name{font-family:var(--font-head);font-size:28px;font-weight:700;letter-spacing:5px;color:var(--text)}
-.login-logo-tag{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3);margin-top:3px}
+/* ====== LOGIN EDITORIAL ====== */
+#login-screen{position:fixed;inset:0;z-index:500;padding:0}
+.auth{position:absolute;inset:0;display:grid;grid-template-columns:1.08fr .92fr}
+.brand-panel{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:56px 58px;color:#f4e7eb;background:linear-gradient(152deg,#732235 0%,#3d1521 46%,#150a11 100%)}
+.brand-panel .grain{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:150px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.brand-panel .ghost-v{position:absolute;right:-7%;bottom:-22%;font-family:var(--font-head);font-size:560px;line-height:.7;font-weight:700;color:#fff;opacity:.05;pointer-events:none;user-select:none}
+.bp-top{position:relative;z-index:2;display:flex;align-items:center;gap:16px}
+.bp-mark{font-size:11px;letter-spacing:3.5px;font-weight:700;text-transform:uppercase;color:#e6c6cf;white-space:nowrap}
+.bp-rule{flex:1;height:1px;background:linear-gradient(90deg,rgba(204,172,124,.75),transparent)}
+.bp-hero{position:relative;z-index:2}
+.hero-word{font-family:var(--font-head);font-size:47px;font-weight:600;letter-spacing:6px;line-height:1;padding-left:6px}
+.hero-rule{width:66px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin-top:26px;opacity:.9}
+.bp-foot{position:relative;z-index:2;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#d9b5bf;opacity:.75}
+.form-panel{background:var(--bg);display:flex;align-items:center;justify-content:center;padding:48px}
+.form-inner{width:100%;max-width:352px}
+.greet-sm{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:12px}
+.greet{font-family:var(--font-head);font-size:40px;font-weight:600;line-height:1.05;margin-bottom:40px;letter-spacing:.3px}
+.ufield{margin-bottom:26px}
+.ufield label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);font-weight:700;margin-bottom:11px}
+.ufield input{width:100%;border:none;border-bottom:1.5px solid var(--border2);background:transparent;color:var(--text);font-size:16px;padding:8px 2px;outline:none;transition:border-color .2s}
+.ufield input:focus{border-color:var(--accent2)}
+.ufield input::placeholder{color:var(--text3)}
+.big-btn{width:100%;justify-content:center;padding:15px;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-top:8px}
+.fp-foot{font-size:11px;color:var(--text3);margin-top:26px;letter-spacing:.4px}
+@media(max-width:760px){.auth{grid-template-columns:1fr}.brand-panel{display:none}.form-panel{padding:32px 22px}}
+
+/* ====== LOADING ====== */
+.gload{position:fixed;inset:0;z-index:9998}
+.gload-card{background:rgba(10,6,14,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center}
+.gl-box{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r2);padding:26px 36px;text-align:center;box-shadow:var(--shadow-lg);min-width:230px}
+.gl-spin{width:42px;height:42px;margin:0 auto 14px;display:block;animation:spin 1s linear infinite}
+.gl-box-msg{font-size:13px;color:var(--text2);letter-spacing:.3px}
+.gload-splash{display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;color:#f4e7eb;background:linear-gradient(152deg,#732235 0%,#3d1521 46%,#150a11 100%)}
+.gl-grain{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:150px;opacity:.13;mix-blend-mode:overlay;pointer-events:none}
+.gl-ghost{position:absolute;left:50%;top:50%;transform:translateX(-50%);margin-top:-280px;font-family:var(--font-head);font-size:560px;line-height:.7;font-weight:700;color:#fff;opacity:.045;pointer-events:none;user-select:none}
+.gl-mark{position:relative;z-index:2;width:60px;height:68px;animation:breathe 2.4s ease-in-out infinite}
+.gl-wm{position:relative;z-index:2;font-family:var(--font-head);font-size:28px;font-weight:700;letter-spacing:8px;padding-left:8px;margin-top:20px}
+.gl-bar{position:relative;z-index:2;width:170px;height:2px;background:rgba(255,255,255,.16);border-radius:2px;overflow:hidden;margin-top:24px}
+.gl-bar i{position:absolute;left:0;top:0;height:100%;width:42%;border-radius:2px;background:linear-gradient(90deg,transparent,#ccac7c,transparent);animation:slide 1.4s ease-in-out infinite}
+.gl-msg{position:relative;z-index:2;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#d9b5bf;opacity:.8;margin-top:20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes breathe{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+@keyframes slide{0%{left:-42%}100%{left:100%}}
 
 /* ====== VENDA ====== */
 .venda-layout{display:grid;grid-template-columns:1fr 380px;gap:0;height:calc(100vh - 54px);overflow:hidden;background:var(--bg)}
 .venda-left{overflow:hidden;display:flex;flex-direction:column}
 .venda-right{background:var(--bg2);display:flex;flex-direction:column;overflow:hidden}
+.cart-mobile-bar{display:none;align-items:center;justify-content:space-between;padding:0 18px;height:64px;flex-shrink:0;background:var(--wine);color:#fff;cursor:pointer;font-size:13px;font-weight:600}
+.cmb-total{font-family:var(--font-head);font-size:18px;font-weight:700}
+.drawer-handle-mobile{display:none;width:38px;height:4px;background:var(--border2);border-radius:4px;cursor:pointer}
 .cart-hd{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-family:var(--font-head);font-weight:600;font-size:15px}
 .cart-body{flex:1;overflow-y:auto;padding:8px}
 .cart-item{display:flex;align-items:center;gap:10px;padding:9px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);margin-bottom:5px;transition:border .15s}
@@ -252,6 +307,10 @@ tbody tr:hover td{background:var(--bg3)}
 .tab-row{display:flex;gap:2px;background:var(--bg3);border-radius:var(--r);padding:3px;border:1px solid var(--border);margin-bottom:14px}
 .tab-btn{flex:1;padding:7px 10px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;text-align:center}
 .tab-btn.active{background:var(--card-bg);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.sub-tab-row{display:flex;gap:4px;background:var(--bg3);border-radius:var(--r);padding:3px;border:1px solid var(--border);margin-bottom:18px;max-width:100%;overflow-x:auto}
+.sub-tab{padding:9px 18px;border-radius:8px;border:none;background:transparent;color:var(--text2);font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:7px;transition:all .15s}
+.sub-tab .ico{width:15px;height:15px}
+.sub-tab.active{background:var(--card-bg);color:var(--text);box-shadow:var(--shadow)}
 
 /* ====== THEME TOGGLE ====== */
 .theme-btn{width:34px;height:34px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
@@ -273,6 +332,8 @@ tbody tr:hover td{background:var(--bg3)}
 /* ====== EMPTY STATE ====== */
 .empty{text-align:center;padding:36px;color:var(--text3)}
 .empty .ei{font-size:32px;margin-bottom:8px;opacity:.25}
+.empty .ei .ico{width:32px;height:32px}
+.ico-28{width:28px;height:28px}
 
 /* ====== RECIBO PRINT ====== */
 @media print{
@@ -354,7 +415,6 @@ tbody tr:hover td{background:var(--bg3)}
   .metric-val{font-size:22px}
   .metric-card .mi{font-size:20px;top:10px;right:10px;opacity:.35}
   .card{padding:12px}
-  .login-box{width:92vw;max-width:400px;padding:28px 20px}
   .modal{margin:8px;padding:16px;max-height:95vh}
   .form-row.col2,.form-row.col3{grid-template-columns:1fr}
   .tab-row{overflow-x:auto;flex-wrap:nowrap}
@@ -362,8 +422,11 @@ tbody tr:hover td{background:var(--bg3)}
   table{font-size:12px}
   thead th,tbody td{padding:7px 8px}
   .venda-layout{grid-template-columns:1fr;height:auto;overflow-y:auto}
-  .venda-left{overflow:visible;border-right:none!important}
-  .venda-right{max-height:50vh;border-top:1px solid var(--border)}
+  .venda-left{overflow:visible;border-right:none!important;padding-bottom:60px}
+  .venda-right{position:fixed;left:0;right:0;bottom:0;top:auto;height:64px;overflow:hidden;z-index:60;border-radius:18px 18px 0 0;box-shadow:var(--shadow-lg);border-top:1px solid var(--border);transition:height .25s ease}
+  .venda-right.expanded{height:82vh;overflow-y:auto}
+  .cart-mobile-bar{display:flex}
+  .drawer-handle-mobile{display:block}
   .prod-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
   .sec-title{font-size:14px}
   .btn{padding:7px 10px;font-size:12px}
@@ -405,30 +468,83 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true"><defs>
+<symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></symbol>
+<symbol id="i-bag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 8h13l-1 11.2a1.6 1.6 0 0 1-1.6 1.4H8.1a1.6 1.6 0 0 1-1.6-1.4z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 7.5L12 3 3.5 7.5v9L12 21l8.5-4.5z"/><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.6 19c0-3 2.4-5 5.4-5s5.4 2 5.4 5"/><path d="M16 5.2a3 3 0 0 1 0 5.9M17.8 19c0-2.4-1.1-4.1-2.9-4.8"/></symbol>
+<symbol id="i-receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-2.2-1.4-2.3 1.4-2.3-1.4-2.3 1.4L6 20.5z"/><path d="M9 8h6M9 11.5h6M9 15h4"/></symbol>
+<symbol id="i-drawer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9.5" width="17" height="9.5" rx="1.5"/><path d="M6.5 9.5l1.6-4a1 1 0 0 1 .9-.6h6a1 1 0 0 1 .9.6l1.6 4M10 14h4"/></symbol>
+<symbol id="i-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4.5h8v4a4 4 0 0 1-8 0z"/><path d="M8 6H5.5v1.5a3 3 0 0 0 3 3M16 6h2.5v1.5a3 3 0 0 1-3 3M10 13.5h4l.5 3h-5z"/><path d="M8 20h8"/></symbol>
+<symbol id="i-trending" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l5-5 3 3 6-7"/><path d="M15 7h4v4"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="6" width="17" height="13" rx="2.5"/><path d="M3.5 10h17M16.5 14.5h.01"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M5.5 19.5c0-3.4 2.9-5.6 6.5-5.6s6.5 2.2 6.5 5.6"/></symbol>
+<symbol id="i-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 4.5v1.5H9zM9 11h6M9 14.5h6M9 18h4"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5A1.5 1.5 0 0 1 5 5h4l2 2.5h6.5A1.5 1.5 0 0 1 19 9v8.5a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5z"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.7-4.7"/></symbol>
+<symbol id="i-coins" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="9" cy="7" rx="5.5" ry="2.6"/><path d="M3.5 7v4.5c0 1.4 2.5 2.6 5.5 2.6"/><ellipse cx="15" cy="13" rx="5.5" ry="2.6"/><path d="M9.5 13.6v3.4c0 1.4 2.5 2.6 5.5 2.6s5.5-1.2 5.5-2.6v-6.4"/></symbol>
+<symbol id="i-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9" width="17" height="11.5" rx="1.5"/><path d="M3.5 13h17M12 9v11.5"/><path d="M12 9C11 6 6.5 6.2 8 8.6M12 9c1-3 5.5-2.8 4 -0.4"/></symbol>
+<symbol id="i-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3.5H20V11l-8.5 8.5a2 2 0 0 1-2.8 0l-4.7-4.7a2 2 0 0 1 0-2.8z"/><circle cx="16.3" cy="7.7" r="1.3"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5L19.8 7"/></symbol>
+<symbol id="i-printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="7" rx="1.5"/><path d="M7 14h10v5.5H7zM17 12.5h.01"/></symbol>
+<symbol id="i-ticket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h13A1.5 1.5 0 0 1 20 8.5v2a2 2 0 0 0 0 4v2a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 16.5v-2a2 2 0 0 0 0-4z"/><path d="M13 7v10" stroke-dasharray="1.5 2"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8.5 4.5L12 12 3.5 7.5z"/><path d="M4 12l8 4.3 8-4.3M4 16.5l8 4.3 8-4.3"/></symbol>
+<symbol id="i-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5h10v9h-10zM13.5 9.5H17l3 3v3h-6.5z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="16.5" cy="17.5" r="1.8"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.8-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.6l5.9-.8z"/></symbol>
+<symbol id="i-pie" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12z"/><path d="M12 3.5V12h8.5A8.5 8.5 0 0 0 12 3.5z"/></symbol>
+<symbol id="i-bar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M20 20H3.5"/></symbol>
+<symbol id="i-document" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h7l5 5v12H6z"/><path d="M13 3.5V9h5M9 13h6M9 16.5h6"/></symbol>
+<symbol id="i-exchange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h9.5a3.5 3.5 0 0 0 .4-7A5 5 0 0 0 7.5 9 4 4 0 0 0 7 18z"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5h11l3 3v12H5zM8 4.5V9h6V4.5M8 19v-5h8v5"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5l3.5 3.5M4 20l1-4L16 5a1.5 1.5 0 0 1 2.1 0l1 1a1.5 1.5 0 0 1 0 2.1L8 19z"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5.6a1.6 1.6 0 0 1 1.6-1.6h2.8A1.6 1.6 0 0 1 15 5.6V7M6.5 7l.9 12.4a1.6 1.6 0 0 0 1.6 1.5h6a1.6 1.6 0 0 0 1.6-1.5L17.5 7"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.5h15a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H9l-4 3.5V6.5a1 1 0 0 1 1-1z"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9.8" rx="2.2"/><path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3.5"/><path d="M10.5 10.5L20 20M16 16l2-2M18.5 18.5l1.5-1.5"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 8a7.5 7.5 0 0 0-13-2M5 5v4h4M5 16a7.5 7.5 0 0 0 13 2M19 19v-4h-4"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.2l8.5 14.6a1 1 0 0 1-.9 1.5H4.4a1 1 0 0 1-.9-1.5z"/><path d="M12 10v4.4M12 17.4h.01"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><path d="M12 7.5V12l3 1.8"/></symbol>
+<symbol id="i-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 9.8h19M6 14.5h4"/></symbol>
+<symbol id="i-cash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9v6M18 9v6"/></symbol>
+<symbol id="i-store" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9"/><path d="M3.2 10l1.4-4.5a1 1 0 0 1 1-.7h12.8a1 1 0 0 1 1 .7L20.8 10a2.4 2.4 0 0 1-4.5.3 2.4 2.4 0 0 1-4.3 0 2.4 2.4 0 0 1-4.3 0A2.4 2.4 0 0 1 3.2 10z"/></symbol>
+<symbol id="i-pix" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6.6" y="6.6" width="10.8" height="10.8" rx="2.4" transform="rotate(45 12 12)"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13.5A8 8 0 0 1 10.5 4 8 8 0 1 0 20 13.5z"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M4 12H1.5M22.5 12H20M5 5l1.8 1.8M17.2 17.2L19 19M19 5l-1.8 1.8M6.8 17.2L5 19"/></symbol>
+<symbol id="i-arrowRight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></symbol>
+<symbol id="i-percent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18L18 6"/><circle cx="7.5" cy="7.5" r="2"/><circle cx="16.5" cy="16.5" r="2"/></symbol>
+<symbol id="i-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c1 3 4.5 4 4.5 8a4.5 4.5 0 0 1-9 0c0-1.5.7-2.5 1.5-3 .2 1 .8 1.5 1.5 1.5-1-2.5 0-5 1.5-6.5z"/></symbol>
+</defs></svg>
 <div id="rp"></div>
 <div id="nc"></div>
 
-<!-- ===== LOGIN ===== -->
+<!-- ===== LOGIN EDITORIAL ===== -->
 <div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo-area">
-      <svg class="login-logo-v" width="44" height="50" viewBox="0 0 44 50">
-        <polygon points="22,38 4,6 10,6 22,30 34,6 40,6" fill="#5c1a2a"/>
-        <path d="M30,4 Q40,4 40,14 Q40,24 22,38" fill="none" stroke="#5c1a2a" stroke-width="1.5"/>
-      </svg>
-      <div class="login-logo-name">VERSATILE</div>
-      <div class="login-logo-tag">Sistema de Gestão</div>
+  <div class="auth">
+    <div class="brand-panel">
+      <div class="grain"></div><div class="ghost-v">V</div>
+      <div class="bp-top"><span class="bp-mark">Boutique de Calçados</span><span class="bp-rule"></span></div>
+      <div class="bp-hero"><div class="hero-word">VERSATILE</div><div class="hero-rule"></div></div>
+      <div class="bp-foot">Palmas · Tocantins</div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Usuário</label>
-      <input class="form-control" id="lu" placeholder="Nome de usuário" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="username">
+    <div class="form-panel">
+      <div class="form-inner">
+        <div class="greet-sm">Bem-vinda de volta</div>
+        <h1 class="greet">Acesse sua conta</h1>
+        <div class="ufield"><label>Usuário</label><input id="lu" placeholder="Seu nome de usuário" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="username"></div>
+        <div class="ufield"><label>Senha</label><input id="lp" type="password" placeholder="••••••••••" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password"></div>
+        <div id="lerr" class="hidden" style="color:var(--red);font-size:12px;margin-bottom:14px;padding:9px 11px;background:var(--reddim);border:1px solid var(--red);border-radius:var(--r);text-align:center"></div>
+        <button class="btn primary big-btn" onclick="doLogin()">Entrar</button>
+        <div class="fp-foot">Acesso restrito à equipe Versatile</div>
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Senha</label>
-      <input class="form-control" id="lp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password">
-    </div>
-    <div id="lerr" class="hidden" style="color:var(--red);font-size:12px;margin-bottom:10px;padding:8px;background:var(--reddim);border-radius:var(--r);text-align:center"></div>
-    <button class="btn primary w-full" style="justify-content:center;padding:11px;font-size:14px;letter-spacing:.5px" onclick="doLogin()">Entrar</button>
   </div>
 </div>
 
@@ -451,7 +567,7 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
     </div>
     <nav id="snav" style="margin-top:4px;flex:1;overflow-y:auto"></nav>
     <div class="sidebar-bottom">
-      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Alternar tema">🌙</button>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Alternar tema"><svg class="ico"><use href="#i-moon"/></svg></button>
       <button class="btn ghost flex-1" onclick="doLogout()" style="justify-content:center;font-size:12px">⎋ Sair</button>
     </div>
   </aside>
@@ -459,7 +575,7 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
   <main class="main">
     <div class="topbar">
-      <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+      <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu"><svg class="ico"><use href="#i-menu"/></svg></button>
       <div class="topbar-title" id="tbar-title">Painel</div>
       <div class="flex gap-2" id="tbar-actions"></div>
       <button class="theme-btn" id="btn-refresh" onclick="refreshDataNow()" title="Atualizar dados" style="flex-shrink:0">⟳</button>
@@ -551,8 +667,8 @@ let db={usuarios:[],produtos:[],clientes:[],vendas:[],movimentos:[],caixas:[]};
 
 // Permissões padrão — admin pode alterar por usuário
 const PERM_DEFAULTS = {
-  admin:    {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:1,vendedores:1,financeiro:1,usuarios:1,recibos:1,relatorios:1,auditoria:1,lucratividade:1,aniversariantes:1,etiquetas:1,configuracoes:1,impressao:1,cupons:1,categorias:1,fornecedores:1,ordemcompra:1,pontos:1,segmentacao:1,comparativo:1,dre:1,trocas:1,cancelar_venda:1},
-  vendedor: {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:0,vendedores:0,financeiro:0,usuarios:0,recibos:0,relatorios:0,auditoria:0,lucratividade:0,aniversariantes:1,etiquetas:0,trocas:0,cancelar_venda:0}
+  admin:    {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:1,vendedores:1,financeiro:1,usuarios:1,relatorios:1,auditoria:1,aniversariantes:1,configuracoes:1,trocas:1,cancelar_venda:1},
+  vendedor: {dashboard:1,venda:1,estoque:1,clientes:1,historico:1,caixa:1,ranking:0,vendedores:0,financeiro:0,usuarios:0,relatorios:0,auditoria:0,aniversariantes:1,trocas:0,cancelar_venda:0}
 };
 function getPerms(usuario){
   if(!usuario) return {};
@@ -663,15 +779,7 @@ async function deleteUsuario(id){
 // ============================================================
 // LOADING GLOBAL
 // ============================================================
-function showGlobalLoading(show){
-  let el=document.getElementById('gloading');
-  if(!el&&show){
-    el=document.createElement('div');el.id='gloading';
-    el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)';
-    el.innerHTML='<div style="text-align:center;color:#fff"><div style="font-size:28px;margin-bottom:10px">⟳</div><div style="font-size:13px;letter-spacing:1px">Sincronizando com o banco de dados...</div></div>';
-    document.body.appendChild(el);
-  } else if(el&&!show){ el.remove(); }
-}
+function showGlobalLoading(show){ showLoading(show,'Sincronizando com o banco de dados...'); }
 
 
 // ============================================================
@@ -686,16 +794,24 @@ function debounceSearch(v){
 function showLoading(show,msg){
   msg=msg||'Carregando...';
   let el=document.getElementById('gloading');
-  if(show&&!el){
-    el=document.createElement('div');el.id='gloading';
-    el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9998;display:flex;align-items:center;justify-content:center';
-    el.innerHTML='<div style="text-align:center;color:#fff;padding:20px;background:rgba(255,255,255,.1);border-radius:12px"><div style="font-size:26px;margin-bottom:8px">&#8987;</div><div style="font-size:12px;letter-spacing:1px">'+msg+'</div></div>';
-    document.body.appendChild(el);
-  }else if(!show&&el){el.remove();}
-  else if(show&&el){const d=el.querySelector('div div:last-child');if(d)d.textContent=msg;}
+  if(!show){ if(el)el.remove(); return; }
+  const splash=/banco de dados|sincronizando|conectando/i.test(msg);
+  if(!el){ el=document.createElement('div'); el.id='gloading'; document.body.appendChild(el); }
+  if(splash){
+    const label=msg.replace(/\.\.\.$/,'').split(/ com | ao /)[0];
+    el.className='gload gload-splash';
+    el.innerHTML='<div class="gl-grain"></div><div class="gl-ghost">V</div>'
+      +'<svg class="gl-mark" viewBox="0 0 44 50" fill="none"><polygon points="22,38 4,6 10,6 22,30 34,6 40,6" fill="#f0dfe4"/><path d="M30,4 Q40,4 40,14 Q40,24 22,38" fill="none" stroke="#ccac7c" stroke-width="1.5"/></svg>'
+      +'<div class="gl-wm">VERSATILE</div><div class="gl-bar"><i></i></div>'
+      +'<div class="gl-msg">'+label+'</div>';
+  } else {
+    el.className='gload gload-card';
+    el.innerHTML='<div class="gl-box"><svg class="gl-spin" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="20" stroke="var(--border2)" stroke-width="4"/><circle cx="25" cy="25" r="20" stroke="var(--accent2)" stroke-width="4" stroke-linecap="round" stroke-dasharray="80 132"/></svg><div class="gl-box-msg">'+msg+'</div></div>';
+  }
 }
 // HELPERS
 // ============================================================
+function icon(n,cls){return '<svg class="ico'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-'+n+'"></use></svg>';}
 const fmt=v=>'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 // Formata data/hora sempre no fuso de Brasília (UTC-3)
 function _parseDt(iso){
@@ -733,7 +849,7 @@ const isAdmin=()=>ses?.usuario?.role==='admin';
 function notify(msg,type='ok',dur=2800){
   const c=document.getElementById('nc');
   const d=document.createElement('div');d.className=`notif ${type}`;
-  d.innerHTML=`<span>${{ok:'✓',err:'✕',warn:'⚠',info:'ℹ'}[type]||'✓'}</span> ${msg}`;
+  d.innerHTML=`<span>${{ok:icon('check'),err:icon('x'),warn:icon('alert'),info:icon('alert')}[type]||icon('check')}</span> ${msg}`;
   c.appendChild(d);
   setTimeout(()=>{d.style.animation='nOut .25s ease forwards';setTimeout(()=>d.remove(),260);},dur);
 }
@@ -757,13 +873,13 @@ function closeSidebar(){
 function toggleTheme(){
   const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
   document.documentElement.setAttribute('data-theme',t);
-  document.getElementById('theme-btn').textContent=t==='dark'?'🌙':'☀️';
+  document.getElementById('theme-btn').innerHTML=icon(t==='dark'?'moon':'sun');
   localStorage.setItem('vtheme',t);
 }
 function initTheme(){
   const t=localStorage.getItem('vtheme')||'dark';
   document.documentElement.setAttribute('data-theme',t);
-  const tb=document.getElementById('theme-btn');if(tb)tb.textContent=t==='dark'?'🌙':'☀️';
+  const tb=document.getElementById('theme-btn');if(tb)tb.innerHTML=icon(t==='dark'?'moon':'sun');
 }
 
 // ============================================================
@@ -906,33 +1022,20 @@ function rtRefreshPage(table){
 // NAV
 // ============================================================
 const NAV=[
-  {id:'dashboard',ic:'📊',lb:'Painel',roles:['admin','vendedor']},
-  {id:'venda',ic:'🛍',lb:'Nova Venda',roles:['admin','vendedor']},
-  {id:'estoque',ic:'📦',lb:'Estoque',roles:['admin','vendedor']},
-  {id:'clientes',ic:'👥',lb:'Clientes',roles:['admin','vendedor']},
-  {id:'historico',ic:'🧾',lb:'Vendas',roles:['admin','vendedor']},
-  {id:'caixa',ic:'🏧',lb:'Fechamento Caixa',roles:['admin','vendedor']},
-  {id:'ranking',ic:'🏆',lb:'Ranking',roles:['admin']},
-  {id:'vendedores',ic:'📈',lb:'Comissões',roles:['admin']},
-  {id:'financeiro',ic:'💰',lb:'Financeiro',roles:['admin']},
-  {id:'usuarios',ic:'👤',lb:'Usuários',roles:['admin']},
-  {id:'recibos',ic:'📋',lb:'Config. Recibos',roles:['admin']},
-  {id:'relatorios',ic:'📁',lb:'Relatórios',roles:['admin']},
-  {id:'auditoria',ic:'🔍',lb:'Auditoria',roles:['admin']},
-  {id:'lucratividade',ic:'💰',lb:'Lucratividade',roles:['admin']},
-  {id:'aniversariantes',ic:'🎂',lb:'Aniversariantes',roles:['admin','vendedor']},
-  {id:'etiquetas',ic:'🏷',lb:'Etiquetas',roles:['admin']},
-  {id:'configuracoes',ic:'⚙️',lb:'Configurações',roles:['admin']},
-  {id:'impressao',ic:'🖨',lb:'Config. Impressão',roles:['admin']},
-  {id:'cupons',ic:'🎫',lb:'Cupons',roles:['admin']},
-  {id:'categorias',ic:'🏷',lb:'Categorias',roles:['admin']},
-  {id:'fornecedores',ic:'🏭',lb:'Fornecedores',roles:['admin']},
-  {id:'ordemcompra',ic:'📋',lb:'Ordem de Compra',roles:['admin']},
-  {id:'pontos',ic:'⭐',lb:'Fidelidade',roles:['admin']},
-  {id:'segmentacao',ic:'📊',lb:'Segmentação',roles:['admin']},
-  {id:'comparativo',ic:'📈',lb:'Comparativo Mensal',roles:['admin']},
-  {id:'dre',ic:'💹',lb:'DRE',roles:['admin']},
-  {id:'trocas',ic:'🔄',lb:'Trocas',roles:['admin','vendedor']},
+  {id:'dashboard',ic:'grid',lb:'Painel',roles:['admin','vendedor']},
+  {id:'venda',ic:'bag',lb:'Nova Venda',roles:['admin','vendedor']},
+  {id:'estoque',ic:'box',lb:'Estoque',roles:['admin','vendedor']},
+  {id:'clientes',ic:'users',lb:'Clientes',roles:['admin','vendedor']},
+  {id:'historico',ic:'receipt',lb:'Vendas',roles:['admin','vendedor']},
+  {id:'caixa',ic:'drawer',lb:'Fechamento Caixa',roles:['admin','vendedor']},
+  {id:'ranking',ic:'trophy',lb:'Ranking',roles:['admin']},
+  {id:'vendedores',ic:'trending',lb:'Comissões',roles:['admin']},
+  {id:'financeiro',ic:'wallet',lb:'Financeiro',roles:['admin']},
+  {id:'usuarios',ic:'user',lb:'Usuários',roles:['admin']},
+  {id:'relatorios',ic:'folder',lb:'Relatórios',roles:['admin']},
+  {id:'auditoria',ic:'search',lb:'Auditoria',roles:['admin']},
+  {id:'configuracoes',ic:'gear',lb:'Configurações',roles:['admin']},
+  {id:'trocas',ic:'exchange',lb:'Trocas',roles:['admin','vendedor']},
 ];
 // --- NAV REORDER com drag-and-drop ---
 function getNavOrder(){
@@ -953,7 +1056,7 @@ function buildNav(){
       ondragend="navDragEnd(event)"
     >
       <span class="ni drag-handle" title="Arrastar para reordenar" style="cursor:grab;opacity:.45;font-size:11px;margin-right:2px">⠿</span>
-      <span class="ni">${n.ic}</span><span>${n.lb}</span>
+      <span class="ni">${icon(n.ic)}</span><span>${n.lb}</span>
     </div>`).join('');
 }
 let _navDragId=null;
@@ -981,10 +1084,10 @@ function goTo(pg){
   document.getElementById('page').style.padding='';
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   const ni=document.getElementById('ni-'+pg);if(ni)ni.classList.add('active');
-  const titles={dashboard:'Painel',venda:'Nova Venda',estoque:'Estoque',clientes:'Clientes',historico:'Histórico de Vendas',caixa:'Fechamento de Caixa',ranking:'Ranking',vendedores:'Comissões por Vendedor',financeiro:'Financeiro',usuarios:'Usuários',recibos:'Config. Recibos',relatorios:'Relatórios',auditoria:'Auditoria — Movimentações',lucratividade:'Lucratividade Real',aniversariantes:'Aniversariantes do Mês',etiquetas:'Impressão de Etiquetas',configuracoes:'Configurações do Sistema',impressao:'Configurações de Impressão',cupons:'Cupons de Desconto',categorias:'Categorias de Produto',fornecedores:'Fornecedores',ordemcompra:'Ordem de Compra / Reposição',pontos:'Fidelidade — Programa de Pontos',segmentacao:'Segmentação de Clientes',trocas:'Trocas de Produtos',comparativo:'Comparativo Mensal',dre:'DRE — Demonstrativo de Resultado'};
+  const titles={dashboard:'Painel',venda:'Nova Venda',estoque:'Estoque',clientes:'Clientes',historico:'Histórico de Vendas',caixa:'Fechamento de Caixa',ranking:'Ranking',vendedores:'Comissões por Vendedor',financeiro:'Financeiro',usuarios:'Usuários',relatorios:'Relatórios',auditoria:'Auditoria — Movimentações',configuracoes:'Configurações',trocas:'Trocas de Produtos'};
   document.getElementById('tbar-title').textContent=titles[pg]||pg;
-  document.getElementById('tbar-actions').innerHTML='<button class="btn" onclick="abrirModalMeta()">🎯 Definir Metas</button>';
-  ({dashboard:pgDashboard,venda:pgVenda,estoque:pgEstoque,clientes:pgClientes,historico:pgHistorico,caixa:pgCaixa,ranking:pgRanking,vendedores:pgVendedores,financeiro:pgFinanceiro,usuarios:pgUsuarios,recibos:pgRecibos,relatorios:pgRelatorios,auditoria:pgAuditoria,lucratividade:pgLucratividade,aniversariantes:pgAniversariantes,etiquetas:pgEtiquetas,configuracoes:pgConfiguracoes,impressao:renderCfgImpressao,cupons:pgCupons,categorias:pgCategorias,fornecedores:pgFornecedores,ordemcompra:pgOrdemCompra,pontos:pgPontos,segmentacao:pgSegmentacao,trocas:pgTrocas,comparativo:pgComparativo,dre:pgDRE})[pg]?.();
+  document.getElementById('tbar-actions').innerHTML='<button class="btn" onclick="abrirModalMeta()">'+icon('target')+' Definir Metas</button>';
+  ({dashboard:pgDashboard,venda:pgVenda,estoque:pgEstoque,clientes:pgClientes,historico:pgHistorico,caixa:pgCaixa,ranking:pgRanking,vendedores:pgVendedores,financeiro:pgFinanceiro,usuarios:pgUsuarios,relatorios:pgRelatorios,auditoria:pgAuditoria,configuracoes:pgConfiguracoes,trocas:pgTrocas})[pg]?.();
 }
 
 // ============================================================
@@ -1001,15 +1104,15 @@ function pgDashboard(){
   const paresMes=vm.reduce((s,v)=>s+(v.itens||[]).reduce((si,i)=>si+(i.qtd||1),0),0);
   const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const ds=d.toISOString().slice(0,10);days.push({d:ds,v:db.vendas.filter(x=>x.data&&x.data.startsWith(ds)).reduce((s,x)=>s+x.total,0)});}
   const maxD=Math.max(...days.map(d=>d.v),1);
-  document.getElementById('tbar-actions').innerHTML='<button class="btn" onclick="abrirModalMeta()">🎯 Definir Metas</button>';
+  document.getElementById('tbar-actions').innerHTML='<button class="btn primary" onclick="abrirModalMeta()">'+icon('flame')+' Definir Metas</button>';
   document.getElementById('page').innerHTML=`
   <div class="grid6 mb-4">
-    <div class="metric-card"><div class="mi">💵</div><div class="metric-label">Vendas Hoje</div><div class="metric-val text-green">${fmt(th)}</div><div class="metric-sub">${vh.length} venda(s)</div></div>
-    <div class="metric-card"><div class="mi">📅</div><div class="metric-label">Vendas no Mês</div><div class="metric-val text-wine">${fmt(tm)}</div><div class="metric-sub">${vm.length} venda(s)</div></div>
-    <div class="metric-card"><div class="mi">👟</div><div class="metric-label">Pares Vendidos</div><div class="metric-val text-blue">${paresMes}</div><div class="metric-sub">este mês</div></div>
-    <div class="metric-card"><div class="mi">🎯</div><div class="metric-label">Ticket Médio</div><div class="metric-val text-gold">${fmt(ticket)}</div><div class="metric-sub">este mês</div></div>
-    <div class="metric-card"><div class="mi">📦</div><div class="metric-label">Total Estoque</div><div class="metric-val">${pares}</div><div class="metric-sub ${baixo>0?'text-red':'text-green'}">${baixo>0?baixo+' prod. c/ estoque baixo':'OK'}</div></div>
-    <div class="metric-card"><div class="mi">👤</div><div class="metric-label">Clientes</div><div class="metric-val text-blue">${db.clientes.length}</div><div class="metric-sub">cadastrados</div></div>
+    <div class="metric-card"><span class="mi">${icon('cash')}</span><div class="metric-label">Vendas Hoje</div><div class="metric-val text-green">${fmt(th)}</div><div class="metric-sub">${vh.length} venda(s)</div></div>
+    <div class="metric-card"><span class="mi">${icon('bar')}</span><div class="metric-label">Vendas no Mês</div><div class="metric-val text-wine">${fmt(tm)}</div><div class="metric-sub">${vm.length} venda(s)</div></div>
+    <div class="metric-card"><span class="mi">${icon('bag')}</span><div class="metric-label">Pares Vendidos</div><div class="metric-val text-blue">${paresMes}</div><div class="metric-sub">este mês</div></div>
+    <div class="metric-card"><span class="mi">${icon('percent')}</span><div class="metric-label">Ticket Médio</div><div class="metric-val text-gold">${fmt(ticket)}</div><div class="metric-sub">este mês</div></div>
+    <div class="metric-card"><span class="mi">${icon('box')}</span><div class="metric-label">Total Estoque</div><div class="metric-val">${pares}</div><div class="metric-sub ${baixo>0?'text-red':'text-green'}">${baixo>0?baixo+' prod. c/ estoque baixo':'OK'}</div></div>
+    <div class="metric-card"><span class="mi">${icon('users')}</span><div class="metric-label">Clientes</div><div class="metric-val text-blue">${db.clientes.length}</div><div class="metric-sub">cadastrados</div></div>
   </div>
   ${renderMetasVendedorPanel()}
   ${(()=>{
@@ -1024,33 +1127,33 @@ function pgDashboard(){
       return parseInt(p[1])===new Date().getMonth()+1&&parseInt(p[2])===new Date().getDate();
     });
     return (hasAny?`<div class="card mb-4">
-      <div class="sec-title">🎯 Progresso das Metas</div>
+      <div class="sec-title">${icon('flame')} Progresso das Metas</div>
       ${barMeta(th,m.dia,'Meta Diária')}
       ${barMeta(tsem,m.semana,'Meta Semanal')}
       ${barMeta(tm,m.mes,'Meta Mensal')}
-    </div>`:'')+(anivHoje.length?`<div class="card mb-4" style="border-color:var(--accent);background:var(--accentdim,#1a1a2e)">
-      <div class="sec-title">🎂 Aniversariante(s) HOJE!</div>
+    </div>`:'')+(anivHoje.length?`<div class="card mb-4" style="border-color:var(--accent);background:var(--winedim)">
+      <div class="sec-title">${icon('gift')} Aniversariante(s) HOJE!</div>
       ${anivHoje.map(c=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0">
         <strong>${c.nome}</strong>
-        ${c.whatsapp?`<a href="https://wa.me/55${c.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Olá '+c.nome+'! 🎂 Feliz aniversário! A Versatile tem um presente especial para você 🥳')}" target="_blank" class="btn xs primary">💬 Parabenizar</a>`:''}
+        ${c.whatsapp?`<a href="https://wa.me/55${c.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Olá '+c.nome+'! 🎂 Feliz aniversário! A Versatile tem um presente especial para você 🥳')}" target="_blank" class="btn xs primary">${icon('chat')} Parabenizar</a>`:''}
       </div>`).join('')}
     </div>`:'');
   })()}
   <div class="grid2">
-    <div class="card"><div class="sec-title">📈 Últimos 7 dias</div>
+    <div class="card"><div class="sec-title">${icon('trending')} Últimos 7 dias</div>
       <div class="sparkline">${days.map(d=>`<div class="spk" style="height:${Math.max(8,Math.round((d.v/maxD)*100))}%" title="${fmtDs(d.d)}: ${fmt(d.v)}"></div>`).join('')}</div>
       <div class="flex justify-between mt-2"><span class="text-xs text-dim">${fmtDs(days[0].d)}</span><span class="text-xs text-dim">${fmtDs(days[6].d)}</span></div>
     </div>
-    <div class="card"><div class="sec-title">🔥 Top Produtos (mês)</div>
+    <div class="card"><div class="sec-title">${icon('flame')} Top Produtos (mês)</div>
       ${rankProds('mes').slice(0,5).map((r,i)=>`<div class="rank-row"><div class="rank-n">${i+1}</div><div class="rank-bar-w"><div class="rank-lbl truncate">${r.nome}</div><div class="rank-bar-bg"><div class="rank-bar-f" style="width:${r.pct}%"></div></div></div><div class="rank-tot">${r.qtd}p</div></div>`).join('')||'<div class="empty"><p>Sem vendas ainda</p></div>'}
     </div>
   </div>
   <div class="grid2 mt-4">
-    <div class="card"><div class="sec-title">🧾 Vendas Recentes</div>
+    <div class="card"><div class="sec-title">${icon('receipt')} Vendas Recentes</div>
       ${[...db.vendas].sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;}).slice(0,6).map(v=>`<div class="flex justify-between items-center" style="padding:7px 0;border-bottom:1px solid var(--border)"><div><div class="font-med" style="font-size:13px">#${v.id} ${v.clienteNome||'<span class="text-dim">Sem cadastro</span>'}</div><div class="text-xs text-dim">${fmtD(v.data)} · ${v.pgto} · ${v.modalidade||'Presencial'}</div></div><div class="font-bold text-gold">${fmt(v.total)}</div></div>`).join('')||'<div class="empty"><p>Sem vendas</p></div>'}
     </div>
-    <div class="card"><div class="sec-title">⚠️ Estoque Baixo</div>
-      ${db.produtos.filter(p=>(p.qtd||0)<=(p.min||2)).map(p=>`<div class="flex justify-between items-center" style="padding:7px 0;border-bottom:1px solid var(--border)"><div><div class="font-med" style="font-size:13px">${p.nome}${p.tam?' T'+p.tam:''}</div><div class="text-xs text-dim">${p.marca||''}</div></div><span class="badge ${p.qtd===0?'red':'amber'}">${p.qtd===0?'Esgotado':p.qtd+' rest.'}</span></div>`).join('')||'<div class="empty" style="padding:14px"><p>Estoque OK ✓</p></div>'}
+    <div class="card"><div class="sec-title" style="color:var(--amber)">${icon('alert')} Estoque Baixo</div>
+      ${db.produtos.filter(p=>(p.qtd||0)<=(p.min||2)).map(p=>`<div class="flex justify-between items-center" style="padding:7px 0;border-bottom:1px solid var(--border)"><div><div class="font-med" style="font-size:13px">${p.nome}${p.tam?' T'+p.tam:''}</div><div class="text-xs text-dim">${p.marca||''}</div></div><span class="badge ${p.qtd===0?'red':'amber'}">${p.qtd===0?'Esgotado':p.qtd+' rest.'}</span></div>`).join('')||'<div class="empty" style="padding:14px">'+icon('check')+' <p style="display:inline">Estoque OK</p></div>'}
     </div>
   </div>`;
 }
@@ -1098,20 +1201,55 @@ const GRADES={
 let gpCustom=[];
 
 let _estFiltro=null;
+const EST_TABS=[
+  {id:'produtos',ic:'box',lb:'Produtos',roles:['admin','vendedor']},
+  {id:'fornecedores',ic:'truck',lb:'Fornecedores',roles:['admin']},
+  {id:'ordemcompra',ic:'document',lb:'Ordem de Compra',roles:['admin']},
+  {id:'etiquetas',ic:'tag',lb:'Etiquetas',roles:['admin']},
+];
+let _estTab='produtos';
+function estTabsPermitidas(){
+  return EST_TABS.filter(t=>t.roles.includes(ses.usuario.role));
+}
 function pgEstoque(){
+  if(!estTabsPermitidas().find(t=>t.id===_estTab)) _estTab='produtos';
+  renderEstoqueShell();
+}
+function estGoSubTab(id){
+  _estTab=id;
+  renderEstoqueShell();
+}
+function renderEstoqueShell(){
+  const tabs=estTabsPermitidas();
+  document.getElementById('page').innerHTML=`
+  <div class="sub-tab-row">
+    ${tabs.map(t=>`<button class="sub-tab ${_estTab===t.id?'active':''}" onclick="estGoSubTab('${t.id}')">${icon(t.ic)}${t.lb}</button>`).join('')}
+  </div>
+  <div id="est-subview"></div>`;
+  const actions={
+    produtos:()=>temPerm('estoque')?(
+      '<button class="btn" onclick="openImportModal()" title="Importar Excel/CSV">'+icon('download')+'<span class="hide-mobile"> Importar Excel/CSV</span></button>'+
+      '<button class="btn primary" onclick="openProdModal()" title="Novo Produto">+<span class="hide-mobile"> Novo Produto</span><span class="show-mobile-inline"> Produto</span></button>'
+    ):'',
+    fornecedores:()=>'<button class="btn primary" onclick="openFornModal()">+ Novo Fornecedor</button>',
+    ordemcompra:()=>'<button class="btn primary" onclick="gerarOrdemPDF()">'+icon('printer')+' Imprimir Ordem</button>',
+    etiquetas:()=>'<button class="btn primary" onclick="imprimirEtiquetas()">'+icon('printer')+' Imprimir Etiquetas</button>',
+  };
+  document.getElementById('tbar-actions').innerHTML=(actions[_estTab]||(()=>''))();
+  ({
+    produtos:renderEstoqueProdutos,
+    fornecedores:renderFornecedores,
+    ordemcompra:renderOrdemCompra,
+    etiquetas:renderEtiquetas,
+  })[_estTab]?.();
+}
+function renderEstoqueProdutos(){
   const admin=temPerm('estoque');
-  if(admin){
-    document.getElementById('tbar-actions').innerHTML=
-      '<button class="btn" onclick="openImportModal()" title="Importar Excel/CSV">📥<span class="hide-mobile"> Importar Excel/CSV</span></button>'+
-      '<button class="btn primary" onclick="openProdModal()" title="Novo Produto">+<span class="hide-mobile"> Novo Produto</span><span class="show-mobile-inline"> Produto</span></button>';
-  } else {
-    document.getElementById('tbar-actions').innerHTML='';
-  }
   _estFiltro={tab:'com',marca:'todas',categoria:'todas',ordenar:'nome',busca:''};
   const thAdmin=isAdmin()?'<th>Custo</th><th>Margem</th>':'';
   const thAcoes=admin?'<th></th>':'';
-  document.getElementById('page').innerHTML=
-    '<div class="card mb-3"><div class="srch"><span class="srch-ic">🔍</span>'+
+  document.getElementById('est-subview').innerHTML=
+    '<div class="card mb-3"><div class="srch"><span class="srch-ic">'+icon('search')+'</span>'+
     '<input class="form-control" id="estoque-busca" placeholder="Buscar produto, marca, cor..." style="font-size:14px;height:42px;padding-left:36px" autofocus></div></div>'+
     (!admin?'<div style="padding:8px 14px;background:var(--bluedim);border:1px solid var(--blue);border-radius:var(--r);margin-bottom:12px;font-size:12px;color:var(--blue)">Modo visualização. Apenas administradores podem cadastrar ou editar produtos.</div>':'')+
     '<div class="card mb-4">'+
@@ -1191,7 +1329,7 @@ function pgEstoque(){
           </div>
           <div class="modal-footer">
             <button class="btn" onclick="closeM('mprod')">Cancelar</button>
-            <button class="btn primary" onclick="salvarProd()">💾 Salvar Produto</button>
+            <button class="btn primary" onclick="salvarProd()">${icon('save')} Salvar Produto</button>
           </div>
         </div>
       </div>`;
@@ -1232,8 +1370,8 @@ function estRowTabela(p,isAdm,canEdit){
   const {tot,st,lab,margem}=estCalcProd(p);
   const grVisual=estGradeTabela(p,canEdit);
   const tdAdmin=isAdm?'<td class="text-dim">'+(p.custo?fmt(p.custo):'—')+'</td><td>'+(margem!==null?'<span class="badge '+(margem>=30?'green':margem>=15?'amber':'red')+'">'+margem+'%</span>':'—')+'</td>':'';
-  const tdAcoes=canEdit?('<td><div class="flex gap-2"><button class="btn xs" onclick="verHistoricoEstoque(&apos;'+p.id+'&apos;)">📋</button><button class="btn xs" onclick="abrirAjusteEstoque(&apos;'+p.id+'&apos;)">±</button><button class="btn xs" onclick="openProdModal(&apos;'+p.id+'&apos;)">✏️</button>'+( isAdm?'<button class="btn xs danger" onclick="delProd(&apos;'+p.id+'&apos;)">🗑</button>':'' )+'</div></td>'):'';
-  const fotoHtml=p.foto?'<img src="'+p.foto+'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0">':'<div style="width:36px;height:36px;background:var(--bg4);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">👟</div>';
+  const tdAcoes=canEdit?('<td><div class="flex gap-2"><button class="btn xs" onclick="verHistoricoEstoque(&apos;'+p.id+'&apos;)">'+icon('clipboard')+'</button><button class="btn xs" onclick="abrirAjusteEstoque(&apos;'+p.id+'&apos;)">±</button><button class="btn xs" onclick="openProdModal(&apos;'+p.id+'&apos;)">'+icon('edit')+'</button>'+( isAdm?'<button class="btn xs danger" onclick="delProd(&apos;'+p.id+'&apos;)">'+icon('trash')+'</button>':'' )+'</div></td>'):'';
+  const fotoHtml=p.foto?'<img src="'+p.foto+'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0">':'<div style="width:36px;height:36px;background:var(--bg4);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">'+icon('box')+'</div>';
   return'<tr>'+
     '<td class="text-xs text-dim">'+(p.cod||'—')+'</td>'+
     '<td><div style="display:flex;align-items:center;gap:8px">'+fotoHtml+'<div><div class="td-name">'+p.nome+'</div><div style="font-size:11px;color:var(--text3)">'+(p.obs||'')+'</div></div></div></td>'+
@@ -1248,8 +1386,8 @@ function estRowTabela(p,isAdm,canEdit){
 }
 function estCardMobile(p,isAdm,canEdit){
   const {tot,st,lab,margem}=estCalcProd(p);
-  const fotoHtml=p.foto?'<img src="'+p.foto+'" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0">':'<div class="prod-card-foto">👟</div>';
-  const acoes=canEdit?('<div class="prod-card-acts"><button class="btn xs" onclick="verHistoricoEstoque(&apos;'+p.id+'&apos;)">📋 Histórico</button><button class="btn xs" onclick="abrirAjusteEstoque(&apos;'+p.id+'&apos;)">± Ajustar</button><button class="btn xs" onclick="openProdModal(&apos;'+p.id+'&apos;)">✏️ Editar</button>'+( isAdm?'<button class="btn xs danger" onclick="delProd(&apos;'+p.id+'&apos;)">🗑</button>':'' )+'</div>'):'';
+  const fotoHtml=p.foto?'<img src="'+p.foto+'" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0">':'<div class="prod-card-foto">'+icon('box')+'</div>';
+  const acoes=canEdit?('<div class="prod-card-acts"><button class="btn xs" onclick="verHistoricoEstoque(&apos;'+p.id+'&apos;)">'+icon('clipboard')+' Histórico</button><button class="btn xs" onclick="abrirAjusteEstoque(&apos;'+p.id+'&apos;)">± Ajustar</button><button class="btn xs" onclick="openProdModal(&apos;'+p.id+'&apos;)">'+icon('edit')+' Editar</button>'+( isAdm?'<button class="btn xs danger" onclick="delProd(&apos;'+p.id+'&apos;)">'+icon('trash')+'</button>':'' )+'</div>'):'';
   const subInfo=isAdm?('Custo '+(p.custo?fmt(p.custo):'—')+(margem!==null?' · Margem <span class="badge '+(margem>=30?'green':margem>=15?'amber':'red')+'" style="font-size:10px">'+margem+'%</span>':'')):[p.marca,p.obs].filter(Boolean).join(' · ');
   return '<div class="prod-card">'+
     '<div class="prod-card-top">'+fotoHtml+
@@ -1304,10 +1442,10 @@ function renderEstoqueList(){
 
   const colSpan=4+(isAdm?2:0)+3+(canEdit?1:0);
   const tbody=document.getElementById('estoque-tbody');
-  if(tbody) tbody.innerHTML=list.map(p=>estRowTabela(p,isAdm,canEdit)).join('')||'<tr><td colspan="'+colSpan+'"><div class="empty"><div class="ei">📦</div><p>Nenhum produto</p></div></td></tr>';
+  if(tbody) tbody.innerHTML=list.map(p=>estRowTabela(p,isAdm,canEdit)).join('')||'<tr><td colspan="'+colSpan+'"><div class="empty"><div class="ei">'+icon('box')+'</div><p>Nenhum produto</p></div></td></tr>';
 
   const cardsEl=document.getElementById('estoque-cards');
-  if(cardsEl) cardsEl.innerHTML=list.map(p=>estCardMobile(p,isAdm,canEdit)).join('')||'<div class="empty"><div class="ei">📦</div><p>Nenhum produto</p></div>';
+  if(cardsEl) cardsEl.innerHTML=list.map(p=>estCardMobile(p,isAdm,canEdit)).join('')||'<div class="empty"><div class="ei">'+icon('box')+'</div><p>Nenhum produto</p></div>';
 }
 
 function calcMarkup(){
@@ -1420,14 +1558,50 @@ async function delProd(id){
 // ============================================================
 // CLIENTES
 // ============================================================
+const CLI_TABS=[
+  {id:'lista',ic:'users',lb:'Clientes',roles:['admin','vendedor']},
+  {id:'aniversariantes',ic:'gift',lb:'Aniversariantes',roles:['admin','vendedor'],perm:'aniversariantes'},
+  {id:'fidelidade',ic:'star',lb:'Fidelidade',roles:['admin']},
+  {id:'segmentacao',ic:'pie',lb:'Segmentação',roles:['admin']},
+];
+let _cliTab='lista';
+function cliTabsPermitidas(){
+  return CLI_TABS.filter(t=>t.roles.includes(ses.usuario.role)&&(!t.perm||temPerm(t.perm)));
+}
 function pgClientes(){
-  document.getElementById('tbar-actions').innerHTML=`<button class="btn primary" onclick="openCliModal()">+ Novo Cliente</button>`;
-  renderClientes();
+  const permitidas=cliTabsPermitidas();
+  if(!permitidas.find(t=>t.id===_cliTab)) _cliTab=permitidas[0]?.id||'lista';
+  renderClientesShell();
+}
+function cliGoSubTab(id){
+  _cliTab=id;
+  renderClientesShell();
+}
+function renderClientesShell(){
+  const tabs=cliTabsPermitidas();
+  document.getElementById('page').innerHTML=`
+  <div class="sub-tab-row">
+    ${tabs.map(t=>`<button class="sub-tab ${_cliTab===t.id?'active':''}" onclick="cliGoSubTab('${t.id}')">${icon(t.ic)}${t.lb}</button>`).join('')}
+  </div>
+  <div id="cli-subview"></div>`;
+  const actions={
+    lista:`<button class="btn primary" onclick="openCliModal()">+ Novo Cliente</button>`,
+    aniversariantes:'',
+    fidelidade:'',
+    segmentacao:`<button class="btn primary" onclick="enviarWALote()">${icon('chat')} Enviar WhatsApp em Lote</button>`,
+  };
+  document.getElementById('tbar-actions').innerHTML=actions[_cliTab]||'';
+  ({
+    lista:()=>renderClientes(),
+    aniversariantes:()=>renderAniversariantes(),
+    fidelidade:renderPontos,
+    segmentacao:()=>renderSegmentacao(),
+  })[_cliTab]?.();
 }
 function renderClientes(q=''){
   const fil=db.clientes.filter(c=>!q||[c.nome,c.cpf,c.email,c.whatsapp].join(' ').toLowerCase().includes(q.toLowerCase()));
-  document.getElementById('page').innerHTML=`
-  <div class="card mb-3"><div class="srch"><span class="srch-ic">🔍</span><input class="form-control" placeholder="Buscar por nome, CPF, e-mail..." onkeyup="renderClientes(this.value)" value="${q}"></div></div>
+  document.getElementById('cli-subview').innerHTML=`
+  <div class="card mb-3"><div class="srch"><span class="srch-ic">${icon('search')}</span><input class="form-control" placeholder="Buscar por nome, CPF, e-mail..." onkeyup="renderClientes(this.value)" value="${q}"></div></div>
   <div class="card"><div class="table-wrap"><table>
     <thead><tr><th>Nome</th><th>CPF</th><th>Nasc.</th><th>WhatsApp</th><th>E-mail</th><th>Cadastro</th><th></th></tr></thead>
     <tbody>${fil.map(c=>`<tr>
@@ -1437,8 +1611,8 @@ function renderClientes(q=''){
       <td>${c.whatsapp?`<a href="https://wa.me/55${c.whatsapp.replace(/\D/g,'')}" target="_blank" style="color:var(--accent2)">${c.whatsapp}</a>`:'—'}</td>
       <td class="text-dim">${c.email||'—'}</td>
       <td class="text-xs text-dim">${fmtDs(c.criado)}</td>
-      <td><div class="flex gap-2"><button class="btn xs" onclick="openCliModal('${c.id}')">✏️</button><button class="btn xs danger" onclick="delCli('${c.id}')">🗑</button></div></td>
-    </tr>`).join('')||`<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><p>Nenhum cliente</p></div></td></tr>`}
+      <td><div class="flex gap-2"><button class="btn xs" onclick="openCliModal('${c.id}')">${icon('edit')}</button><button class="btn xs danger" onclick="delCli('${c.id}')">${icon('trash')}</button></div></td>
+    </tr>`).join('')||`<tr><td colspan="7"><div class="empty"><div class="ei">${icon('users')}</div><p>Nenhum cliente</p></div></td></tr>`}
     </tbody>
   </table></div></div>
 
@@ -1455,7 +1629,7 @@ function renderClientes(q=''){
         <div class="form-group"><label class="form-label">E-mail</label><input class="form-control" id="cem" type="email" placeholder="email@exemplo.com"></div>
       </div>
       <div class="form-group"><label class="form-label">Endereço</label><input class="form-control" id="cend" placeholder="Rua, número, bairro..."></div>
-      <div class="modal-footer"><button class="btn" onclick="closeM('mcli')">Cancelar</button><button class="btn primary" onclick="salvarCli()">💾 Salvar</button></div>
+      <div class="modal-footer"><button class="btn" onclick="closeM('mcli')">Cancelar</button><button class="btn primary" onclick="salvarCli()">${icon('save')} Salvar</button></div>
     </div>
   </div>`;
 }
@@ -1494,13 +1668,13 @@ function pgVenda(){
       <!-- BARRA DE BUSCA + MODALIDADE -->
       <div style="padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center">
         <div class="srch" style="flex:1">
-          <span class="srch-ic">🔍</span>
+          <span class="srch-ic">${icon('search')}</span>
           <input class="form-control" id="vs" placeholder="Buscar produto ou número..." oninput="debounceSearch(this.value)"
             style="font-size:14px;height:40px;padding-left:36px" autofocus>
         </div>
         <select class="form-control" id="v-modal" style="width:150px;height:40px;font-size:13px">
-          <option value="Presencial">🏪 Presencial</option>
-          <option value="Online">💻 Online</option>
+          <option value="Presencial">Presencial</option>
+          <option value="Online">Online</option>
         </select>
       </div>
 
@@ -1521,15 +1695,15 @@ function pgVenda(){
           <div>
             <label class="form-label">Pagamento</label>
             <select class="form-control" id="vpgto" onchange="onPgChange()" style="height:36px;font-size:13px">
-              <option value="Dinheiro">💵 Dinheiro</option>
-              <option value="PIX">📲 PIX</option>
-              <option value="Débito">💳 Débito</option>
-              <option value="Crédito">💳 Crédito</option>
-              <option value="Link de Pagamento">🔗 Link de Pagamento</option>
-              <option value="Boleto">📄 Boleto</option>
-              <option value="Transferência">🏦 Transferência</option>
-              <option value="Cheque">📝 Cheque</option>
-              <option value="Voucher">🎫 Voucher</option>
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="PIX">PIX</option>
+              <option value="Débito">Débito</option>
+              <option value="Crédito">Crédito</option>
+              <option value="Link de Pagamento">Link de Pagamento</option>
+              <option value="Boleto">Boleto</option>
+              <option value="Transferência">Transferência</option>
+              <option value="Cheque">Cheque</option>
+              <option value="Voucher">Voucher</option>
             </select>
           </div>
         </div>
@@ -1550,7 +1724,7 @@ function pgVenda(){
         <div style="margin-top:10px">
           <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);cursor:pointer">
             <input type="checkbox" id="usar-retroativa" onchange="toggleVendaRetroativa()" style="accent-color:var(--accent)">
-            🕐 Lançar venda retroativa (data antiga)
+            ${icon('clock')} Lançar venda retroativa (data antiga)
           </label>
           <div id="retroativa-wrap" style="display:none;margin-top:8px;padding:10px;background:var(--bg3);border:1px solid var(--gold);border-radius:var(--r)">
             <div class="form-group">
@@ -1572,15 +1746,21 @@ function pgVenda(){
     </div>
 
     <!-- LADO DIREITO: CARRINHO -->
-    <div class="venda-right">
+    <div class="venda-right" id="venda-right">
+      <!-- Barra mobile (colapsada) -->
+      <div class="cart-mobile-bar" id="cart-mobile-bar" onclick="toggleCartMobile()">
+        <span class="flex items-center gap-2">${icon('bag')} <span id="cmb-info">Carrinho vazio</span></span>
+        <span class="cmb-total" id="cmb-total">R$ 0,00</span>
+      </div>
       <!-- Header carrinho -->
       <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-        <span style="font-family:Arial;font-size:16px;font-weight:700">🛒 Carrinho</span>
+        <span class="drawer-handle-mobile" onclick="toggleCartMobile()"></span>
+        <span style="font-family:var(--font-head);font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px">${icon('bag')} Carrinho</span>
         <button class="btn xs danger" onclick="limpaCart()">Limpar</button>
       </div>
       <!-- Itens -->
       <div id="cbody" style="flex:1;overflow-y:auto;padding:8px">
-        <div class="empty"><div class="ei">🛒</div><p>Adicione produtos</p></div>
+        <div class="empty"><div class="ei">${icon('bag')}</div><p>Adicione produtos</p></div>
       </div>
       <!-- Totais -->
       <div style="padding:14px 16px;border-top:1px solid var(--border);background:var(--bg3)">
@@ -1590,12 +1770,12 @@ function pgVenda(){
         <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--red);padding:3px 0">
           <span>Desconto</span><span id="tdesc">- R$ 0,00</span>
         </div>
-        <div style="display:flex;justify-content:space-between;font-family:Arial;font-size:22px;font-weight:700;padding:8px 0;margin-top:4px;border-top:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;font-family:var(--font-head);font-size:22px;font-weight:700;padding:8px 0;margin-top:4px;border-top:1px solid var(--border)">
           <span>TOTAL</span><span id="tfinal">R$ 0,00</span>
         </div>
         <button class="btn primary w-full" onclick="finalizarVenda()"
           style="justify-content:center;padding:13px;font-size:16px;font-weight:700;margin-top:8px;letter-spacing:.5px">
-          ✅ FINALIZAR VENDA
+          ${icon('check')} FINALIZAR VENDA
         </button>
       </div>
     </div>
@@ -1604,6 +1784,10 @@ function pgVenda(){
   // Inicializar
   onPgChange();
   renderPCards();
+}
+function toggleCartMobile(){
+  const el=document.getElementById('venda-right');
+  if(el) el.classList.toggle('expanded');
 }
 
 
@@ -1623,7 +1807,7 @@ function renderPCards(q=''){
       <div class="pc-price">${fmt(c.preco)}</div>
       ${c.marca?'<span style="font-size:10px;color:var(--text3)">'+c.marca+'</span>':''}
     </div>
-  </div>`).join('')||'<div class="empty w-full" style="grid-column:1/-1"><div class="ei">📦</div><p>Nenhum produto disponível</p></div>';
+  </div>`).join('')||'<div class="empty w-full" style="grid-column:1/-1"><div class="ei">'+icon('box')+'</div><p>Nenhum produto disponível</p></div>';
 }
 function buscaCli(q){
   const r=document.getElementById('vcr');if(!q){r.style.display='none';return;}
@@ -1632,7 +1816,7 @@ function buscaCli(q){
   r.style.display='block';
   r.innerHTML=f.map(c=>`<div style="padding:7px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);transition:background .1s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''" onclick="selCli('${c.id}')"><strong>${c.nome}</strong>${c.cpf?' · '+c.cpf:''}</div>`).join('');
 }
-function selCli(id){const c=db.clientes.find(x=>x.id===id);vendaCliId=id;vendaCliNome=c.nome;document.getElementById('vcs').value=c.nome;document.getElementById('vcr').style.display='none';const el=document.getElementById('vcsel');el.style.display='inline-flex';el.innerHTML=`👤 ${c.nome} <span style="cursor:pointer;margin-left:5px" onclick="limpaCliVenda()">×</span>`;}
+function selCli(id){const c=db.clientes.find(x=>x.id===id);vendaCliId=id;vendaCliNome=c.nome;document.getElementById('vcs').value=c.nome;document.getElementById('vcr').style.display='none';const el=document.getElementById('vcsel');el.style.display='inline-flex';el.innerHTML=icon('user')+` ${c.nome} <span style="cursor:pointer;margin-left:5px" onclick="limpaCliVenda()">×</span>`;}
 function limpaCliVenda(){vendaCliId=null;vendaCliNome='';document.getElementById('vcs').value='';document.getElementById('vcsel').style.display='none';}
 function addCart(pid,tam){
   const p=db.produtos.find(x=>x.id===pid);if(!p)return;
@@ -1646,7 +1830,7 @@ function addCart(pid,tam){
 }
 function renderCart(){
   const el=document.getElementById('cbody');if(!el)return;
-  if(!cart.length){el.innerHTML='<div class="empty"><div class="ei">🛒</div><p>Carrinho vazio</p></div>';calcTot();return;}
+  if(!cart.length){el.innerHTML='<div class="empty"><div class="ei">'+icon('bag')+'</div><p>Carrinho vazio</p></div>';calcTot();return;}
   el.innerHTML=cart.map((ci,i)=>`<div class="cart-item">
     <div class="ci-info">
       <div class="ci-name">${ci.nome}</div>
@@ -1677,6 +1861,9 @@ function calcTot(){
   const tot=Math.max(0,sub-desc);
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('tsub',fmt(sub));set('tdesc','- '+fmt(desc));set('tfinal',fmt(tot));
+  const nItens=cart.reduce((s,i)=>s+i.qtd,0);
+  set('cmb-info',nItens?nItens+(nItens!==1?' itens':' item')+' no carrinho':'Carrinho vazio');
+  set('cmb-total',fmt(tot));
   // Calcular líquido da maquininha (suporta pagamento dividido)
   const pgto=document.getElementById('vpgto')?.value||'Dinheiro';
   const band=document.getElementById('v-bandeira')?.value||'visa_master';
@@ -1973,38 +2160,6 @@ async function finalizarVenda(){
 // ============================================================
 let reciboEditado = {}; // campos personalizados por venda
 
-function buildReciboData(v){
-  const cli = v.clienteId ? db.clientes.find(x=>x.id===v.clienteId) : null;
-  const ed  = reciboEditado[v.id] || {};
-  return {
-    nomeLoja:    ed.nomeLoja    ?? 'VERSATILE',
-    subLoja:     ed.subLoja     ?? 'LOJA DE CALÇADOS',
-    endereco:    ed.endereco    ?? 'Palmas — TO',
-    cnpjTel:     ed.cnpjTel    ?? 'CNPJ: 00.000.000/0001-00 | (63) 0000-0000',
-    vendaNum:    ed.vendaNum    ?? v.id,
-    dataHora:    ed.dataHora    ?? fmtD(v.data),
-    modalidade:  ed.modalidade  ?? (v.modalidade||'Presencial'),
-    clienteNome: ed.clienteNome ?? (v.clienteNome||'Consumidor Final'),
-    cpf:         ed.cpf         ?? (cli?.cpf||''),
-    whatsapp:    ed.whatsapp    ?? (cli?.whatsapp||''),
-    email:       ed.email       ?? (cli?.email||''),
-    vendedor:    ed.vendedor    ?? (v.vendedor||''),
-    itens:       ed.itens       ?? v.itens.map(i=>({
-      desc: i.qtd+'x '+i.nome+(i.tam?' Nº'+i.tam:'')+(i.cor?' ('+i.cor+')':''),
-      val:  fmt(i.preco*i.qtd)
-    })),
-    subtotal:    ed.subtotal    ?? fmt(v.subtotal),
-    desconto:    ed.desconto    ?? (v.desconto ? '- '+fmt(v.desconto) : ''),
-    total:       ed.total       ?? fmt(v.total),
-    pgto:        ed.pgto        ?? v.pgto,
-    recebido:    ed.recebido    ?? (v.pgto==='Dinheiro' ? fmt(v.recebido) : ''),
-    troco:       ed.troco       ?? (v.pgto==='Dinheiro' ? fmt(v.troco) : ''),
-    rodape1:     ed.rodape1     ?? 'Obrigado pela preferência!',
-    rodape2:     ed.rodape2     ?? '— Versatile Loja —',
-    obsExtra:    ed.obsExtra    ?? '',
-  };
-}
-
 function buildReciboHTML(v, data){
   const d = data || buildReciboData(v);
   const pCfg=getCfgImpressao();
@@ -2093,11 +2248,11 @@ function exibirModalRecibo(v){
   <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r3);width:100%;max-width:980px;max-height:96vh;display:flex;flex-direction:column;overflow:hidden;margin:auto">
     <!-- HEADER -->
     <div style="padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg3);flex-shrink:0">
-      <div style="font-family:var(--font-head);font-size:17px;font-weight:600">✏️ Editor de Recibo — #${v.id}</div>
+      <div style="font-family:var(--font-head);font-size:17px;font-weight:600">${icon('edit')} Editor de Recibo — #${v.id}</div>
       <div class="flex gap-2">
-        <button class="btn sm primary" onclick="imprimirRecibo()">🖨 Imprimir</button>
+        <button class="btn sm primary" onclick="imprimirRecibo()">${icon('printer')} Imprimir</button>
         <button class="btn sm email ${hasEmail?'':'ghost'}" onclick="enviarEmail('${v.id}')">✉️ E-mail${hasEmail?' ('+cli.email.split('@')[0]+'...)':''}</button>
-        <button class="btn sm whats ${hasWA?'':'ghost'}" onclick="enviarWhatsApp('${v.id}')">💬 WhatsApp${hasWA?' ('+cli.whatsapp+')':''}</button>
+        <button class="btn sm whats ${hasWA?'':'ghost'}" onclick="enviarWhatsApp('${v.id}')">${icon('chat')} WhatsApp${hasWA?' ('+cli.whatsapp+')':''}</button>
         <button class="modal-close" onclick="fecharRecibo()">×</button>
       </div>
     </div>
@@ -2106,29 +2261,29 @@ function exibirModalRecibo(v){
       <!-- ESQUERDA: EDITOR -->
       <div class="recibo-editor-side left" style="overflow-y:auto">
         <div class="editor-scroll">
-          <div class="editor-section-title">🏪 Cabeçalho da Loja</div>
+          <div class="editor-section-title">${icon('store')} Cabeçalho da Loja</div>
           <div class="editor-field"><label>Nome da Loja</label><input id="re-nomeLoja" value="${data.nomeLoja}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Subtítulo</label><input id="re-subLoja" value="${data.subLoja}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Endereço</label><input id="re-endereco" value="${data.endereco}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>CNPJ / Telefone</label><input id="re-cnpjTel" value="${data.cnpjTel}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
 
-          <div class="editor-section-title" style="margin-top:14px">🧾 Dados da Venda</div>
+          <div class="editor-section-title" style="margin-top:14px">${icon('receipt')} Dados da Venda</div>
           <div class="editor-field"><label>Nº do Recibo</label><input id="re-vendaNum" value="${data.vendaNum}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Data / Hora</label><input id="re-dataHora" value="${data.dataHora}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Modalidade</label><input id="re-modalidade" value="${data.modalidade}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
 
-          <div class="editor-section-title" style="margin-top:14px">👤 Cliente</div>
+          <div class="editor-section-title" style="margin-top:14px">${icon('user')} Cliente</div>
           <div class="editor-field"><label>Nome do Cliente</label><input id="re-clienteNome" value="${data.clienteNome}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>CPF</label><input id="re-cpf" value="${data.cpf}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>WhatsApp</label><input id="re-whatsapp" value="${data.whatsapp}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>E-mail</label><input id="re-email" value="${data.email}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Vendedor</label><input id="re-vendedor" value="${data.vendedor}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
 
-          <div class="editor-section-title" style="margin-top:14px">📦 Itens</div>
+          <div class="editor-section-title" style="margin-top:14px">${icon('box')} Itens</div>
           <div id="itens-editor">${itensEditor}</div>
           <button class="btn xs" style="margin-top:6px" onclick="adicionarItemRecibo()">+ Adicionar item</button>
 
-          <div class="editor-section-title" style="margin-top:14px">💰 Valores</div>
+          <div class="editor-section-title" style="margin-top:14px">${icon('wallet')} Valores</div>
           <div class="editor-field"><label>Subtotal</label><input id="re-subtotal" value="${data.subtotal}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Desconto</label><input id="re-desconto" value="${data.desconto}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>TOTAL</label><input id="re-total" value="${data.total}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
@@ -2136,7 +2291,7 @@ function exibirModalRecibo(v){
           <div class="editor-field"><label>Valor Recebido</label><input id="re-recebido" value="${data.recebido}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
           <div class="editor-field"><label>Troco</label><input id="re-troco" value="${data.troco}" oninput="atualizarPreviewRecibo(currentReciboVenda)"></div>
 
-          <div class="editor-section-title" style="margin-top:14px">📝 Informações Extras</div>
+          <div class="editor-section-title" style="margin-top:14px">${icon('document')} Informações Extras</div>
           <div class="editor-field"><label>Observações / Informações adicionais</label><textarea id="re-obsExtra" rows="3" placeholder="Ex: Produto sujeito a troca em até 7 dias com nota fiscal..." oninput="atualizarPreviewRecibo(currentReciboVenda)">${data.obsExtra}</textarea></div>
 
           <div class="editor-section-title" style="margin-top:14px">🏁 Rodapé</div>
@@ -2264,7 +2419,7 @@ function pgHistorico(){
   document.getElementById('tbar-actions').innerHTML='';
   document.getElementById('page').innerHTML=`
   <div class="card mb-3"><div class="flex gap-3 items-center flex-wrap">
-    <div class="flex-1 srch"><span class="srch-ic">🔍</span><input class="form-control" placeholder="Buscar nº, cliente, vendedor..." id="hs" oninput="debounceFiltHist()"></div>
+    <div class="flex-1 srch"><span class="srch-ic">${icon('search')}</span><input class="form-control" placeholder="Buscar nº, cliente, vendedor..." id="hs" oninput="debounceFiltHist()"></div>
     <div class="flex gap-2 items-center">
       <input class="form-control" type="date" id="hi" style="width:135px" onchange="filtHist()">
       <span class="text-dim">até</span>
@@ -2277,7 +2432,7 @@ function pgHistorico(){
   </table></div></div>`;
 }
 function genLinhasHist(arr){
-  if(!arr.length)return`<tr><td colspan="11"><div class="empty"><div class="ei">🧾</div><p>Sem vendas</p></div></td></tr>`;
+  if(!arr.length)return`<tr><td colspan="11"><div class="empty"><div class="ei">${icon('receipt')}</div><p>Sem vendas</p></div></td></tr>`;
   return arr.map(v=>{
     const its=v.itens||[];
     const MAX=2;
@@ -2297,7 +2452,7 @@ function genLinhasHist(arr){
       <td class="text-red">${v.desconto?fmt(v.desconto):'—'}</td>
       <td><strong class="text-gold">${fmt(v.total)}</strong></td>
       <td>${chips}</td>
-      <td><div class="flex gap-1"><button class="btn xs" onclick="imprimirReciboById('${v.id}')">🖨 Recibo</button>${(isAdmin()||temPerm('cancelar_venda'))?`<button class="btn xs danger" onclick="excluirVenda('${v.id}')" title="Cancelar venda e devolver estoque">↩ Cancelar</button>`:''}</div></td>
+      <td><div class="flex gap-1"><button class="btn xs" onclick="imprimirReciboById('${v.id}')">${icon('printer')} Recibo</button>${(isAdmin()||temPerm('cancelar_venda'))?`<button class="btn xs danger" onclick="excluirVenda('${v.id}')" title="Cancelar venda e devolver estoque">↩ Cancelar</button>`:''}</div></td>
     </tr><tr class="h-exp-row"><td colspan="11"><div class="h-exp-inner" id="hexp-${v.id}"><div class="h-exp-content"><div class="h-exp-grid">${grid}</div></div></div></td></tr>`;
   }).join('');
 }
@@ -2397,7 +2552,7 @@ function filtHist(){
 // CAIXA — fechamento (admin e vendedor)
 // ============================================================
 function pgCaixa(){
-  document.getElementById('tbar-actions').innerHTML=`<button class="btn primary" onclick="fecharCaixa()">🔒 Fechar Caixa Agora</button>`;
+  document.getElementById('tbar-actions').innerHTML=`<button class="btn primary" onclick="fecharCaixa()">${icon('lock')} Fechar Caixa Agora</button>`;
   renderCaixa();
 }
 function renderCaixa(){
@@ -2412,18 +2567,18 @@ function renderCaixa(){
   const caixasHoje=db.caixas.filter(c=>c.data&&c.data.startsWith(today())&&(isAdmin()||c.vendedorId===ses.usuario.id));
   document.getElementById('page').innerHTML=`
   <div class="grid3 mb-4">
-    <div class="metric-card"><div class="mi">🛍</div><div class="metric-label">Vendas Hoje</div><div class="metric-val text-green">${fmt(totalHoje)}</div><div class="metric-sub">${vsHoje.length} venda(s)</div></div>
-    <div class="metric-card"><div class="mi">🧾</div><div class="metric-label">Transações</div><div class="metric-val">${vsHoje.length}</div><div class="metric-sub">registradas hoje</div></div>
-    <div class="metric-card"><div class="mi">📅</div><div class="metric-label">Data</div><div class="metric-val" style="font-size:16px">${new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}</div></div>
+    <div class="metric-card"><span class="mi">${icon('bag')}</span><div class="metric-label">Vendas Hoje</div><div class="metric-val text-green">${fmt(totalHoje)}</div><div class="metric-sub">${vsHoje.length} venda(s)</div></div>
+    <div class="metric-card"><span class="mi">${icon('receipt')}</span><div class="metric-label">Transações</div><div class="metric-val">${vsHoje.length}</div><div class="metric-sub">registradas hoje</div></div>
+    <div class="metric-card"><span class="mi">${icon('cal')}</span><div class="metric-label">Data</div><div class="metric-val" style="font-size:16px">${new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'})}</div></div>
   </div>
   <div class="grid2">
     <div class="card">
-      <div class="sec-title">💳 Vendas por Forma de Pagamento (hoje)</div>
+      <div class="sec-title">${icon('card')} Vendas por Forma de Pagamento (hoje)</div>
       ${Object.entries(pgtos).map(([k,v])=>`<div class="flex justify-between items-center" style="padding:8px 0;border-bottom:1px solid var(--border)"><span class="font-med">${k}</span><span class="font-bold text-gold">${fmt(v)}</span></div>`).join('')||'<div class="empty" style="padding:14px"><p>Nenhuma venda hoje</p></div>'}
       ${Object.keys(pgtos).length?`<div class="flex justify-between items-center" style="padding:10px 0;font-family:var(--font-head);font-size:17px;font-weight:700"><span>TOTAL</span><span class="text-green">${fmt(totalHoje)}</span></div>`:''}
     </div>
     <div class="card">
-      <div class="sec-title">📋 Fechamentos Anteriores</div>
+      <div class="sec-title">${icon('clipboard')} Fechamentos Anteriores</div>
       ${caixasHoje.length?caixasHoje.reverse().map(c=>`<div class="fechamento-box mb-3">
         <div class="flex justify-between"><span class="font-semi">Fechado às ${new Date(c.hora).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span><span class="font-bold text-gold">${fmt(c.total)}</span></div>
         <div class="text-xs text-dim mt-2">${c.vendedorNome} · ${c.qtdVendas} venda(s) · ${c.obs||''}</div>
@@ -2433,7 +2588,7 @@ function renderCaixa(){
 
   <div class="modal-backdrop hidden" id="mfechamento">
     <div class="modal modal-sm">
-      <div class="modal-header"><div class="modal-title">🔒 Fechamento de Caixa</div><button class="modal-close" onclick="closeM('mfechamento')">×</button></div>
+      <div class="modal-header"><div class="modal-title">${icon('lock')} Fechamento de Caixa</div><button class="modal-close" onclick="closeM('mfechamento')">×</button></div>
       <div style="background:var(--bg3);border-radius:var(--r);padding:12px;margin-bottom:14px">
         <div class="flex justify-between"><span class="text-dim">Data:</span><strong>${new Date().toLocaleDateString('pt-BR')}</strong></div>
         <div class="flex justify-between mt-2"><span class="text-dim">Hora de Fechamento:</span><strong>${new Date().toLocaleTimeString('pt-BR')}</strong></div>
@@ -2442,7 +2597,7 @@ function renderCaixa(){
         <div class="flex justify-between mt-2"><span class="text-dim">Transações:</span><strong>${vsHoje.length}</strong></div>
       </div>
       <div class="form-group"><label class="form-label">Observações</label><textarea class="form-control" id="fcobs" rows="2" placeholder="Ocorrências, informações do caixa..."></textarea></div>
-      <div class="modal-footer"><button class="btn" onclick="closeM('mfechamento')">Cancelar</button><button class="btn primary" onclick="confirmarFechamento()">✅ Confirmar Fechamento</button></div>
+      <div class="modal-footer"><button class="btn" onclick="closeM('mfechamento')">Cancelar</button><button class="btn primary" onclick="confirmarFechamento()">${icon('check')} Confirmar Fechamento</button></div>
     </div>
   </div>`;
 }
@@ -2490,14 +2645,14 @@ function renderRanking(){
       ${periodo==='mesEscolhido'?`<div class="form-group" style="margin:14px 0 0;max-width:200px"><label class="form-label">Mês</label><input class="form-control" type="month" value="${_rankMesEsc||thisMonth()}" onchange="_rankMesEsc=this.value;renderRanking()"></div>`:''}
     </div>
     <div class="grid2">
-      <div class="card"><div class="sec-title">🏆 Por Pares Vendidos</div>
+      <div class="card"><div class="sec-title">${icon('trophy')} Por Pares Vendidos</div>
         ${arr.length?arr.slice(0,10).map((r,i)=>`<div class="rank-row"><div class="rank-n" style="${i<3?'color:var(--amber);font-size:14px':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div><div class="rank-bar-w"><div class="rank-lbl">${r.nome} <span class="text-dim text-xs">${r.marca}</span></div><div class="rank-bar-bg"><div class="rank-bar-f" style="width:${r.pct}%"></div></div></div><div class="rank-tot">${r.qtd}p</div></div>`).join(''):'<div class="empty"><p>Sem dados</p></div>'}
       </div>
-      <div class="card"><div class="sec-title">💵 Por Faturamento</div>
+      <div class="card"><div class="sec-title">${icon('cash')} Por Faturamento</div>
         ${[...arr].sort((a,b)=>b.val-a.val).slice(0,10).map((r,i)=>{const pct=Math.round((r.val/maxV)*100);return`<div class="rank-row"><div class="rank-n" style="${i<3?'color:var(--amber);font-size:14px':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div><div class="rank-bar-w"><div class="rank-lbl">${r.nome}</div><div class="rank-bar-bg"><div class="rank-bar-f" style="width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--gold))"></div></div></div><div class="rank-tot" style="color:var(--blue)">${fmt(r.val)}</div></div>`;}).join('')||'<div class="empty"><p>Sem dados</p></div>'}
       </div>
     </div>
-    <div class="card mt-4"><div class="sec-title">📋 Detalhamento <span class="text-dim" style="font-weight:400;font-size:12px">— ${totalPares} par(es) ${rankPeriodoLabel(periodo)}</span></div>
+    <div class="card mt-4"><div class="sec-title">${icon('clipboard')} Detalhamento <span class="text-dim" style="font-weight:400;font-size:12px">— ${totalPares} par(es) ${rankPeriodoLabel(periodo)}</span></div>
       <div class="table-wrap"><table>
         <thead><tr><th>#</th><th>Produto</th><th>Marca</th><th>Pares</th><th>Faturamento</th><th>Estoque</th></tr></thead>
         <tbody>${arr.map((r,i)=>`<tr><td>${i+1}</td><td class="td-name">${r.nome}</td><td class="text-dim">${r.marca}</td><td><strong>${r.qtd}</strong></td><td class="text-gold font-bold">${fmt(r.val)}</td><td><span class="badge ${r.qtdAtual===0?'red':r.qtdAtual<=2?'amber':'green'}">${r.qtdAtual}</span></td></tr>`).join('')||'<tr><td colspan="6"><div class="empty"><p>Sem dados</p></div></td></tr>'}
@@ -2550,7 +2705,7 @@ function renderVendedores(mesRef){
       const pct=parseFloat(document.getElementById('pct-com')?.value)||5;
       const com=u.totalVendas*(pct/100);
       return`<div class="metric-card">
-        <div class="mi">👤</div>
+        <span class="mi">${icon('user')}</span>
         <div class="metric-label">${u.nome} <span class="badge ${u.role==='admin'?'admin':'wine'} text-xs">${u.role}</span></div>
         <div class="metric-val text-gold">${fmt(u.totalVendas)}</div>
         <div class="metric-sub">${u.qtdVendas} venda(s) · ticket: ${fmt(u.ticket)}</div>
@@ -2562,7 +2717,7 @@ function renderVendedores(mesRef){
   </div>
 
   <div class="card">
-    <div class="sec-title">📋 Vendas por Vendedor — ${mesRef}</div>
+    <div class="sec-title">${icon('clipboard')} Vendas por Vendedor — ${mesRef}</div>
     ${dadosVend.map(u=>{
       const pct=parseFloat(document.getElementById('pct-com')?.value)||5;
       const com=u.totalVendas*(pct/100);
@@ -2605,10 +2760,40 @@ const FIN_MESES=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho
 function finFmtMes(ym){ if(!ym) return ''; const [y,m]=ym.split('-').map(Number); return FIN_MESES[m]+'/'+y; }
 function finUltimoDiaMes(ym){ const [y,m]=ym.split('-').map(Number); return new Date(y,m,0).toISOString().slice(0,10); }
 let _finFiltro=null;
+const FIN_TABS=[
+  {id:'fluxo',ic:'drawer',lb:'Fluxo de Caixa'},
+  {id:'lucrovenda',ic:'receipt',lb:'Lucratividade'},
+  {id:'lucroproduto',ic:'tag',lb:'Lucro por Produto'},
+  {id:'comparativo',ic:'bar',lb:'Comparativo Mensal'},
+  {id:'dre',ic:'folder',lb:'DRE'},
+];
+let _finTab='fluxo';
+let _finProdMes=null;
 function pgFinanceiro(){
-  document.getElementById('tbar-actions').innerHTML=`<button class="btn primary" onclick="addMovM()">+ Novo Movimento</button>`;
-  _finFiltro={periodo:'mes',mesEsc:thisMonth(),de:thisMonth()+'-01',ate:today(),tipo:'todos',origem:'todos',categoria:'todos'};
-  renderFin();
+  if(!_finFiltro) _finFiltro={periodo:'mes',mesEsc:thisMonth(),de:thisMonth()+'-01',ate:today(),tipo:'todos',origem:'todos',categoria:'todos'};
+  if(!FIN_TABS.some(t=>t.id===_finTab)) _finTab='fluxo';
+  if(!_finProdMes) _finProdMes=thisMonth();
+  renderFinanceiroShell();
+}
+function finGoSubTab(id){
+  _finTab=id;
+  renderFinanceiroShell();
+}
+function renderFinanceiroShell(){
+  document.getElementById('page').innerHTML=`
+  <div class="sub-tab-row">
+    ${FIN_TABS.map(t=>`<button class="sub-tab ${_finTab===t.id?'active':''}" onclick="finGoSubTab('${t.id}')">${icon(t.ic)}${t.lb}</button>`).join('')}
+  </div>
+  <div id="fin-subview"></div>`;
+  const actions={
+    fluxo:`<button class="btn primary" onclick="addMovM()">${icon('plus')} Novo Movimento</button>`,
+    lucrovenda:`<button class="btn" onclick="expLucro(true)">${icon('download')} Excel</button>`,
+    lucroproduto:`<button class="btn" onclick="expLucroPorProduto()">${icon('download')} Excel</button>`,
+    comparativo:`<button class="btn" onclick="expComparativo()">${icon('download')} Excel</button>`,
+    dre:`<button class="btn" onclick="expDRE()">${icon('download')} Excel</button>`,
+  };
+  document.getElementById('tbar-actions').innerHTML=actions[_finTab]||'';
+  ({fluxo:renderFin,lucrovenda:()=>renderLucratividade(),lucroproduto:()=>renderLucroPorProduto(),comparativo:renderComparativo,dre:()=>renderDRE()})[_finTab]?.();
 }
 function finPeriodoRange(){
   const f=_finFiltro;
@@ -2653,7 +2838,7 @@ function renderFin(){
   const periodoLabel=finPeriodoLabel();
   const todasCategorias=[...new Set(db.movimentos.map(m=>m.categoria).filter(Boolean))].sort();
 
-  document.getElementById('page').innerHTML=`
+  document.getElementById('fin-subview').innerHTML=`
   <div class="card mb-4">
     <div class="tab-row" style="max-width:640px;margin-bottom:0">
       <button class="tab-btn ${f.periodo==='mes'?'active':''}" onclick="finSetPeriodo('mes')">Este Mês</button>
@@ -2682,24 +2867,24 @@ function renderFin(){
     </div>
   </div>
   <div class="grid5 mb-4">
-    <div class="metric-card"><div class="mi">🛍</div><div class="metric-label">Receita de Vendas</div><div class="metric-val text-green">${fmt(receitaVendas)}</div><div class="metric-sub">${periodoLabel}</div></div>
-    <div class="metric-card"><div class="mi">➕</div><div class="metric-label">Outras Entradas</div><div class="metric-val text-blue">${fmt(outrasEntradas)}</div><div class="metric-sub">${periodoLabel}</div></div>
-    <div class="metric-card"><div class="mi">📉</div><div class="metric-label">Saídas / Despesas</div><div class="metric-val text-red">${fmt(saidas)}</div><div class="metric-sub">${periodoLabel}</div></div>
-    <div class="metric-card"><div class="mi">📅</div><div class="metric-label">Resultado do Período</div><div class="metric-val ${resultado>=0?'text-green':'text-red'}">${fmt(resultado)}</div><div class="metric-sub">entradas − saídas</div></div>
-    <div class="metric-card"><div class="mi">🏦</div><div class="metric-label">Saldo Acumulado</div><div class="metric-val ${saldoAcumulado>=0?'text-wine':'text-red'}">${fmt(saldoAcumulado)}</div><div class="metric-sub">total, desde o início</div></div>
+    <div class="metric-card"><span class="mi">${icon('bag')}</span><div class="metric-label">Receita de Vendas</div><div class="metric-val text-green">${fmt(receitaVendas)}</div><div class="metric-sub">${periodoLabel}</div></div>
+    <div class="metric-card"><span class="mi">${icon('plus')}</span><div class="metric-label">Outras Entradas</div><div class="metric-val text-blue">${fmt(outrasEntradas)}</div><div class="metric-sub">${periodoLabel}</div></div>
+    <div class="metric-card"><span class="mi">${icon('card')}</span><div class="metric-label">Saídas / Despesas</div><div class="metric-val text-red">${fmt(saidas)}</div><div class="metric-sub">${periodoLabel}</div></div>
+    <div class="metric-card"><span class="mi">${icon('cal')}</span><div class="metric-label">Resultado do Período</div><div class="metric-val ${resultado>=0?'text-green':'text-red'}">${fmt(resultado)}</div><div class="metric-sub">entradas − saídas</div></div>
+    <div class="metric-card"><span class="mi">${icon('wallet')}</span><div class="metric-label">Saldo Acumulado</div><div class="metric-val ${saldoAcumulado>=0?'text-wine':'text-red'}">${fmt(saldoAcumulado)}</div><div class="metric-sub">total, desde o início</div></div>
   </div>
-  <div class="card"><div class="sec-title">Fluxo de Caixa <span class="text-dim" style="font-weight:400;font-size:12px">— ${periodoLabel} · ${movs.length} registro(s)</span></div>
+  <div class="card"><div class="sec-title">${icon('drawer')} Fluxo de Caixa <span class="text-dim" style="font-weight:400;font-size:12px">— ${periodoLabel} · ${movs.length} registro(s)</span></div>
     <div class="table-wrap"><table>
       <thead><tr><th>Data</th><th>Origem</th><th>Tipo</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th></th></tr></thead>
       <tbody>${[...movs].sort((a,b)=>b.data>a.data?1:-1).map(m=>`<tr>
         <td class="text-dim text-xs">${fmtDia(m.data)}</td>
-        <td>${m.vendaId?'<span class="badge wine">🛍 Venda</span>':'<span class="badge gray">✍️ Manual</span>'}</td>
+        <td>${m.vendaId?'<span class="badge wine">'+icon('bag')+' Venda</span>':'<span class="badge gray">'+icon('edit')+' Manual</span>'}</td>
         <td><span class="badge ${m.tipo==='entrada'?'green':'red'}">${m.tipo==='entrada'?'↑ Entrada':'↓ Saída'}</span></td>
         <td>${m.categoria?`<span class="badge ${FIN_CAT_COR[m.categoria]||'gray'}">${m.categoria}</span>`:'<span class="text-dim">—</span>'}</td>
         <td>${m.desc}</td>
         <td class="${m.tipo==='entrada'?'text-green':'text-red'} font-bold">${m.tipo==='entrada'?'+':'-'}${fmt(m.val)}</td>
-        <td><button class="btn xs danger" onclick="delMov('${m.id}')">🗑</button></td>
-      </tr>`).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">💰</div><p>Sem movimentos no período</p></div></td></tr>'}
+        <td><button class="btn xs danger" onclick="delMov('${m.id}')">${icon('trash')}</button></td>
+      </tr>`).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">'+icon('wallet')+'</div><p>Sem movimentos no período</p></div></td></tr>'}
       </tbody>
     </table></div>
   </div>
@@ -2751,10 +2936,10 @@ function renderUsers(){
     <tbody>${db.usuarios.map(u=>`<tr>
       <td class="td-name">${u.nome}</td>
       <td class="text-dim">${u.username}</td>
-      <td><span class="badge ${u.role==='admin'?'admin':'wine'}">${u.role==='admin'?'🔑 Admin':'🛍 Vendedor'}</span></td>
+      <td><span class="badge ${u.role==='admin'?'admin':'wine'}">${u.role==='admin'?icon('key')+' Admin':icon('bag')+' Vendedor'}</span></td>
       <td><span class="badge ${u.ativo?'green':'red'}">${u.ativo?'Ativo':'Inativo'}</span></td>
       <td class="text-xs text-dim">${fmtDs(u.criado)}</td>
-      <td><div class="flex gap-2"><button class="btn xs" onclick="openUserM('${u.id}')">✏️ Editar</button>${u.id!==ses.usuario.id?`<button class="btn xs danger" onclick="delUser('${u.id}')">🗑</button>`:''}</div></td>
+      <td><div class="flex gap-2"><button class="btn xs" onclick="openUserM('${u.id}')">${icon('edit')} Editar</button>${u.id!==ses.usuario.id?`<button class="btn xs danger" onclick="delUser('${u.id}')">${icon('trash')}</button>`:''}</div></td>
     </tr>`).join('')}
     </tbody>
   </table></div></div>
@@ -2772,7 +2957,7 @@ function renderUsers(){
         <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);font-weight:700;margin-bottom:10px">Permissões de Acesso</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px" id="perm-checks"></div>
       </div>
-      <div class="modal-footer"><button class="btn" onclick="closeM('musr')">Cancelar</button><button class="btn primary" onclick="salvarUser()">💾 Salvar</button></div>
+      <div class="modal-footer"><button class="btn" onclick="closeM('musr')">Cancelar</button><button class="btn primary" onclick="salvarUser()">${icon('save')} Salvar</button></div>
     </div>
   </div>`;
 }
@@ -2875,10 +3060,9 @@ async function saveReciboConfig(k,c){
   // Salva no Supabase via upsert (funciona para insert e update)
   await sbUpsertConfig('recibo_'+k, c);
 }
-function pgRecibos(){document.getElementById('tbar-actions').innerHTML='';renderRecibos();}
 function renderRecibos(){
   const cP=getReciboConfig('Presencial'),cO=getReciboConfig('Online');
-  document.getElementById('page').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'+reEd('presencial','Presencial',cP)+reEd('online','Online',cO)+'</div>';
+  document.getElementById('cfg-subview').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'+reEd('presencial','Presencial',cP)+reEd('online','Online',cO)+'</div>';
 }
 function reEd(k,lb,c){
   const flds=[['nomeLoja','Nome da Loja'],['subLoja','Subtitulo'],['endereco','Endereco'],['cnpjTel','CNPJ/Telefone'],['rodape1','Rodape 1'],['rodape2','Rodape 2']];
@@ -3131,7 +3315,7 @@ async function registrarAudit(acao, detalhe, extra){
 // Página de Auditoria
 function pgAuditoria(){
   document.getElementById('tbar-actions').innerHTML =
-    '<button class="btn" onclick="exportAudit()">📊 Exportar Excel</button>';
+    '<button class="btn" onclick="exportAudit()">'+icon('download')+' Exportar Excel</button>';
   renderAuditoria();
 }
 
@@ -3143,18 +3327,18 @@ function renderAuditoria(filtro){
   );
 
   const ICON = {
-    'LOGIN':'🔑','LOGOUT':'🚪','VENDA':'🛍','VENDA_CANCELADA':'↩',
-    'PRODUTO_CRIADO':'📦','PRODUTO_EDITADO':'✏️','PRODUTO_EXCLUIDO':'🗑',
-    'CLIENTE_CRIADO':'👤','CLIENTE_EDITADO':'✏️','CLIENTE_EXCLUIDO':'🗑',
-    'USUARIO_CRIADO':'👤','USUARIO_EDITADO':'✏️','CAIXA_FECHADO':'🔒',
-    'RECIBO_IMPRESSO':'🖨','CONFIG_SALVA':'⚙️','ESTOQUE_IMPORTADO':'📥',
+    'LOGIN':icon('key'),'LOGOUT':icon('x'),'VENDA':icon('bag'),'VENDA_CANCELADA':'↩',
+    'PRODUTO_CRIADO':icon('box'),'PRODUTO_EDITADO':icon('edit'),'PRODUTO_EXCLUIDO':icon('trash'),
+    'CLIENTE_CRIADO':icon('user'),'CLIENTE_EDITADO':icon('edit'),'CLIENTE_EXCLUIDO':icon('trash'),
+    'USUARIO_CRIADO':icon('user'),'USUARIO_EDITADO':icon('edit'),'CAIXA_FECHADO':icon('lock'),
+    'RECIBO_IMPRESSO':icon('printer'),'CONFIG_SALVA':icon('gear'),'ESTOQUE_IMPORTADO':icon('download'),
   };
 
   document.getElementById('page').innerHTML = `
   <div class="card mb-3">
     <div class="flex gap-3 items-center">
       <div class="flex-1 srch">
-        <span class="srch-ic">🔍</span>
+        <span class="srch-ic">${icon('search')}</span>
         <input class="form-control" placeholder="Buscar usuário, ação, detalhe..." id="audit-q"
           oninput="renderAuditoria(this.value)" style="padding-left:36px">
       </div>
@@ -3174,10 +3358,10 @@ function renderAuditoria(filtro){
           ${lista.length ? lista.map(r=>`<tr>
             <td class="text-xs text-dim" style="white-space:nowrap">${r.data} ${r.hora}</td>
             <td><strong>${r.usuario_nome||'—'}</strong></td>
-            <td><span class="badge gray">${ICON[r.acao]||'📝'} ${r.acao}</span></td>
+            <td><span class="badge gray">${ICON[r.acao]||icon('edit')} ${r.acao}</span></td>
             <td class="text-sm" style="color:var(--text2)">${r.detalhe||'—'}</td>
           </tr>`).join('') :
-          `<tr><td colspan="4"><div class="empty"><div class="ei">📋</div>
+          `<tr><td colspan="4"><div class="empty"><div class="ei">${icon('clipboard')}</div>
           <p>Nenhum registro encontrado</p></div></td></tr>`}
         </tbody>
       </table>
@@ -3355,22 +3539,16 @@ function execImport(){
 // ============================================================
 // ETIQUETAS DE PREÇO
 // ============================================================
-function pgEtiquetas(){
-  document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn primary" onclick="imprimirEtiquetas()">🖨 Imprimir Etiquetas</button>';
-  renderEtiquetas();
-}
-
 let _etiqSel = new Set();
 
 function renderEtiquetas(filtro){
   const q=(filtro||'').toLowerCase();
   let fil=db.produtos.filter(p=>!q||p.nome.toLowerCase().includes(q)||p.cod?.toLowerCase().includes(q));
 
-  document.getElementById('page').innerHTML = `
+  document.getElementById('est-subview').innerHTML = `
   <div class="card mb-3">
     <div class="flex gap-3 items-center">
-      <div class="flex-1 srch"><span class="srch-ic">🔍</span>
+      <div class="flex-1 srch"><span class="srch-ic">${icon('search')}</span>
         <input class="form-control" placeholder="Buscar produto..." oninput="renderEtiquetas(this.value)" style="padding-left:36px">
       </div>
       <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
@@ -3487,11 +3665,6 @@ function imprimirEtiquetas(){
 // ============================================================
 // ANIVERSARIANTES DO MÊS
 // ============================================================
-function pgAniversariantes(){
-  document.getElementById('tbar-actions').innerHTML='';
-  renderAniversariantes();
-}
-
 function renderAniversariantes(mesSel){
   const hoje = new Date();
   const mesAtual = mesSel || (hoje.getMonth()+1);
@@ -3519,7 +3692,7 @@ function renderAniversariantes(mesSel){
     `<option value="${i+1}" ${(i+1)===parseInt(mesAtual)?'selected':''}>${m}</option>`
   ).join('');
 
-  document.getElementById('page').innerHTML = `
+  document.getElementById('cli-subview').innerHTML = `
   <div class="card mb-3">
     <div class="flex gap-3 items-center">
       <div class="flex-1">
@@ -3538,17 +3711,17 @@ function renderAniversariantes(mesSel){
     ${aniv.length ? `<div style="display:grid;gap:10px">
       ${aniv.map(c=>`
       <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:${c.ehHoje?'var(--accentdim,#2a1a2a)':'var(--bg3)'};border:1px solid ${c.ehHoje?'var(--accent)':'var(--border)'};border-radius:var(--r);${c.jaPassou?'opacity:.6':''}">
-        <div style="font-size:28px">🎂</div>
+        <div style="color:var(--accent2)">${icon('gift','ico-28')}</div>
         <div style="flex:1">
           <div style="font-weight:700;font-size:14px;color:var(--text)">${c.nome} ${c.ehHoje?'🎉 HOJE!':''}</div>
           <div style="font-size:12px;color:var(--text2)">Dia ${c.dia} de ${MESES[mesAtual]} ${c.jaPassou?'· já passou':''}</div>
           ${c.whatsapp?`<div style="font-size:12px;color:var(--text3)">${c.whatsapp}</div>`:''}
         </div>
         ${c.whatsapp?`<a href="https://wa.me/55${c.whatsapp.replace(/\D/g,'')}&text=${encodeURIComponent('Olá '+c.nome+'! 🎂 A Versatile deseja um feliz aniversário! Temos um presente especial para você. Passe na loja ou entre em contato 🥳')}"
-          target="_blank" class="btn primary" style="white-space:nowrap">💬 Parabenizar</a>`:''}
+          target="_blank" class="btn primary" style="white-space:nowrap">${icon('chat')} Parabenizar</a>`:''}
       </div>`).join('')}
     </div>` :
-    `<div class="empty"><div class="ei">🎂</div><p>Nenhum aniversariante em ${MESES[mesAtual]}</p><p class="text-dim text-xs">Cadastre a data de nascimento dos clientes para ver aqui</p></div>`}
+    `<div class="empty"><div class="ei">${icon('gift')}</div><p>Nenhum aniversariante em ${MESES[mesAtual]}</p><p class="text-dim text-xs">Cadastre a data de nascimento dos clientes para ver aqui</p></div>`}
   </div>`;
 }
 
@@ -3586,12 +3759,6 @@ function calcLucroVenda(v){
   return {custo, taxaDesc, taxaPct, liquido, lucro, margem};
 }
 
-function pgLucratividade(){
-  document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn" onclick="expLucro(true)">📊 Excel</button>';
-  renderLucratividade();
-}
-
 function renderLucratividade(iniVal, fimVal){
   const m = thisMonth();
   const ini = iniVal || (m+'-01');
@@ -3611,7 +3778,7 @@ function renderLucratividade(iniVal, fimVal){
   });
   const margGeral = totLiquido>0?(totLucro/totLiquido*100):0;
 
-  document.getElementById('page').innerHTML = `
+  document.getElementById('fin-subview').innerHTML = `
   <div class="card mb-3">
     <div class="flex gap-3 items-center flex-wrap">
       <div class="flex gap-2 items-center">
@@ -3624,15 +3791,15 @@ function renderLucratividade(iniVal, fimVal){
   </div>
 
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px">
-    <div class="metric-card"><div class="mi">💵</div><div class="metric-label">Faturamento Bruto</div><div class="metric-val">${fmt(totBruto)}</div></div>
-    <div class="metric-card"><div class="mi">🏦</div><div class="metric-label">Taxa Maquininha</div><div class="metric-val text-red">- ${fmt(totTaxa)}</div></div>
-    <div class="metric-card"><div class="mi">📥</div><div class="metric-label">Líquido Recebido</div><div class="metric-val text-blue">${fmt(totLiquido)}</div></div>
-    <div class="metric-card"><div class="mi">📦</div><div class="metric-label">Custo dos Produtos</div><div class="metric-val text-red">- ${fmt(totCusto)}</div></div>
-    <div class="metric-card"><div class="mi">💰</div><div class="metric-label">Lucro Real</div><div class="metric-val ${totLucro>=0?'text-green':'text-red'}">${fmt(totLucro)}<div class="metric-sub">${margGeral.toFixed(1)}% margem</div></div></div>
+    <div class="metric-card"><span class="mi">${icon('cash')}</span><div class="metric-label">Faturamento Bruto</div><div class="metric-val">${fmt(totBruto)}</div></div>
+    <div class="metric-card"><span class="mi">${icon('card')}</span><div class="metric-label">Taxa Maquininha</div><div class="metric-val text-red">- ${fmt(totTaxa)}</div></div>
+    <div class="metric-card"><span class="mi">${icon('wallet')}</span><div class="metric-label">Líquido Recebido</div><div class="metric-val text-blue">${fmt(totLiquido)}</div></div>
+    <div class="metric-card"><span class="mi">${icon('box')}</span><div class="metric-label">Custo dos Produtos</div><div class="metric-val text-red">- ${fmt(totCusto)}</div></div>
+    <div class="metric-card"><span class="mi">${icon('coins')}</span><div class="metric-label">Lucro Real</div><div class="metric-val ${totLucro>=0?'text-green':'text-red'}">${fmt(totLucro)}<div class="metric-sub">${margGeral.toFixed(1)}% margem</div></div></div>
   </div>
 
   <div class="card">
-    <div class="sec-title">Detalhamento por Venda</div>
+    <div class="sec-title">${icon('receipt')} Detalhamento por Venda</div>
     <div class="table-wrap"><table>
       <thead><tr>
         <th>Nº</th><th>Data</th><th>Cliente</th><th>Pagamento</th>
@@ -3651,7 +3818,7 @@ function renderLucratividade(iniVal, fimVal){
           <td class="text-right ${l.lucro>=0?'text-green':'text-red'} font-bold">${fmt(l.lucro)}</td>
           <td class="text-right ${l.margem>=30?'text-green':l.margem>=15?'text-gold':'text-red'}">${l.margem.toFixed(1)}%</td>
         </tr>`).join('') :
-        '<tr><td colspan="9"><div class="empty"><div class="ei">💰</div><p>Nenhuma venda no período</p></div></td></tr>'}
+        '<tr><td colspan="9"><div class="empty"><div class="ei">'+icon('coins')+'</div><p>Nenhuma venda no período</p></div></td></tr>'}
       </tbody>
       ${rows.length?`<tfoot><tr style="background:var(--bg3);font-weight:700">
         <td colspan="4">TOTAL</td>
@@ -3675,6 +3842,94 @@ function expLucro(xl){
   xl?dlXL('Lucratividade_Versatile.xls',hds,rows):dlFile('Lucratividade.csv',toCSV(hds,rows),'text/csv');
 }
 
+// ============================================================
+// LUCRO POR PRODUTO (rateio automático de despesas operacionais)
+// ============================================================
+function finLucroPorProdutoCalc(mes){
+  const vendasMes = db.vendas.filter(v=>v.data&&v.data.startsWith(mes));
+  const paresTotal = vendasMes.reduce((s,v)=>s+(v.itens||[]).reduce((si,i)=>si+(i.qtd||1),0),0);
+  const despOp = db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&mv.data.startsWith(mes)&&!mv.vendaId&&mv.categoria!=='Fornecedor / Mercadoria').reduce((s,mv)=>s+mv.val,0);
+  const despPorPar = paresTotal>0 ? despOp/paresTotal : 0;
+  const porProduto={};
+  vendasMes.forEach(v=>(v.itens||[]).forEach(item=>{
+    const qtd=item.qtd||1;
+    const prod=db.produtos.find(p=>p.id===item.id);
+    const custoUnit=prod?.custo||0;
+    if(!porProduto[item.id]) porProduto[item.id]={id:item.id,nome:item.nome,marca:item.marca||prod?.marca||'',pares:0,receita:0,custo:0};
+    porProduto[item.id].pares += qtd;
+    porProduto[item.id].receita += (item.preco||0)*qtd;
+    porProduto[item.id].custo += custoUnit*qtd;
+  }));
+  const linhas = Object.values(porProduto).map(p=>{
+    const despesaRateada = despPorPar*p.pares;
+    const lucroReal = p.receita - p.custo - despesaRateada;
+    const margem = p.receita>0 ? (lucroReal/p.receita*100) : 0;
+    return {...p, despesaRateada, lucroReal, margem};
+  }).sort((a,b)=>b.pares-a.pares);
+  return {mes,paresTotal,despOp,despPorPar,linhas};
+}
+function renderLucroPorProduto(mesVal){
+  const mes = mesVal || _finProdMes || thisMonth();
+  _finProdMes = mes;
+  const {paresTotal,despOp,despPorPar,linhas} = finLucroPorProdutoCalc(mes);
+
+  const totPares=linhas.reduce((s,l)=>s+l.pares,0);
+  const totReceita=linhas.reduce((s,l)=>s+l.receita,0);
+  const totCusto=linhas.reduce((s,l)=>s+l.custo,0);
+  const totDespesa=linhas.reduce((s,l)=>s+l.despesaRateada,0);
+  const totLucro=linhas.reduce((s,l)=>s+l.lucroReal,0);
+  const margGeral = totReceita>0?(totLucro/totReceita*100):0;
+  const prejuizo = linhas.filter(l=>l.lucroReal<0);
+
+  const badgeMargem=(m)=> m<0?'<span class="badge red">Prejuízo</span>'
+    : m>=25?`<span class="badge green">${m.toFixed(1)}%</span>`
+    : m>=10?`<span class="badge amber">${m.toFixed(1)}%</span>`
+    : `<span class="badge gold">${m.toFixed(1)}%</span>`;
+
+  document.getElementById('fin-subview').innerHTML=`
+  <div class="card mb-3">
+    <div class="flex gap-3 items-center flex-wrap">
+      <div class="form-group" style="margin-bottom:0"><label class="form-label">Período</label><input class="form-control" type="month" id="lpmes" value="${mes}" style="width:160px" onchange="renderLucroPorProduto(this.value)"></div>
+      <span class="text-dim text-xs">Despesas operacionais do mês: <b class="text-red">${fmt(despOp)}</b> ÷ ${paresTotal} par(es) vendido(s) = <b class="text-amber">${fmt(despPorPar)}</b> de despesa rateada por par</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sec-title">${icon('tag')} Lucro Real por Produto</div>
+    ${linhas.length?`<div class="table-wrap"><table>
+      <thead><tr><th>Produto</th><th class="text-right">Pares</th><th class="text-right">Receita</th><th class="text-right">Custo</th><th class="text-right">Despesa Rateada</th><th class="text-right">Lucro Real</th><th class="text-right">Margem</th></tr></thead>
+      <tbody>
+        ${linhas.map(l=>`<tr>
+          <td class="font-med">${l.nome}${l.marca?`<div class="text-xs text-dim">${l.marca}</div>`:''}</td>
+          <td class="text-right">${l.pares}</td>
+          <td class="text-right">${fmt(l.receita)}</td>
+          <td class="text-right text-red">- ${fmt(l.custo)}</td>
+          <td class="text-right text-red">- ${fmt(l.despesaRateada)}</td>
+          <td class="text-right font-bold ${l.lucroReal>=0?'text-green':'text-red'}">${fmt(l.lucroReal)}</td>
+          <td class="text-right">${badgeMargem(l.margem)}</td>
+        </tr>`).join('')}
+      </tbody>
+      <tfoot><tr style="background:var(--bg3);font-weight:700">
+        <td>TOTAL</td>
+        <td class="text-right">${totPares}</td>
+        <td class="text-right">${fmt(totReceita)}</td>
+        <td class="text-right text-red">- ${fmt(totCusto)}</td>
+        <td class="text-right text-red">- ${fmt(totDespesa)}</td>
+        <td class="text-right ${totLucro>=0?'text-green':'text-red'}">${fmt(totLucro)}</td>
+        <td class="text-right">${margGeral.toFixed(1)}%</td>
+      </tr></tfoot>
+    </table></div>
+    ${prejuizo.length?`<div class="text-xs text-dim mt-3">${icon('alert')} ${prejuizo.map(p=>p.nome).join(', ')} ${prejuizo.length>1?'deram':'deu'} prejuízo neste mês — a receita não cobriu custo + despesa rateada.</div>`:''}`
+    :`<div class="empty"><div class="ei">${icon('tag')}</div><p>Nenhuma venda no período</p></div>`}
+  </div>`;
+}
+function expLucroPorProduto(){
+  const mes=document.getElementById('lpmes')?.value||_finProdMes||thisMonth();
+  const {linhas} = finLucroPorProdutoCalc(mes);
+  if(!linhas.length){notify('Nenhuma venda no período','warn');return;}
+  const hds=['Produto','Pares','Receita','Custo','Despesa Rateada','Lucro Real','Margem %'];
+  const rows=linhas.map(l=>[l.nome,l.pares,l.receita.toFixed(2),l.custo.toFixed(2),l.despesaRateada.toFixed(2),l.lucroReal.toFixed(2),l.margem.toFixed(1)]);
+  dlXL('LucroPorProduto_Versatile.xls',hds,rows);
+}
 
 // ============================================================
 // METAS DE VENDAS
@@ -3738,7 +3993,7 @@ function abrirModalMeta(){
   const bd=document.createElement('div');
   bd.className='modal-backdrop';bd.id='mmeta';
   bd.innerHTML=`<div class="modal modal-sm">
-    <div class="modal-header"><div class="modal-title">🎯 Definir Metas de Vendas</div>
+    <div class="modal-header"><div class="modal-title">${icon('target')} Definir Metas de Vendas</div>
     <button class="modal-close" onclick="document.getElementById('mmeta').remove()">×</button></div>
     <div class="form-group"><label class="form-label">Meta Mensal (R$)</label>
       <input class="form-control" type="number" id="meta-mes" value="${m.mes||0}" placeholder="Ex: 10000"></div>
@@ -3748,7 +4003,7 @@ function abrirModalMeta(){
       <input class="form-control" type="number" id="meta-dia" value="${m.dia||0}" placeholder="Ex: 500"></div>
     <div class="modal-footer">
       <button class="btn" onclick="document.getElementById('mmeta').remove()">Cancelar</button>
-      <button class="btn primary" onclick="confirmarMetas()">💾 Salvar Metas</button>
+      <button class="btn primary" onclick="confirmarMetas()">${icon('save')} Salvar Metas</button>
     </div></div>`;
   document.body.appendChild(bd);
 }
@@ -3782,7 +4037,7 @@ function barMeta(atual,meta,label){
     <div style="background:var(--bg4);border-radius:20px;height:10px;overflow:hidden">
       <div style="width:${pct}%;height:100%;background:${cor};border-radius:20px;transition:width .5s"></div>
     </div>
-    <div style="font-size:11px;color:var(--text3);margin-top:3px">${pct>=100?'✅ Meta batida!':'Faltam '+fmt(falta)+' para a meta'}</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:3px">${pct>=100?icon('check')+' Meta batida!':'Faltam '+fmt(falta)+' para a meta'}</div>
   </div>`;
 }
 
@@ -3877,10 +4132,43 @@ async function carregarConfigSupabase(){
   }catch(e){ console.warn('Erro ao carregar configs:', e.message); }
 }
 
+const CFG_TABS=[
+  {id:'sistema',ic:'gear',lb:'Sistema'},
+  {id:'recibos',ic:'receipt',lb:'Recibos'},
+  {id:'impressao',ic:'printer',lb:'Impressão'},
+  {id:'cupons',ic:'ticket',lb:'Cupons'},
+  {id:'categorias',ic:'layers',lb:'Categorias'},
+];
+let _cfgTab='sistema';
 function pgConfiguracoes(){
-  document.getElementById('tbar-actions').innerHTML = '';
-  renderConfiguracoes();
-  carregarResumoCfg();
+  if(!CFG_TABS.some(t=>t.id===_cfgTab)) _cfgTab='sistema';
+  renderConfiguracoesShell();
+}
+function cfgGoSubTab(id){
+  _cfgTab=id;
+  renderConfiguracoesShell();
+}
+function renderConfiguracoesShell(){
+  document.getElementById('page').innerHTML=`
+  <div class="sub-tab-row">
+    ${CFG_TABS.map(t=>`<button class="sub-tab ${_cfgTab===t.id?'active':''}" onclick="cfgGoSubTab('${t.id}')">${icon(t.ic)}${t.lb}</button>`).join('')}
+  </div>
+  <div id="cfg-subview"></div>`;
+  const actions={
+    sistema:'',
+    recibos:'',
+    impressao:`<button class="btn primary" onclick="testarImpressao()">${icon('printer')} Testar Impressão</button>`,
+    cupons:`<button class="btn primary" onclick="openCupomModal()">${icon('plus')} Novo Cupom</button>`,
+    categorias:'',
+  };
+  document.getElementById('tbar-actions').innerHTML=actions[_cfgTab]||'';
+  ({
+    sistema:()=>{renderConfiguracoes();carregarResumoCfg();},
+    recibos:renderRecibos,
+    impressao:renderCfgImpressao,
+    cupons:renderCupons,
+    categorias:renderCategorias,
+  })[_cfgTab]?.();
 }
 
 function renderConfiguracoes(){
@@ -3904,18 +4192,18 @@ function renderConfiguracoes(){
     cred_ea_4:((TAXAS.credito.elo_amex.parcelas[3].taxa||0)*100).toFixed(2),
   };
 
-  document.getElementById('page').innerHTML = `
+  document.getElementById('cfg-subview').innerHTML = `
   <div class="card" style="margin-bottom:16px;border-color:var(--wine3)">
-    <div class="sec-title">🔔 Notificações no Celular</div>
+    <div class="sec-title">${icon('alert')} Notificações no Celular</div>
     <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">Receba um aviso no seu celular a cada nova venda registrada. Importante: ative <strong>pelo app instalado na tela inicial</strong> (no iPhone precisa ser o ícone do PDV, não o Safari).</p>
     <div class="flex" style="gap:8px;flex-wrap:wrap">
-      <button class="btn primary" onclick="ativarNotificacoes()">🔔 Ativar neste aparelho</button>
+      <button class="btn primary" onclick="ativarNotificacoes()">${icon('alert')} Ativar neste aparelho</button>
       <button class="btn" onclick="desativarNotificacoes()">Desativar</button>
     </div>
     <div id="notif-status" style="font-size:12px;color:var(--text3);margin-top:10px"></div>
 
     <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px">
-      <div style="font-weight:600;font-size:13px;margin-bottom:8px">📊 Resumo diário de vendas</div>
+      <div style="font-weight:600;font-size:13px;margin-bottom:8px">${icon('bar')} Resumo diário de vendas</div>
       <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin-bottom:12px;cursor:pointer">
         <input type="checkbox" id="cfg-resumo-ativo" onchange="salvarResumoCfg()" style="accent-color:var(--accent);width:16px;height:16px">
         Receber um resumo do dia (nº de vendas, faturamento, ticket médio e mais vendido)
@@ -3931,7 +4219,7 @@ function renderConfiguracoes(){
 
     <!-- DADOS DA LOJA -->
     <div class="card">
-      <div class="sec-title">🏪 Dados da Loja</div>
+      <div class="sec-title">${icon('store')} Dados da Loja</div>
       <div class="form-group"><label class="form-label">Nome da Loja</label>
         <input class="form-control" id="cfg-nome" value="${loja.nome||'VERSATILE'}"></div>
       <div class="form-group"><label class="form-label">Subtítulo</label>
@@ -3944,12 +4232,12 @@ function renderConfiguracoes(){
         <input class="form-control" id="cfg-tel" value="${loja.tel||'(63) 0000-0000'}"></div>
       <div class="form-group"><label class="form-label">Site / Instagram</label>
         <input class="form-control" id="cfg-site" value="${loja.site||''}" placeholder="@versatile ou www..."></div>
-      <button class="btn primary w-full mt-2" onclick="salvarCfgLoja()">💾 Salvar Dados da Loja</button>
+      <button class="btn primary w-full mt-2" onclick="salvarCfgLoja()">${icon('save')} Salvar Dados da Loja</button>
     </div>
 
     <!-- TAXAS DA MAQUININHA -->
     <div class="card">
-      <div class="sec-title">💳 Taxas da Maquininha (InfinitePay)</div>
+      <div class="sec-title">${icon('card')} Taxas da Maquininha (InfinitePay)</div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Altere quando a operadora mudar as taxas. Os cálculos de lucratividade e simulação de venda serão atualizados automaticamente.</div>
 
       <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">PIX</div>
@@ -4002,23 +4290,23 @@ function renderConfiguracoes(){
         ${[7,8,9,10,11,12].map(n=>`<div class="form-group"><label class="form-label">${n}x (%)</label>
           <input class="form-control" type="number" step="0.01" id="t-lea${n}" value="${((TAXAS.link.elo_amex.parcelas[n-1]?.taxa||0)*100).toFixed(2)}"></div>`).join('')}
       </div>
-      <button class="btn primary w-full mt-2" onclick="salvarCfgTaxas()">💾 Salvar Todas as Taxas</button>
+      <button class="btn primary w-full mt-2" onclick="salvarCfgTaxas()">${icon('save')} Salvar Todas as Taxas</button>
 
     </div>
 
     <!-- COMISSÕES PADRÃO -->
     <div class="card">
-      <div class="sec-title">📈 Comissões dos Vendedores</div>
+      <div class="sec-title">${icon('trending')} Comissões dos Vendedores</div>
       <div class="form-group"><label class="form-label">% de Comissão Padrão</label>
         <input class="form-control" type="number" step="0.5" id="cfg-com" value="${com.pct||5}" min="0" max="50">
         <div class="text-xs text-dim mt-1">Aplicado no relatório de Comissões para todos os vendedores</div>
       </div>
-      <button class="btn primary w-full mt-2" onclick="salvarCfgComissao()">💾 Salvar Comissão</button>
+      <button class="btn primary w-full mt-2" onclick="salvarCfgComissao()">${icon('save')} Salvar Comissão</button>
     </div>
 
     <!-- PREFERÊNCIAS DO SISTEMA -->
     <div class="card">
-      <div class="sec-title">⚙️ Preferências do Sistema</div>
+      <div class="sec-title">${icon('gear')} Preferências do Sistema</div>
       <div class="form-group"><label class="form-label">Estoque mínimo padrão (pares)</label>
         <input class="form-control" type="number" id="cfg-minest" value="${c.minEstoque||2}" min="1">
         <div class="text-xs text-dim mt-1">Alerta quando produto ficar abaixo deste número</div>
@@ -4040,7 +4328,7 @@ function renderConfiguracoes(){
           Abrir recibo automaticamente após venda
         </label>
       </div>
-      <button class="btn primary w-full mt-2" onclick="salvarCfgPrefs()">💾 Salvar Preferências</button>
+      <button class="btn primary w-full mt-2" onclick="salvarCfgPrefs()">${icon('save')} Salvar Preferências</button>
     </div>
 
   </div>`;
@@ -4138,14 +4426,9 @@ function aplicarCupom(code){
   calcTot();
 }
 
-function pgCupons(){
-  document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn primary" onclick="openCupomModal()">+ Novo Cupom</button>';
-  renderCupons();
-}
 function renderCupons(){
   const cupons=getCupons();
-  document.getElementById('page').innerHTML=`
+  document.getElementById('cfg-subview').innerHTML=`
   <div class="card">
     ${cupons.length?`<div class="table-wrap"><table>
       <thead><tr><th>Código</th><th>Descrição</th><th>Tipo</th><th>Valor</th><th>Validade</th><th>Status</th><th></th></tr></thead>
@@ -4159,12 +4442,12 @@ function renderCupons(){
           <td><span class="badge ${c.ativo?'green':'gray'}">${c.ativo?'Ativo':'Inativo'}</span></td>
           <td class="flex gap-1">
             <button class="btn xs" onclick="toggleCupom(${i})">${c.ativo?'Desativar':'Ativar'}</button>
-            <button class="btn xs danger" onclick="deleteCupom(${i})">🗑</button>
+            <button class="btn xs danger" onclick="deleteCupom(${i})">${icon('trash')}</button>
           </td>
         </tr>`).join('')}
       </tbody>
     </table></div>`:
-    '<div class="empty"><div class="ei">🎫</div><p>Nenhum cupom cadastrado</p></div>'}
+    '<div class="empty"><div class="ei">'+icon('ticket')+'</div><p>Nenhum cupom cadastrado</p></div>'}
   </div>`;
 }
 function openCupomModal(){
@@ -4228,20 +4511,16 @@ function getCategorias(){
   const padrao=['Tênis','Sandálias','Rasteiras','Botas','Mocassins','Sapatilhas','Tamancos','Acessórios','Outros'];
   return salvas.length?salvas:padrao;
 }
-function pgCategorias(){
-  document.getElementById('tbar-actions').innerHTML='';
-  renderCategorias();
-}
 function renderCategorias(){
   const cats=getCategorias();
-  document.getElementById('page').innerHTML=`
+  document.getElementById('cfg-subview').innerHTML=`
   <div class="card" style="max-width:600px">
     <div class="sec-title">Categorias de Produto</div>
     <p style="font-size:13px;color:var(--text2);margin-bottom:14px">As categorias aparecem como opção no campo "Observações" ao cadastrar produtos, e nos relatórios de estoque.</p>
     <div id="cats-list" style="margin-bottom:12px">
       ${cats.map((c,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
         <span style="flex:1;font-size:14px">${c}</span>
-        <button class="btn xs danger" onclick="deleteCat(${i})">🗑</button>
+        <button class="btn xs danger" onclick="deleteCat(${i})">${icon('trash')}</button>
       </div>`).join('')}
     </div>
     <div class="flex gap-2">
@@ -4281,14 +4560,14 @@ function verHistoricoCliente(clienteId){
   const bd=document.createElement('div');bd.className='modal-backdrop';bd.id='mhistcli';
   bd.innerHTML=`<div class="modal modal-lg">
     <div class="modal-header">
-      <div class="modal-title">📋 Histórico — ${cli.nome}</div>
+      <div class="modal-title">${icon('clipboard')} Histórico — ${cli.nome}</div>
       <button class="modal-close" onclick="document.getElementById('mhistcli').remove()">×</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
       <div class="metric-card"><div class="metric-label">Compras</div><div class="metric-val">${vendas.length}</div></div>
       <div class="metric-card"><div class="metric-label">Total gasto</div><div class="metric-val text-green">${fmt(total)}</div></div>
       <div class="metric-card"><div class="metric-label">Ticket médio</div><div class="metric-val text-gold">${fmt(vendas.length?total/vendas.length:0)}</div></div>
-      <div class="metric-card"><div class="metric-label">Pontos</div><div class="metric-val text-wine">⭐ ${pontos}</div></div>
+      <div class="metric-card"><div class="metric-label">Pontos</div><div class="metric-val text-wine">${icon('star')} ${pontos}</div></div>
     </div>
     ${vendas.length?`<div class="table-wrap"><table>
       <thead><tr><th>Venda</th><th>Data</th><th>Itens</th><th>Pagamento</th><th>Total</th><th></th></tr></thead>
@@ -4299,11 +4578,11 @@ function verHistoricoCliente(clienteId){
           <td class="text-xs">${(v.itens||[]).map(i=>i.qtd+'x '+i.nome+(i.tam?' Nº'+i.tam:'')).join(', ')}</td>
           <td><span class="badge wine">${v.pgto}</span></td>
           <td class="font-bold">${fmt(v.total)}</td>
-          <td><button class="btn xs" onclick="imprimirReciboById('${v.id}')">🖨</button></td>
+          <td><button class="btn xs" onclick="imprimirReciboById('${v.id}')">${icon('printer')}</button></td>
         </tr>`).join('')}
       </tbody>
     </table></div>`:
-    '<div class="empty"><div class="ei">🛍</div><p>Nenhuma compra registrada</p></div>'}
+    '<div class="empty"><div class="ei">'+icon('bag')+'</div><p>Nenhuma compra registrada</p></div>'}
     <div class="modal-footer"><button class="btn" onclick="document.getElementById('mhistcli').remove()">Fechar</button></div>
   </div>`;
   document.body.appendChild(bd);
@@ -4322,19 +4601,15 @@ function calcPontos(clienteId){
   const total=vendas.reduce((s,v)=>s+v.total,0);
   return Math.floor(total/cfg.por_real);
 }
-function pgPontos(){
-  document.getElementById('tbar-actions').innerHTML='';
-  renderPontos();
-}
 function renderPontos(){
   const cfg=getPontosConfig();
   const ranking=db.clientes.map(c=>({...c,pontos:calcPontos(c.id)}))
     .filter(c=>c.pontos>0).sort((a,b)=>b.pontos-a.pontos);
 
-  document.getElementById('page').innerHTML=`
+  document.getElementById('cli-subview').innerHTML=`
   <div class="grid2 mb-4">
     <div class="card">
-      <div class="sec-title">⚙️ Configurar Programa de Pontos</div>
+      <div class="sec-title">${icon('gear')} Configurar Programa de Pontos</div>
       <div class="form-group"><label class="form-label">Status</label>
         <select class="form-control" id="pts-ativo">
           <option value="true" ${cfg.ativo?'selected':''}>Ativo</option>
@@ -4345,10 +4620,10 @@ function renderPontos(){
       <div class="form-group"><label class="form-label">Valor de 1 ponto (R$)</label>
         <input class="form-control" type="number" id="pts-val" value="${cfg.valor_ponto}" step="0.1" min="0.01">
         <div class="text-xs text-dim mt-1">Ex: 0,50 = 100 pontos valem R$ 50,00</div></div>
-      <button class="btn primary w-full mt-2" onclick="salvarPontosConfig()">💾 Salvar Configuração</button>
+      <button class="btn primary w-full mt-2" onclick="salvarPontosConfig()">${icon('save')} Salvar Configuração</button>
     </div>
     <div class="card">
-      <div class="sec-title">📊 Resumo</div>
+      <div class="sec-title">${icon('bar')} Resumo</div>
       <div style="font-size:13px;color:var(--text2);line-height:2">
         <div>Clientes com pontos: <strong>${ranking.length}</strong></div>
         <div>Total de pontos emitidos: <strong>${ranking.reduce((s,c)=>s+c.pontos,0)}</strong></div>
@@ -4357,18 +4632,18 @@ function renderPontos(){
     </div>
   </div>
   <div class="card">
-    <div class="sec-title">🏆 Clientes com Pontos</div>
+    <div class="sec-title">${icon('trophy')} Clientes com Pontos</div>
     ${ranking.length?`<div class="table-wrap"><table>
       <thead><tr><th>#</th><th>Cliente</th><th>WhatsApp</th><th>Pontos</th><th>Valor dos Pontos</th></tr></thead>
       <tbody>${ranking.map((c,i)=>`<tr>
         <td>${i+1}</td>
         <td><strong>${c.nome}</strong></td>
         <td>${c.whatsapp||'—'}</td>
-        <td><span class="badge wine">⭐ ${c.pontos}</span></td>
+        <td><span class="badge wine">${icon('star')} ${c.pontos}</span></td>
         <td class="text-green font-bold">${fmt(c.pontos*cfg.valor_ponto)}</td>
       </tr>`).join('')}</tbody>
     </table></div>`:
-    '<div class="empty"><div class="ei">⭐</div><p>Nenhum cliente com pontos ainda</p></div>'}
+    '<div class="empty"><div class="ei">'+icon('star')+'</div><p>Nenhum cliente com pontos ainda</p></div>'}
   </div>`;
 }
 function salvarPontosConfig(){
@@ -4393,11 +4668,6 @@ function salvarTagsCliente(clienteId,tags){
   t[clienteId]=tags;
   localStorage.setItem('versatile_tags',JSON.stringify(t));
 }
-function pgSegmentacao(){
-  document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn primary" onclick="enviarWALote()">💬 Enviar WhatsApp em Lote</button>';
-  renderSegmentacao();
-}
 function renderSegmentacao(filtroTag){
   const TAGS_DISPONIVEIS=['VIP','Frequente','Inativo','Aniversariante','Novo'];
   const clientes=db.clientes.map(c=>{
@@ -4411,7 +4681,7 @@ function renderSegmentacao(filtroTag){
     return {...c,vendas:vendas.length,total,tags};
   }).filter(c=>!filtroTag||c.tags.includes(filtroTag));
 
-  document.getElementById('page').innerHTML=`
+  document.getElementById('cli-subview').innerHTML=`
   <div class="card mb-3">
     <div class="flex gap-2 flex-wrap items-center">
       <span class="text-sm text-dim">Filtrar por tag:</span>
@@ -4434,7 +4704,7 @@ function renderSegmentacao(filtroTag){
           <td>${c.vendas}</td>
           <td class="text-green">${fmt(c.total)}</td>
           <td>${c.tags.map(t=>`<span class="badge wine" style="margin-right:3px">${t}</span>`).join('')}</td>
-          <td><button class="btn xs" onclick="editarTagsCliente('${c.id}')">🏷 Tags</button></td>
+          <td><button class="btn xs" onclick="editarTagsCliente('${c.id}')">${icon('tag')} Tags</button></td>
         </tr>`).join('')}
       </tbody>
     </table></div>
@@ -4493,11 +4763,6 @@ function enviarWALote(){
 // ============================================================
 // COMPARATIVO MENSAL
 // ============================================================
-function pgComparativo(){
-  document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn" onclick="expComparativo()">📊 Excel</button>';
-  renderComparativo();
-}
 function renderComparativo(){
   const meses=[];
   for(let i=11;i>=0;i--){
@@ -4511,9 +4776,9 @@ function renderComparativo(){
       fat,lucro:fat-custos,qtd:vendas.length});
   }
   const maxFat=Math.max(...meses.map(m=>m.fat),1);
-  document.getElementById('page').innerHTML=`
+  document.getElementById('fin-subview').innerHTML=`
   <div class="card mb-4">
-    <div class="sec-title">📈 Faturamento — Últimos 12 meses</div>
+    <div class="sec-title">${icon('trending')} Faturamento — Últimos 12 meses</div>
     <div style="display:flex;align-items:flex-end;gap:4px;height:160px;padding-top:10px">
       ${meses.map(m=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
         <div style="font-size:10px;color:var(--text3);text-align:center">${m.fat>0?fmt(m.fat).replace('R$ ',''):''}</div>
@@ -4559,11 +4824,6 @@ function expComparativo(){
 // ============================================================
 // DRE SIMPLIFICADO
 // ============================================================
-function pgDRE(){
-  document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn" onclick="expDRE()">📊 Excel</button>';
-  renderDRE();
-}
 function renderDRE(anoSel){
   const ano=anoSel||new Date().getFullYear();
   const meses=[];
@@ -4573,7 +4833,7 @@ function renderDRE(anoSel){
     const recBruto=vms.reduce((s,v)=>s+v.total,0);
     const taxa=vms.reduce((s,v)=>{const l=calcLucroVenda(v);return s+l.taxaDesc;},0);
     const cme=vms.reduce((s,v)=>{const l=calcLucroVenda(v);return s+l.custo;},0);
-    const movs=db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&mv.data.startsWith(ym)&&!mv.vendaId);
+    const movs=db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&mv.data.startsWith(ym)&&!mv.vendaId&&mv.categoria!=='Fornecedor / Mercadoria');
     const despOp=movs.reduce((s,mv)=>s+mv.val,0);
     const recLiq=recBruto-taxa;
     const lucBruto=recLiq-cme;
@@ -4590,7 +4850,7 @@ function renderDRE(anoSel){
     ${meses.map(m=>`<td class="text-right ${cls||''}" style="padding:6px 8px;font-size:12px">${fmt(fn(m))}</td>`).join('')}
     <td class="text-right font-bold ${cls||''}" style="padding:6px 10px">${fmt(fn(tot))}</td></tr>`;
 
-  document.getElementById('page').innerHTML=`
+  document.getElementById('fin-subview').innerHTML=`
   <div class="card mb-3">
     <div class="flex gap-2 items-center">
       <span class="text-sm text-dim">Ano:</span>
@@ -4599,6 +4859,7 @@ function renderDRE(anoSel){
     </div>
   </div>
   <div class="card">
+    <div class="sec-title">${icon('folder')} DRE — Demonstrativo de Resultado</div>
     <div style="overflow-x:auto"><table style="min-width:900px;border-collapse:collapse">
       <thead><tr>
         <th style="text-align:left;padding:8px 10px;min-width:160px">Demonstrativo</th>
@@ -4632,14 +4893,9 @@ function expDRE(){
 function getFornecedores(){
   return JSON.parse(localStorage.getItem('versatile_fornecedores')||'[]');
 }
-function pgFornecedores(){
-  document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn primary" onclick="openFornModal()">+ Novo Fornecedor</button>';
-  renderFornecedores();
-}
 function renderFornecedores(){
   const forns=getFornecedores();
-  document.getElementById('page').innerHTML=`<div class="card">
+  document.getElementById('est-subview').innerHTML=`<div class="card">
     ${forns.length?`<div class="table-wrap"><table>
       <thead><tr><th>Nome</th><th>Contato</th><th>WhatsApp</th><th>E-mail</th><th>Categorias</th><th></th></tr></thead>
       <tbody>${forns.map((f,i)=>`<tr>
@@ -4649,12 +4905,12 @@ function renderFornecedores(){
         <td>${f.email||'—'}</td>
         <td>${f.cats||'—'}</td>
         <td class="flex gap-1">
-          <button class="btn xs" onclick="openFornModal(${i})">✏️</button>
-          <button class="btn xs danger" onclick="deleteForn(${i})">🗑</button>
+          <button class="btn xs" onclick="openFornModal(${i})">${icon('edit')}</button>
+          <button class="btn xs danger" onclick="deleteForn(${i})">${icon('trash')}</button>
         </td>
       </tr>`).join('')}</tbody>
     </table></div>`:
-    '<div class="empty"><div class="ei">🏭</div><p>Nenhum fornecedor cadastrado</p></div>'}
+    '<div class="empty"><div class="ei">'+icon('truck')+'</div><p>Nenhum fornecedor cadastrado</p></div>'}
   </div>`;
 }
 function openFornModal(idx){
@@ -4680,7 +4936,7 @@ function openFornModal(idx){
       <textarea class="form-control" id="fn-obs" rows="2">${f.obs||''}</textarea></div>
     <div class="modal-footer">
       <button class="btn" onclick="document.getElementById('mforn').remove()">Cancelar</button>
-      <button class="btn primary" onclick="salvarForn(${idx})">💾 Salvar</button>
+      <button class="btn primary" onclick="salvarForn(${idx})">${icon('save')} Salvar</button>
     </div></div>`;
   document.body.appendChild(bd);
 }
@@ -4709,17 +4965,12 @@ function deleteForn(i){
 // ============================================================
 // ORDEM DE COMPRA / REPOSIÇÃO
 // ============================================================
-function pgOrdemCompra(){
-  document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn primary" onclick="gerarOrdemPDF()">🖨 Imprimir Ordem</button>';
-  renderOrdemCompra();
-}
 function renderOrdemCompra(){
   const prods=db.produtos.filter(p=>(p.qtd||0)<=(p.min||2)).sort((a,b)=>a.qtd-b.qtd);
-  document.getElementById('page').innerHTML=`
+  document.getElementById('est-subview').innerHTML=`
   <div class="card mb-3" style="border-color:${prods.length?'var(--gold)':'var(--green)'}">
     <div class="flex items-center gap-3">
-      <div style="font-size:24px">${prods.length?'⚠️':'✅'}</div>
+      <div style="color:${prods.length?'var(--amber)':'var(--green)'}">${prods.length?icon('alert','ico-28'):icon('check','ico-28')}</div>
       <div>
         <div class="font-bold">${prods.length?prods.length+' produto(s) precisam de reposição':'Estoque OK — nenhum produto abaixo do mínimo'}</div>
         <div class="text-xs text-dim">Produtos com estoque ≤ mínimo configurado</div>
@@ -4756,7 +5007,7 @@ function renderOrdemCompra(){
       </tbody>
     </table></div>
   </div>`:
-  '<div class="card"><div class="empty"><div class="ei">✅</div><p>Estoque em dia!</p></div></div>'}`;
+  '<div class="card"><div class="empty"><div class="ei">'+icon('check')+'</div><p>Estoque em dia!</p></div></div>'}`;
 }
 function gerarOrdemPDF(){
   const itens=[...document.querySelectorAll('.rep-sel:checked')].map(el=>{
@@ -4851,9 +5102,7 @@ function atualizarPreviewImpressao(){
 }
 function renderCfgImpressao(){
   const c=getCfgImpressao();
-  document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn primary" onclick="testarImpressao()">🖨 Testar Impressão</button>';
-  document.getElementById('page').innerHTML=`
+  document.getElementById('cfg-subview').innerHTML=`
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
 
     <!-- CONFIGURAÇÕES -->
@@ -4891,7 +5140,7 @@ function renderCfgImpressao(){
       </div>
 
       <div class="card">
-        <div class="sec-title">⚙️ Configurações do Ctrl+P</div>
+        <div class="sec-title">${icon('gear')} Configurações do Ctrl+P</div>
         <div style="background:var(--bg3);border-radius:var(--r);padding:12px 14px;font-size:13px;line-height:2;color:var(--text2)">
           <div><strong style="color:var(--text)">Impressora:</strong> Selecione sua LabelPrinter/Térmica</div>
           <div><strong style="color:var(--text)">Tamanho do papel:</strong> impressão recibo (80×200mm)</div>
@@ -4906,7 +5155,7 @@ function renderCfgImpressao(){
       </div>
 
       <button class="btn primary w-full" onclick="salvarCfgImpressao()" style="padding:12px;font-size:15px">
-        💾 Salvar Configurações de Impressão
+        ${icon('save')} Salvar Configurações de Impressão
       </button>
     </div>
 
@@ -4999,11 +5248,11 @@ function verHistoricoEstoque(prodId){
   const p=db.produtos.find(x=>x.id===prodId);
   if(!p) return;
   const movs=getMovEstoque(prodId);
-  const ICONS={'VENDA':'🛍','TROCA_SAIDA':'🔄','TROCA_ENTRADA':'🔄','ENTRADA':'📥','AJUSTE':'✏️','CANCELAMENTO':'↩','PERDA':'⚠️','CONTAGEM':'📋'};
+  const ICONS={'VENDA':icon('bag'),'TROCA_SAIDA':icon('refresh'),'TROCA_ENTRADA':icon('refresh'),'ENTRADA':icon('download'),'AJUSTE':icon('edit'),'CANCELAMENTO':'↩','PERDA':icon('alert'),'CONTAGEM':icon('clipboard')};
   const bd=document.createElement('div');bd.className='modal-backdrop';bd.id='mmovest';
   bd.innerHTML=`<div class="modal modal-lg">
     <div class="modal-header">
-      <div class="modal-title">📦 Histórico — ${p.nome}</div>
+      <div class="modal-title">${icon('box')} Histórico — ${p.nome}</div>
       <button class="modal-close" onclick="closeM('mmovest')">×</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
@@ -5022,7 +5271,7 @@ function verHistoricoEstoque(prodId){
         <td class="text-xs text-dim">${m.usuario}</td>
       </tr>`).join('')}</tbody>
     </table></div>`:
-    '<div class="empty"><div class="ei">📋</div><p>Sem histórico ainda</p><p class="text-dim text-xs">As movimentações aparecerão aqui</p></div>'}
+    '<div class="empty"><div class="ei">'+icon('clipboard')+'</div><p>Sem histórico ainda</p><p class="text-dim text-xs">As movimentações aparecerão aqui</p></div>'}
     <div class="modal-footer"><button class="btn" onclick="closeM('mmovest')">Fechar</button></div>
   </div>`;
   document.body.appendChild(bd);
@@ -5037,7 +5286,7 @@ function abrirAjusteEstoque(prodId){
   const bd=document.createElement('div');bd.className='modal-backdrop';bd.id='majest';
   bd.innerHTML=`<div class="modal modal-sm">
     <div class="modal-header">
-      <div class="modal-title">✏️ Ajuste de Estoque — ${p.nome}</div>
+      <div class="modal-title">${icon('edit')} Ajuste de Estoque — ${p.nome}</div>
       <button class="modal-close" onclick="closeM('majest')">×</button>
     </div>
     <div class="form-group"><label class="form-label">Tipo de Ajuste</label>
@@ -5059,7 +5308,7 @@ function abrirAjusteEstoque(prodId){
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeM('majest')">Cancelar</button>
-      <button class="btn primary" onclick="confirmarAjusteEstoque('${prodId}')">✅ Confirmar Ajuste</button>
+      <button class="btn primary" onclick="confirmarAjusteEstoque('${prodId}')">${icon('check')} Confirmar Ajuste</button>
     </div>
   </div>`;
   document.body.appendChild(bd);
@@ -5118,7 +5367,7 @@ async function gradeRapida(prodId, tam, delta){
 // ============================================================
 function pgTrocas(){
   document.getElementById('tbar-actions').innerHTML=
-    '<button class="btn primary" onclick="abrirNovaTroca()">🔄 Nova Troca</button>';
+    '<button class="btn primary" onclick="abrirNovaTroca()">'+icon('refresh')+' Nova Troca</button>';
   renderTrocas();
 }
 
@@ -5134,7 +5383,7 @@ function renderTrocas(filtro){
   document.getElementById('page').innerHTML=`
   <div class="card mb-3">
     <div class="flex gap-3 items-center">
-      <div class="flex-1 srch"><span class="srch-ic">🔍</span>
+      <div class="flex-1 srch"><span class="srch-ic">${icon('search')}</span>
         <input class="form-control" placeholder="Buscar por venda, produto, vendedor..." oninput="renderTrocas(this.value)" style="padding-left:36px">
       </div>
       <span class="text-dim text-xs">${lista.length} troca(s)</span>
@@ -5157,10 +5406,10 @@ function renderTrocas(filtro){
           ${t.difVal>0?'Cliente pagou +'+fmt(t.difVal):t.difVal<0?'Loja devolveu '+fmt(Math.abs(t.difVal)):'Sem diferença'}
         </td>
         <td><span class="badge green">Concluída</span></td>
-        <td><button class="btn xs" onclick="verComprovanteTroca('${t.id}')">🖨 Comprovante</button></td>
+        <td><button class="btn xs" onclick="verComprovanteTroca('${t.id}')">${icon('printer')} Comprovante</button></td>
       </tr>`).join('')}</tbody>
     </table></div>`:
-    '<div class="empty"><div class="ei">🔄</div><p>Nenhuma troca registrada</p></div>'}
+    '<div class="empty"><div class="ei">'+icon('refresh')+'</div><p>Nenhuma troca registrada</p></div>'}
   </div>`;
 }
 
@@ -5168,7 +5417,7 @@ function abrirNovaTroca(){
   const bd=document.createElement('div');bd.className='modal-backdrop';bd.id='mtroca';
   bd.innerHTML=`<div class="modal modal-lg">
     <div class="modal-header">
-      <div class="modal-title">🔄 Registrar Troca</div>
+      <div class="modal-title">${icon('refresh')} Registrar Troca</div>
       <button class="modal-close" onclick="closeM('mtroca')">×</button>
     </div>
 
@@ -5184,7 +5433,7 @@ function abrirNovaTroca(){
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <!-- PRODUTO DEVOLVIDO -->
         <div style="background:var(--bg3);border-radius:var(--r);padding:12px">
-          <div class="sec-title" style="color:var(--red);margin-bottom:10px">📤 Produto Devolvido (entra no estoque)</div>
+          <div class="sec-title" style="color:var(--red);margin-bottom:10px">${icon('box')} Produto Devolvido (entra no estoque)</div>
           <div class="form-group"><label class="form-label">Produto</label>
             <select class="form-control" id="tr-prod-dev" onchange="onTrocaProdDevChange()">
               <option value="">Selecione...</option>
@@ -5199,7 +5448,7 @@ function abrirNovaTroca(){
         </div>
         <!-- PRODUTO QUE SAI -->
         <div style="background:var(--bg3);border-radius:var(--r);padding:12px">
-          <div class="sec-title" style="color:var(--green);margin-bottom:10px">📥 Produto que Sai (sai do estoque)</div>
+          <div class="sec-title" style="color:var(--green);margin-bottom:10px">${icon('download')} Produto que Sai (sai do estoque)</div>
           <div class="form-group"><label class="form-label">Produto</label>
             <select class="form-control" id="tr-prod-sai" onchange="onTrocaProdSaiChange()">
               <option value="">Selecione...</option>
@@ -5216,7 +5465,7 @@ function abrirNovaTroca(){
 
       <!-- DIFERENÇA DE VALOR -->
       <div id="tr-dif-area" style="margin-top:12px;padding:12px;background:var(--bg3);border-radius:var(--r)">
-        <div class="sec-title" style="margin-bottom:8px">💰 Diferença de Valor</div>
+        <div class="sec-title" style="margin-bottom:8px">${icon('wallet')} Diferença de Valor</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
           <div><div class="text-xs text-dim">Produto devolvido</div><div id="tr-val-dev" class="font-bold">—</div></div>
           <div><div class="text-xs text-dim">Produto que sai</div><div id="tr-val-sai" class="font-bold">—</div></div>
@@ -5242,7 +5491,7 @@ function abrirNovaTroca(){
 
     <div class="modal-footer">
       <button class="btn" onclick="closeM('mtroca')">Cancelar</button>
-      <button class="btn primary" id="tr-btn-confirmar" style="display:none" onclick="confirmarTroca()">✅ Confirmar Troca</button>
+      <button class="btn primary" id="tr-btn-confirmar" style="display:none" onclick="confirmarTroca()">${icon('check')} Confirmar Troca</button>
     </div>
   </div>`;
   document.body.appendChild(bd);
