@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <title>Versatile — PDV</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <style>
 /* ====== TOKENS ====== */
 [data-theme="dark"]{
@@ -51,8 +51,8 @@
   --wine:#8b2d43;--wine2:#a5384f;--wine3:#5c1a2a;
   --accent:#a5384f;--accent2:#c05068;--accentglow:#d76a82;
   --r:9px;--r2:14px;--r3:20px;
-  --font-head:'Cormorant Garamond',Georgia,'Times New Roman',serif;
-  --font-body:'DM Sans',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  --font-head:'Roboto',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  --font-body:'Roboto',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;transition:background .2s,color .2s}
@@ -126,7 +126,7 @@ a{color:inherit;text-decoration:none}
 .metric-card .mi{position:absolute;top:16px;right:16px;opacity:.35;color:var(--accent2)}
 .metric-card .mi .ico{width:22px;height:22px}
 .metric-label{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:7px}
-.metric-val{font-family:var(--font-head);font-size:28px;font-weight:700;line-height:1}
+.metric-val{font-family:var(--font-head);font-size:24px;font-weight:700;line-height:1.15;white-space:nowrap}
 .metric-sub{font-size:11px;color:var(--text3);margin-top:5px}
 
 /* ====== BUTTONS ====== */
@@ -211,7 +211,7 @@ tbody tr:hover td{background:var(--bg3)}
 .hero-rule{width:66px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin-top:26px;opacity:.9}
 .bp-foot{position:relative;z-index:2;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#d9b5bf;opacity:.75}
 .form-panel{background:var(--bg);display:flex;align-items:center;justify-content:center;padding:48px}
-.form-inner{width:100%;max-width:352px}
+.form-inner{width:100%;max-width:400px}
 .greet-sm{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:12px}
 .greet{font-family:var(--font-head);font-size:40px;font-weight:600;line-height:1.05;margin-bottom:40px;letter-spacing:.3px}
 .ufield{margin-bottom:26px}
@@ -1369,18 +1369,18 @@ function estGradeChips(p){
 function estRowTabela(p,isAdm,canEdit){
   const {tot,st,lab,margem}=estCalcProd(p);
   const grVisual=estGradeTabela(p,canEdit);
-  const tdAdmin=isAdm?'<td class="text-dim">'+(p.custo?fmt(p.custo):'—')+'</td><td>'+(margem!==null?'<span class="badge '+(margem>=30?'green':margem>=15?'amber':'red')+'">'+margem+'%</span>':'—')+'</td>':'';
+  const tdAdmin=isAdm?'<td class="text-dim" style="white-space:nowrap">'+(p.custo?fmt(p.custo):'—')+'</td><td style="white-space:nowrap">'+(margem!==null?'<span class="badge '+(margem>=30?'green':margem>=15?'amber':'red')+'">'+margem+'%</span>':'—')+'</td>':'';
   const tdAcoes=canEdit?('<td><div class="flex gap-2"><button class="btn xs" onclick="verHistoricoEstoque(&apos;'+p.id+'&apos;)">'+icon('clipboard')+'</button><button class="btn xs" onclick="abrirAjusteEstoque(&apos;'+p.id+'&apos;)">±</button><button class="btn xs" onclick="openProdModal(&apos;'+p.id+'&apos;)">'+icon('edit')+'</button>'+( isAdm?'<button class="btn xs danger" onclick="delProd(&apos;'+p.id+'&apos;)">'+icon('trash')+'</button>':'' )+'</div></td>'):'';
   const fotoHtml=p.foto?'<img src="'+p.foto+'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0">':'<div style="width:36px;height:36px;background:var(--bg4);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">'+icon('box')+'</div>';
   return'<tr>'+
-    '<td class="text-xs text-dim">'+(p.cod||'—')+'</td>'+
+    '<td class="text-xs text-dim" style="white-space:nowrap">'+(p.cod||'—')+'</td>'+
     '<td><div style="display:flex;align-items:center;gap:8px">'+fotoHtml+'<div><div class="td-name">'+p.nome+'</div><div style="font-size:11px;color:var(--text3)">'+(p.obs||'')+'</div></div></div></td>'+
-    '<td>'+(p.marca||'—')+(p.cor?' · '+p.cor:'')+'</td>'+
+    '<td style="white-space:nowrap">'+(p.marca||'—')+(p.cor?' · '+p.cor:'')+'</td>'+
     '<td style="font-size:12px;color:var(--text2)"><div style="display:flex;flex-wrap:wrap;gap:1px;max-width:280px">'+grVisual+'</div></td>'+
     tdAdmin+
-    '<td class="font-bold text-gold">'+fmt(p.preco)+'</td>'+
-    '<td class="font-bold" data-gtot="'+p.id+'">'+tot+'</td>'+
-    '<td><span class="badge '+st+'">'+lab+'</span></td>'+
+    '<td class="font-bold text-gold" style="white-space:nowrap">'+fmt(p.preco)+'</td>'+
+    '<td class="font-bold" data-gtot="'+p.id+'" style="white-space:nowrap">'+tot+'</td>'+
+    '<td style="white-space:nowrap"><span class="badge '+st+'">'+lab+'</span></td>'+
     tdAcoes+
     '</tr>';
 }
