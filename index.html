@@ -844,6 +844,26 @@ const uid=()=>'_'+Math.random().toString(36).substr(2,9);
 const today=()=>{const d=new Date();return d.toLocaleDateString('pt-BR',{timeZone:'America/Araguaina'}).split('/').reverse().join('-');};
 const nowISO=()=>new Date().toISOString();
 const thisMonth=()=>today().slice(0,7);
+// Converte qualquer Date/ISO para a data (YYYY-MM-DD) no fuso de Palmas/TO — evita que vendas feitas à noite
+// "virem o dia" nas comparações por já estarem em UTC do dia seguinte.
+const localDate=d=>{
+  const dt=d instanceof Date?d:new Date(d);
+  if(isNaN(dt.getTime()))return '';
+  return dt.toLocaleDateString('pt-BR',{timeZone:'America/Araguaina'}).split('/').reverse().join('-');
+};
+// Data (YYYY-MM-DD, já no fuso de Palmas) ancorada ao meio-dia — segura para aritmética de calendário
+// (somar/subtrair dias ou meses) sem risco de virar o dia por causa do fuso do dispositivo.
+const localNoon=ymd=>{
+  const [y,m,d]=(ymd||today()).split('-').map(Number);
+  return new Date(y,m-1,d,12,0,0);
+};
+// Soma/subtrai meses a partir de uma string "YYYY-MM", em aritmética pura — sem envolver Date/fuso.
+const shiftMonth=(ym,delta)=>{
+  const [y,m]=ym.split('-').map(Number);
+  const total=y*12+(m-1)+delta;
+  const ny=Math.floor(total/12), nm=(total%12)+1;
+  return ny+'-'+String(nm).padStart(2,'0');
+};
 const isAdmin=()=>ses?.usuario?.role==='admin';
 
 function notify(msg,type='ok',dur=2800){
@@ -1094,15 +1114,15 @@ function goTo(pg){
 // DASHBOARD
 // ============================================================
 function pgDashboard(){
-  const vh=db.vendas.filter(v=>v.data&&v.data.startsWith(today()));
-  const vm=db.vendas.filter(v=>v.data&&v.data.startsWith(thisMonth()));
+  const vh=db.vendas.filter(v=>v.data&&localDate(v.data)===today());
+  const vm=db.vendas.filter(v=>v.data&&localDate(v.data).startsWith(thisMonth()));
   const th=vh.reduce((s,v)=>s+v.total,0);
   const tm=vm.reduce((s,v)=>s+v.total,0);
   const pares=db.produtos.reduce((s,p)=>s+(p.qtd||0),0);
   const baixo=db.produtos.filter(p=>(p.qtd||0)<=(p.min||2)).length;
   const ticket=vm.length?tm/vm.length:0;
   const paresMes=vm.reduce((s,v)=>s+(v.itens||[]).reduce((si,i)=>si+(i.qtd||1),0),0);
-  const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const ds=d.toISOString().slice(0,10);days.push({d:ds,v:db.vendas.filter(x=>x.data&&x.data.startsWith(ds)).reduce((s,x)=>s+x.total,0)});}
+  const days=[];for(let i=6;i>=0;i--){const d=localNoon(today());d.setDate(d.getDate()-i);const ds=localDate(d);days.push({d:ds,v:db.vendas.filter(x=>x.data&&localDate(x.data)===ds).reduce((s,x)=>s+x.total,0)});}
   const maxD=Math.max(...days.map(d=>d.v),1);
   document.getElementById('tbar-actions').innerHTML='<button class="btn primary" onclick="abrirModalMeta()">'+icon('flame')+' Definir Metas</button>';
   document.getElementById('page').innerHTML=`
@@ -1118,7 +1138,7 @@ function pgDashboard(){
   ${(()=>{
     const m=getMetas();
     const sem=semanaAtual();
-    const vsem=db.vendas.filter(v=>v.data&&v.data.slice(0,10)>=sem.ini&&v.data.slice(0,10)<=sem.fim);
+    const vsem=db.vendas.filter(v=>v.data&&localDate(v.data)>=sem.ini&&localDate(v.data)<=sem.fim);
     const tsem=vsem.reduce((s,v)=>s+v.total,0);
     const hasAny=m.mes||m.semana||m.dia;
     const anivHoje=db.clientes.filter(c=>{
@@ -1160,7 +1180,7 @@ function pgDashboard(){
 function rankPeriodoRange(periodo){
   if(periodo==='hoje') return {de:today(),ate:today()};
   if(periodo==='mes') return {de:thisMonth()+'-01', ate:finUltimoDiaMes(thisMonth())};
-  if(periodo==='mesPassado'){ const d=new Date(); d.setMonth(d.getMonth()-1); const ym=d.toISOString().slice(0,7); return {de:ym+'-01', ate:finUltimoDiaMes(ym)}; }
+  if(periodo==='mesPassado'){ const ym=shiftMonth(thisMonth(),-1); return {de:ym+'-01', ate:finUltimoDiaMes(ym)}; }
   if(periodo==='mesEscolhido'){ const ym=_rankMesEsc||thisMonth(); return {de:ym+'-01', ate:finUltimoDiaMes(ym)}; }
   return {de:null,ate:null};
 }
@@ -1174,8 +1194,8 @@ function rankPeriodoLabel(periodo){
 function rankProds(periodo){
   const {de,ate}=rankPeriodoRange(periodo);
   let vs=db.vendas;
-  if(de) vs=vs.filter(v=>v.data&&v.data.slice(0,10)>=de);
-  if(ate) vs=vs.filter(v=>v.data&&v.data.slice(0,10)<=ate);
+  if(de) vs=vs.filter(v=>v.data&&localDate(v.data)>=de);
+  if(ate) vs=vs.filter(v=>v.data&&localDate(v.data)<=ate);
   const m={};
   vs.forEach(v=>(v.itens||[]).forEach(i=>{
     if(!m[i.id])m[i.id]={id:i.id,nome:i.nome,marca:i.marca||'',qtd:0,val:0,qtdAtual:(db.produtos.find(x=>x.id===i.id)?.qtd||0)};
@@ -2544,8 +2564,8 @@ function filtHist(){
   const fim=document.getElementById('hf')?.value;
   let fil=[...db.vendas].sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;});
   if(q)fil=fil.filter(v=>[v.id,v.clienteNome,v.vendedor,v.pgto,v.modalidade].join(' ').toLowerCase().includes(q));
-  if(ini)fil=fil.filter(v=>v.data&&v.data.slice(0,10)>=ini);
-  if(fim)fil=fil.filter(v=>v.data&&v.data.slice(0,10)<=fim);
+  if(ini)fil=fil.filter(v=>v.data&&localDate(v.data)>=ini);
+  if(fim)fil=fil.filter(v=>v.data&&localDate(v.data)<=fim);
   const tb=document.getElementById('htb');if(tb)tb.innerHTML=genLinhasHist(fil);
 }
 
@@ -2559,13 +2579,13 @@ function pgCaixa(){
 function renderCaixa(){
   // Vendas de hoje deste usuário (vendedor só vê as dele, admin vê todas)
   const vsHoje=db.vendas.filter(v=>{
-    if(!v.data||!v.data.startsWith(today()))return false;
+    if(!v.data||localDate(v.data)!==today())return false;
     if(isAdmin())return true;
     return v.vendedorId===ses.usuario.id;
   });
   const totalHoje=vsHoje.reduce((s,v)=>s+v.total,0);
   const pgtos={};vsHoje.forEach(v=>{pgtos[v.pgto]=(pgtos[v.pgto]||0)+v.total;});
-  const caixasHoje=db.caixas.filter(c=>c.data&&c.data.startsWith(today())&&(isAdmin()||c.vendedorId===ses.usuario.id));
+  const caixasHoje=db.caixas.filter(c=>c.data&&c.data===today()&&(isAdmin()||c.vendedorId===ses.usuario.id));
   document.getElementById('page').innerHTML=`
   <div class="grid3 mb-4">
     <div class="metric-card"><span class="mi">${icon('bag')}</span><div class="metric-label">Vendas Hoje</div><div class="metric-val text-green">${fmt(totalHoje)}</div><div class="metric-sub">${vsHoje.length} venda(s)</div></div>
@@ -2604,7 +2624,7 @@ function renderCaixa(){
 }
 function fecharCaixa(){if(!document.getElementById('mfechamento'))renderCaixa();setTimeout(()=>openM('mfechamento'),30);}
 function confirmarFechamento(){
-  const vsHoje=db.vendas.filter(v=>v.data&&v.data.startsWith(today())&&(isAdmin()||v.vendedorId===ses.usuario.id));
+  const vsHoje=db.vendas.filter(v=>v.data&&localDate(v.data)===today()&&(isAdmin()||v.vendedorId===ses.usuario.id));
   const total=vsHoje.reduce((s,v)=>s+v.total,0);
   const obs=document.getElementById('fcobs')?.value||'';
   const obj={data:today(),hora:nowISO(),vendedorId:ses.usuario.id,vendedorNome:ses.usuario.nome,total,qtdVendas:vsHoje.length,obs};
@@ -2677,7 +2697,7 @@ function renderVendedores(mesRef){
   const vendedores=db.usuarios;
   // calc por vendedor no período
   const dadosVend=vendedores.map(u=>{
-    const vs=db.vendas.filter(v=>v.vendedorId===u.id&&v.data&&v.data.startsWith(mesRef));
+    const vs=db.vendas.filter(v=>v.vendedorId===u.id&&v.data&&localDate(v.data).startsWith(mesRef));
     const total=vs.reduce((s,v)=>s+v.total,0);
     const qtd=vs.length;
     const ticket=qtd?total/qtd:0;
@@ -2759,7 +2779,7 @@ const FIN_CATS_ENTRADA=['Empréstimo','Aporte','Reembolso','Outros'];
 const FIN_CAT_COR={'Fornecedor / Mercadoria':'amber','Aluguel':'blue','Salários / Comissão':'wine','Contas (água, luz, internet)':'blue','Impostos / Taxas':'red','Marketing':'gold','Manutenção':'amber','Empréstimo':'blue','Aporte':'green','Reembolso':'gold','Outros':'gray'};
 const FIN_MESES=['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 function finFmtMes(ym){ if(!ym) return ''; const [y,m]=ym.split('-').map(Number); return FIN_MESES[m]+'/'+y; }
-function finUltimoDiaMes(ym){ const [y,m]=ym.split('-').map(Number); return new Date(y,m,0).toISOString().slice(0,10); }
+function finUltimoDiaMes(ym){ const [y,m]=ym.split('-').map(Number); return localDate(new Date(y,m,0,12,0,0)); }
 let _finFiltro=null;
 const FIN_TABS=[
   {id:'fluxo',ic:'drawer',lb:'Fluxo de Caixa'},
@@ -2801,7 +2821,7 @@ function finPeriodoRange(){
   if(f.periodo==='tudo') return {de:null,ate:null};
   if(f.periodo==='personalizado') return {de:f.de||null,ate:f.ate||null};
   let ym=thisMonth();
-  if(f.periodo==='mesPassado'){ const d=new Date(); d.setMonth(d.getMonth()-1); ym=d.toISOString().slice(0,7); }
+  if(f.periodo==='mesPassado'){ ym=shiftMonth(thisMonth(),-1); }
   if(f.periodo==='mesEscolhido') ym=f.mesEsc||thisMonth();
   return {de:ym+'-01', ate:finUltimoDiaMes(ym)};
 }
@@ -3124,8 +3144,8 @@ function expE(xl){
 function expV(xl){
   const ini=document.getElementById('rvi')?.value,fim=document.getElementById('rvf')?.value;
   let f=[...db.vendas];
-  if(ini)f=f.filter(v=>v.data&&v.data.slice(0,10)>=ini);
-  if(fim)f=f.filter(v=>v.data&&v.data.slice(0,10)<=fim);
+  if(ini)f=f.filter(v=>v.data&&localDate(v.data)>=ini);
+  if(fim)f=f.filter(v=>v.data&&localDate(v.data)<=fim);
   if(!f.length){notify('Nenhuma venda','warn');return;}
   const h=['N','Data','Cliente','Vendedor','Modalidade','Pagamento','Subtotal','Desconto','Total','Itens'];
   const r=f.map(v=>[v.id,fmtD(v.data),v.clienteNome||'Consumidor Final',v.vendedor||'',v.modalidade||'',v.pgto,Number(v.subtotal).toFixed(2),Number(v.desconto||0).toFixed(2),Number(v.total).toFixed(2),(v.itens||[]).map(i=>i.qtd+'x '+i.nome+(i.tam?' N'+i.tam:'')).join(' | ')]);
@@ -3765,7 +3785,7 @@ function renderLucratividade(iniVal, fimVal){
   const ini = iniVal || (m+'-01');
   const fim = fimVal || today();
 
-  const fil = db.vendas.filter(v=>v.data&&v.data.slice(0,10)>=ini&&v.data.slice(0,10)<=fim);
+  const fil = db.vendas.filter(v=>v.data&&localDate(v.data)>=ini&&localDate(v.data)<=fim);
 
   let totBruto=0,totLiquido=0,totCusto=0,totTaxa=0,totLucro=0;
   const rows = fil.map(v=>{
@@ -3836,7 +3856,7 @@ function renderLucratividade(iniVal, fimVal){
 function expLucro(xl){
   const ini=document.getElementById('lini')?.value||thisMonth()+'-01';
   const fim=document.getElementById('lfim')?.value||today();
-  const fil=db.vendas.filter(v=>v.data&&v.data.slice(0,10)>=ini&&v.data.slice(0,10)<=fim);
+  const fil=db.vendas.filter(v=>v.data&&localDate(v.data)>=ini&&localDate(v.data)<=fim);
   if(!fil.length){notify('Nenhuma venda no período','warn');return;}
   const hds=['Nº','Data','Cliente','Pagamento','Bruto','Taxa Máq.','Custo','Lucro','Margem %'];
   const rows=fil.map(v=>{const l=calcLucroVenda(v);return[v.id,fmtD(v.data),v.clienteNome||'Consumidor Final',v.pgto,Number(v.total).toFixed(2),Number(l.taxaDesc).toFixed(2),Number(l.custo).toFixed(2),Number(l.lucro).toFixed(2),l.margem.toFixed(1)];});
@@ -3847,7 +3867,7 @@ function expLucro(xl){
 // LUCRO POR PRODUTO (rateio automático de despesas operacionais)
 // ============================================================
 function finLucroPorProdutoCalc(mes){
-  const vendasMes = db.vendas.filter(v=>v.data&&v.data.startsWith(mes));
+  const vendasMes = db.vendas.filter(v=>v.data&&localDate(v.data).startsWith(mes));
   const paresTotal = vendasMes.reduce((s,v)=>s+(v.itens||[]).reduce((si,i)=>si+(i.qtd||1),0),0);
   const despOp = db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&mv.data.startsWith(mes)&&!mv.vendaId&&mv.categoria!=='Fornecedor / Mercadoria').reduce((s,mv)=>s+mv.val,0);
   const despPorPar = paresTotal>0 ? despOp/paresTotal : 0;
@@ -4019,10 +4039,10 @@ async function confirmarMetas(){
   pgDashboard();
 }
 function semanaAtual(){
-  const hoje=new Date();
+  const hoje=localNoon(today());
   const dom=new Date(hoje);dom.setDate(hoje.getDate()-hoje.getDay());
   const sab=new Date(dom);sab.setDate(dom.getDate()+6);
-  const fmt2=d=>d.toISOString().slice(0,10);
+  const fmt2=d=>localDate(d);
   return {ini:fmt2(dom),fim:fmt2(sab)};
 }
 function barMeta(atual,meta,label){
@@ -4767,9 +4787,9 @@ function enviarWALote(){
 function renderComparativo(){
   const meses=[];
   for(let i=11;i>=0;i--){
-    const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);
-    const ym=d.toISOString().slice(0,7);
-    const vendas=db.vendas.filter(v=>v.data&&v.data.startsWith(ym));
+    const ym=shiftMonth(thisMonth(),-i);
+    const d=localNoon(ym+'-01');
+    const vendas=db.vendas.filter(v=>v.data&&localDate(v.data).startsWith(ym));
     const fat=vendas.reduce((s,v)=>s+v.total,0);
     const custos=vendas.reduce((s,v)=>{
       const lc=calcLucroVenda(v);return s+lc.custo+lc.taxaDesc;},0);
@@ -4812,9 +4832,9 @@ function renderComparativo(){
 function expComparativo(){
   const meses=[];
   for(let i=11;i>=0;i--){
-    const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);
-    const ym=d.toISOString().slice(0,7);
-    const vendas=db.vendas.filter(v=>v.data&&v.data.startsWith(ym));
+    const ym=shiftMonth(thisMonth(),-i);
+    const d=localNoon(ym+'-01');
+    const vendas=db.vendas.filter(v=>v.data&&localDate(v.data).startsWith(ym));
     const fat=vendas.reduce((s,v)=>s+v.total,0);
     const custos=vendas.reduce((s,v)=>{const lc=calcLucroVenda(v);return s+lc.custo+lc.taxaDesc;},0);
     meses.push([d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}),vendas.length,fat.toFixed(2),(fat-custos).toFixed(2)]);
@@ -4830,7 +4850,7 @@ function renderDRE(anoSel){
   const meses=[];
   for(let m=1;m<=12;m++){
     const ym=ano+'-'+(String(m).padStart(2,'0'));
-    const vms=db.vendas.filter(v=>v.data&&v.data.startsWith(ym));
+    const vms=db.vendas.filter(v=>v.data&&localDate(v.data).startsWith(ym));
     const recBruto=vms.reduce((s,v)=>s+v.total,0);
     const taxa=vms.reduce((s,v)=>{const l=calcLucroVenda(v);return s+l.taxaDesc;},0);
     const cme=vms.reduce((s,v)=>{const l=calcLucroVenda(v);return s+l.custo;},0);
@@ -5043,7 +5063,7 @@ function renderMetasVendedorPanel(){
   if(!ses?.usuario?.role==='vendedor')return'';
   const meta=getMetasVendedor()[ses.usuario.id];
   if(!meta||!meta.mes)return'';
-  const vm=db.vendas.filter(v=>v.vendedorId===ses.usuario.id&&v.data&&v.data.startsWith(thisMonth()));
+  const vm=db.vendas.filter(v=>v.vendedorId===ses.usuario.id&&v.data&&localDate(v.data).startsWith(thisMonth()));
   const tm=vm.reduce((s,v)=>s+v.total,0);
   return barMeta(tm,meta.mes,'Sua Meta Mensal');
 }
