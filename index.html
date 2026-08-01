@@ -29,6 +29,7 @@
   --blue:#74acea;--bluedim:#16273f;
   --gold:#ccac7c;--golddim:#33280f;
   --winedim:#331621;--winetext:#edb7c6;
+  --scrollbar-thumb:#4f4260;--scrollbar-thumb-hover:#66527a;
 }
 [data-theme="light"]{
   --bg:#faf7f9;--bg2:#ffffff;--bg3:#f4eef2;--bg4:#ebe3e9;
@@ -46,6 +47,7 @@
   --blue:#3070bf;--bluedim:#e6eefa;
   --gold:#9a7736;--golddim:#f2ebd8;
   --winedim:#f6e5ec;--winetext:#8b2d43;
+  --scrollbar-thumb:#c9b8c5;--scrollbar-thumb-hover:#b39fb0;
 }
 :root{
   --wine:#8b2d43;--wine2:#a5384f;--wine3:#5c1a2a;
@@ -56,9 +58,15 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;transition:background .2s,color .2s}
-::-webkit-scrollbar{width:4px;height:4px}
+*{scrollbar-width:thin;scrollbar-color:var(--scrollbar-thumb) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:10px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--scrollbar-thumb-hover);background-clip:padding-box}
+.scroll-cue{position:absolute;left:0;right:0;bottom:0;height:30px;background:linear-gradient(to bottom,transparent,var(--cue-bg,var(--bg2)) 78%);pointer-events:none;opacity:0;transition:opacity .2s;z-index:5}
+.scroll-cue.show{opacity:1}
+.scroll-cue::after{content:'▼';position:absolute;left:50%;bottom:3px;transform:translateX(-50%);font-size:9px;color:var(--text3);animation:cueBounce 1.3s ease-in-out infinite}
+@keyframes cueBounce{0%,100%{transform:translate(-50%,-1px)}50%{transform:translate(-50%,3px)}}
 .ico{width:18px;height:18px;display:inline-block;vertical-align:-.15em;fill:none;stroke:currentColor;stroke-width:1.6;flex-shrink:0}
 button{font-family:var(--font-body);cursor:pointer}
 input,select,textarea{font-family:var(--font-body)}
@@ -565,7 +573,10 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
       <div class="u-name" id="sb-name">—</div>
       <div class="u-role" id="sb-role">—</div>
     </div>
-    <nav id="snav" style="margin-top:4px;flex:1;overflow-y:auto"></nav>
+    <div style="margin-top:4px;flex:1;position:relative;overflow:hidden">
+      <nav id="snav" style="height:100%;overflow-y:auto"></nav>
+      <div class="scroll-cue" id="snav-cue" style="--cue-bg:var(--sidebar-bg)"></div>
+    </div>
     <div class="sidebar-bottom">
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Alternar tema"><svg class="ico"><use href="#i-moon"/></svg></button>
       <button class="btn ghost flex-1" onclick="doLogout()" style="justify-content:center;font-size:12px">⎋ Sair</button>
@@ -1078,6 +1089,28 @@ function buildNav(){
       <span class="ni drag-handle" title="Arrastar para reordenar" style="cursor:grab;opacity:.45;font-size:11px;margin-right:2px">⠿</span>
       <span class="ni">${icon(n.ic)}</span><span>${n.lb}</span>
     </div>`).join('');
+  setupScrollCue('snav','snav-cue');
+}
+// Mostra uma dica visual (gradiente + seta) quando a área tem mais conteúdo abaixo do que cabe na tela,
+// já que a barra de rolagem sozinha é fácil de não notar em telas menores (notebook/desktop com pouca altura).
+function updateScrollCue(scrollId,cueId){
+  const s=document.getElementById(scrollId),c=document.getElementById(cueId);
+  if(!s||!c)return;
+  const more=s.scrollHeight-s.scrollTop-s.clientHeight>4;
+  c.classList.toggle('show',more);
+}
+function setupScrollCue(scrollId,cueId){
+  const s=document.getElementById(scrollId),c=document.getElementById(cueId);
+  if(!s||!c)return;
+  const upd=()=>updateScrollCue(scrollId,cueId);
+  if(!s._cueBound){
+    s._cueBound=true;
+    s.addEventListener('scroll',upd,{passive:true});
+    new MutationObserver(upd).observe(s,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']});
+    new ResizeObserver(upd).observe(s);
+    window.addEventListener('resize',upd);
+  }
+  upd();
 }
 let _navDragId=null;
 function navDragStart(e,id){_navDragId=id;e.currentTarget.style.opacity='.4';}
@@ -1718,7 +1751,8 @@ function pgVenda(){
         <button class="btn xs danger" onclick="limpaCart()">Limpar</button>
       </div>
       <!-- Área rolável: itens + dados da venda -->
-      <div style="flex:1;overflow-y:auto">
+      <div style="flex:1;position:relative;overflow:hidden">
+      <div id="vscroll" style="height:100%;overflow-y:auto">
         <div id="cbody" style="padding:8px">
           <div class="empty"><div class="ei">${icon('bag')}</div><p>Adicione produtos</p></div>
         </div>
@@ -1783,6 +1817,8 @@ function pgVenda(){
           `:''}
         </div>
       </div>
+      <div class="scroll-cue" id="vscroll-cue"></div>
+      </div>
       <!-- Totais -->
       <div style="padding:14px 16px;border-top:1px solid var(--border);background:var(--bg3);flex-shrink:0">
         <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text2);padding:3px 0">
@@ -1805,6 +1841,7 @@ function pgVenda(){
   // Inicializar
   onPgChange();
   renderPCards();
+  setupScrollCue('vscroll','vscroll-cue');
 }
 function toggleCartMobile(){
   const el=document.getElementById('venda-right');
