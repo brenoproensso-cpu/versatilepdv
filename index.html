@@ -85,7 +85,7 @@ a{color:inherit;text-decoration:none}
 .prod-card-grade{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
 .prod-card-acts{display:flex;gap:6px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px;flex-wrap:wrap}
 .prod-card-acts .btn{flex:1;justify-content:center;min-width:70px}
-.flex{display:flex}.flex-col{flex-direction:column}
+.flex{display:flex}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}
 .items-center{align-items:center}.justify-between{justify-content:space-between}.justify-end{justify-content:flex-end}
 .gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}
 .w-full{width:100%}.flex-1{flex:1}
@@ -1039,9 +1039,12 @@ function rtHandle(table,payload){
 }
 function rtRefreshPage(table){
   const pg=curPage;
+  if(pg==='venda'){ if(table==='produtos') renderPCards(); return; }
+  // Não interrompe quem está digitando/editando (ex: busca no Estoque) — uma mudança em
+  // tempo real (venda em outro caixa, etc.) não pode recriar a página embaixo do usuário.
+  if(!_paginaSeguraParaRerender()) return;
   if(pg==='dashboard') goTo('dashboard');
   else if(pg==='estoque'&&table==='produtos') goTo('estoque');
-  else if(pg==='venda'&&table==='produtos') renderPCards();
   else if(pg==='clientes'&&table==='clientes') goTo('clientes');
   else if(pg==='historico'&&table==='vendas') goTo('historico');
   else if(pg==='caixa'&&(table==='vendas'||table==='caixas')) goTo('caixa');
@@ -1254,6 +1257,7 @@ const GRADES={
 let gpCustom=[];
 
 let _estFiltro=null;
+let _estSel=new Set();
 const EST_TABS=[
   {id:'produtos',ic:'box',lb:'Produtos',roles:['admin','vendedor']},
   {id:'fornecedores',ic:'truck',lb:'Fornecedores',roles:['admin']},
@@ -1298,8 +1302,11 @@ function renderEstoqueShell(){
 }
 function renderEstoqueProdutos(){
   const admin=temPerm('estoque');
-  _estFiltro={tab:'com',marca:'todas',categoria:'todas',ordenar:'nome',busca:''};
-  const thAdmin=isAdmin()?'<th>Custo</th><th>Margem</th>':'';
+  const adm2=isAdmin();
+  _estFiltro={tab:'com',marca:'todas',categoria:'todas',ordenar:'nome',busca:'',semPreco:false,semCusto:false,soNumero:''};
+  _estSel=new Set();
+  const thAdmin=adm2?'<th>Custo</th><th>Margem</th>':'';
+  const thSel=admin?'<th style="width:28px"><input type="checkbox" id="estoque-selall" title="Selecionar todos os visíveis" onchange="estToggleSelAll(this.checked)"></th>':'';
   const thAcoes=admin?'<th></th>':'';
   document.getElementById('est-subview').innerHTML=
     '<div class="card mb-3"><div class="srch"><span class="srch-ic">'+icon('search')+'</span>'+
@@ -1314,10 +1321,17 @@ function renderEstoqueProdutos(){
           '<option value="nome">Nome (A-Z)</option><option value="estoque-asc">Estoque: menor → maior</option><option value="estoque-desc">Estoque: maior → menor</option><option value="margem">Margem</option>'+
         '</select></div>'+
       '</div>'+
+      '<div class="flex gap-3 items-center flex-wrap" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">'+
+        '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;flex-shrink:0;white-space:nowrap"><input type="checkbox" id="estoque-flt-sempreco"> Sem preço de venda</label>'+
+        (adm2?'<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;flex-shrink:0;white-space:nowrap"><input type="checkbox" id="estoque-flt-semcusto"> Sem preço de custo</label>':'')+
+        '<div class="flex items-center gap-2" style="flex-shrink:0;white-space:nowrap"><label class="form-label" style="margin:0">Só restou o nº</label><input class="form-control" type="number" id="estoque-flt-numero" style="width:80px;height:34px" placeholder="Ex: 37"></div>'+
+        '<button class="btn xs ghost" style="flex-shrink:0;white-space:nowrap" onclick="estLimparFiltrosAvancados()">Limpar filtros</button>'+
+      '</div>'+
     '</div>'+
+    '<div id="estoque-bulkbar"></div>'+
     '<div id="estoque-aviso"></div>'+
     '<div class="card estoque-table-view"><div class="table-wrap"><table>'+
-    '<thead><tr><th>Cód.</th><th>Produto</th><th>Marca/Cor</th><th>Números</th>'+thAdmin+'<th>Venda</th><th>Pares</th><th>Status</th>'+thAcoes+'</tr></thead>'+
+    '<thead><tr>'+thSel+'<th>Cód.</th><th>Produto</th><th>Marca/Cor</th><th>Números</th>'+thAdmin+'<th>Venda</th><th>Pares</th><th>Status</th>'+thAcoes+'</tr></thead>'+
     '<tbody id="estoque-tbody"></tbody>'+
     '</table></div></div>'+
     '<div class="estoque-cards-view" id="estoque-cards"></div>'+
@@ -1326,6 +1340,15 @@ function renderEstoqueProdutos(){
   document.getElementById('estoque-marca').onchange=function(){_estFiltro.marca=this.value;renderEstoqueList();};
   document.getElementById('estoque-cat').onchange=function(){_estFiltro.categoria=this.value;renderEstoqueList();};
   document.getElementById('estoque-ord').onchange=function(){_estFiltro.ordenar=this.value;renderEstoqueList();};
+  document.getElementById('estoque-flt-sempreco').onchange=function(){_estFiltro.semPreco=this.checked;renderEstoqueList();};
+  const semCustoEl=document.getElementById('estoque-flt-semcusto');
+  if(semCustoEl) semCustoEl.onchange=function(){_estFiltro.semCusto=this.checked;renderEstoqueList();};
+  const numEl=document.getElementById('estoque-flt-numero');
+  let numTimer=null;
+  numEl.addEventListener('input',function(){
+    clearTimeout(numTimer);
+    numTimer=setTimeout(function(){ _estFiltro.soNumero=numEl.value.trim(); renderEstoqueList(); },200);
+  });
   // Bind search
   const input=document.getElementById('estoque-busca');
   let timer=null;
@@ -1424,8 +1447,10 @@ function estRowTabela(p,isAdm,canEdit){
   const grVisual=estGradeTabela(p,canEdit);
   const tdAdmin=isAdm?'<td class="text-dim" style="white-space:nowrap">'+(p.custo?fmt(p.custo):'—')+'</td><td style="white-space:nowrap">'+(margem!==null?'<span class="badge '+(margem>=30?'green':margem>=15?'amber':'red')+'">'+margem+'%</span>':'—')+'</td>':'';
   const tdAcoes=canEdit?('<td><div class="flex gap-2"><button class="btn xs" onclick="verHistoricoEstoque(&apos;'+p.id+'&apos;)">'+icon('clipboard')+'</button><button class="btn xs" onclick="abrirAjusteEstoque(&apos;'+p.id+'&apos;)">±</button><button class="btn xs" onclick="openProdModal(&apos;'+p.id+'&apos;)">'+icon('edit')+'</button>'+( isAdm?'<button class="btn xs danger" onclick="delProd(&apos;'+p.id+'&apos;)">'+icon('trash')+'</button>':'' )+'</div></td>'):'';
+  const tdSel=canEdit?'<td><input type="checkbox" class="est-sel-cb" data-id="'+p.id+'" '+(_estSel.has(p.id)?'checked':'')+' onchange="estToggleSel(&apos;'+p.id+'&apos;,this.checked)"></td>':'';
   const fotoHtml=p.foto?'<img src="'+p.foto+'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0">':'<div style="width:36px;height:36px;background:var(--bg4);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">'+icon('box')+'</div>';
   return'<tr>'+
+    tdSel+
     '<td class="text-xs text-dim" style="white-space:nowrap">'+(p.cod||'—')+'</td>'+
     '<td><div style="display:flex;align-items:center;gap:8px">'+fotoHtml+'<div><div class="td-name">'+p.nome+'</div><div style="font-size:11px;color:var(--text3)">'+(p.obs||'')+'</div></div></div></td>'+
     '<td style="white-space:nowrap">'+(p.marca||'—')+(p.cor?' · '+p.cor:'')+'</td>'+
@@ -1469,6 +1494,16 @@ function renderEstoqueList(){
   let base=db.produtos.filter(p=>!q||[p.nome,p.marca,p.cod,p.cor,p.obs].join(' ').toLowerCase().includes(q));
   if(_estFiltro.marca!=='todas') base=base.filter(p=>(p.marca||'')===_estFiltro.marca);
   if(_estFiltro.categoria!=='todas') base=base.filter(p=>(p.obs||'')===_estFiltro.categoria);
+  if(_estFiltro.semPreco) base=base.filter(p=>!p.preco);
+  if(_estFiltro.semCusto) base=base.filter(p=>!p.custo);
+  if(_estFiltro.soNumero){
+    const alvo=String(_estFiltro.soNumero);
+    base=base.filter(p=>{
+      if(!p.grade||!p.grade.length) return false;
+      const comEstoque=p.grade.filter(g=>g.q>0).map(g=>String(g.n));
+      return comEstoque.length===1 && comEstoque[0]===alvo;
+    });
+  }
 
   const comCount=base.filter(p=>estCalcProd(p).tot>0).length;
   const semCount=base.filter(p=>estCalcProd(p).tot===0).length;
@@ -1493,12 +1528,119 @@ function renderEstoqueList(){
     ? '<div style="padding:8px 14px;background:var(--reddim);border:1px solid var(--red);border-radius:var(--r);margin-bottom:14px;font-size:12px;color:var(--red)">'+list.length+' produto(s) sem estoque — repor ou desativar</div>'
     : '';
 
-  const colSpan=4+(isAdm?2:0)+3+(canEdit?1:0);
+  const colSpan=4+(isAdm?2:0)+3+(canEdit?2:0);
   const tbody=document.getElementById('estoque-tbody');
   if(tbody) tbody.innerHTML=list.map(p=>estRowTabela(p,isAdm,canEdit)).join('')||'<tr><td colspan="'+colSpan+'"><div class="empty"><div class="ei">'+icon('box')+'</div><p>Nenhum produto</p></div></td></tr>';
 
   const cardsEl=document.getElementById('estoque-cards');
   if(cardsEl) cardsEl.innerHTML=list.map(p=>estCardMobile(p,isAdm,canEdit)).join('')||'<div class="empty"><div class="ei">'+icon('box')+'</div><p>Nenhum produto</p></div>';
+
+  // Mantém a seleção só com produtos que ainda estão na lista filtrada (evita "fantasmas" escondidos)
+  const idsVisiveis=new Set(list.map(p=>p.id));
+  [..._estSel].forEach(id=>{ if(!idsVisiveis.has(id)) _estSel.delete(id); });
+  const selAllEl=document.getElementById('estoque-selall');
+  if(selAllEl) selAllEl.checked = list.length>0 && list.every(p=>_estSel.has(p.id));
+
+  const bulkEl=document.getElementById('estoque-bulkbar');
+  if(bulkEl) bulkEl.innerHTML = (canEdit && _estSel.size) ? (
+    '<div class="card mb-3" style="background:var(--winedim);border-color:var(--wine3)"><div class="flex items-center gap-2 flex-wrap">'+
+      '<strong style="color:var(--winetext)">'+_estSel.size+' selecionado(s)</strong>'+
+      '<button class="btn xs" onclick="estBulkPreco()">Ajustar preço de venda</button>'+
+      (isAdm?'<button class="btn xs" onclick="estBulkCusto()">Ajustar preço de custo</button>':'')+
+      '<button class="btn xs" onclick="estBulkCampo(\'marca\',\'Marca\')">Definir marca</button>'+
+      '<button class="btn xs" onclick="estBulkCampo(\'obs\',\'Categoria\')">Definir categoria</button>'+
+      '<button class="btn xs danger" onclick="estBulkExcluir()">'+icon('trash')+' Excluir selecionados</button>'+
+      '<button class="btn xs ghost" onclick="estLimparSelecao()">Limpar seleção</button>'+
+    '</div></div>'
+  ) : '';
+}
+function estLimparFiltrosAvancados(){
+  _estFiltro.semPreco=false; _estFiltro.semCusto=false; _estFiltro.soNumero='';
+  const c1=document.getElementById('estoque-flt-sempreco'); if(c1)c1.checked=false;
+  const c2=document.getElementById('estoque-flt-semcusto'); if(c2)c2.checked=false;
+  const c3=document.getElementById('estoque-flt-numero'); if(c3)c3.value='';
+  renderEstoqueList();
+}
+function estToggleSel(id,checked){ if(checked)_estSel.add(id); else _estSel.delete(id); renderEstoqueList(); }
+function estToggleSelAll(checked){
+  const ids=[...document.querySelectorAll('.est-sel-cb')].map(el=>el.dataset.id);
+  if(checked) ids.forEach(id=>_estSel.add(id));
+  else ids.forEach(id=>_estSel.delete(id));
+  renderEstoqueList();
+}
+function estLimparSelecao(){ _estSel.clear(); renderEstoqueList(); }
+async function estBulkPreco(){
+  if(!_estSel.size) return;
+  const input=prompt('Ajustar PREÇO DE VENDA de '+_estSel.size+' produto(s) selecionado(s).\n\nDigite um percentual (ex: 10 para +10%, -15 para -15%)\nou um valor fixo com "=" na frente (ex: =99.90 para definir R$99,90 em todos):');
+  if(input==null) return;
+  const txt=input.trim(); if(!txt) return;
+  const ids=[..._estSel];
+  try{
+    showLoading(true,'Atualizando preços...');
+    for(const id of ids){
+      const p=db.produtos.find(x=>x.id===id); if(!p) continue;
+      let novo;
+      if(txt.startsWith('=')) novo=parseFloat(txt.slice(1).replace(',','.'))||0;
+      else novo=+((p.preco||0)*(1+(parseFloat(txt.replace(',','.'))||0)/100)).toFixed(2);
+      await saveProduto({...p,preco:novo});
+    }
+    showLoading(false);
+    registrarAudit('ESTOQUE_AJUSTE_MASSA','Preço de venda ajustado em massa ('+ids.length+' produtos): '+txt);
+    notify('Preço de venda atualizado em '+ids.length+' produto(s)!');
+    pgEstoque();
+  }catch(e){ showLoading(false); notify('Erro ao atualizar: '+e.message,'err'); }
+}
+async function estBulkCusto(){
+  if(!_estSel.size) return;
+  const input=prompt('Ajustar PREÇO DE CUSTO de '+_estSel.size+' produto(s) selecionado(s).\n\nDigite um percentual (ex: 10 para +10%, -15 para -15%)\nou um valor fixo com "=" na frente (ex: =59.90 para definir R$59,90 em todos):');
+  if(input==null) return;
+  const txt=input.trim(); if(!txt) return;
+  const ids=[..._estSel];
+  try{
+    showLoading(true,'Atualizando custos...');
+    for(const id of ids){
+      const p=db.produtos.find(x=>x.id===id); if(!p) continue;
+      let novo;
+      if(txt.startsWith('=')) novo=parseFloat(txt.slice(1).replace(',','.'))||0;
+      else novo=+((p.custo||0)*(1+(parseFloat(txt.replace(',','.'))||0)/100)).toFixed(2);
+      await saveProduto({...p,custo:novo});
+    }
+    showLoading(false);
+    registrarAudit('ESTOQUE_AJUSTE_MASSA','Preço de custo ajustado em massa ('+ids.length+' produtos): '+txt);
+    notify('Preço de custo atualizado em '+ids.length+' produto(s)!');
+    pgEstoque();
+  }catch(e){ showLoading(false); notify('Erro ao atualizar: '+e.message,'err'); }
+}
+async function estBulkCampo(campo,label){
+  if(!_estSel.size) return;
+  const val=prompt('Definir "'+label+'" para os '+_estSel.size+' produto(s) selecionado(s):');
+  if(val==null) return;
+  const ids=[..._estSel];
+  try{
+    showLoading(true,'Atualizando...');
+    for(const id of ids){
+      const p=db.produtos.find(x=>x.id===id); if(!p) continue;
+      await saveProduto({...p,[campo]:val.trim()});
+    }
+    showLoading(false);
+    registrarAudit('ESTOQUE_AJUSTE_MASSA',label+' definido em massa para "'+val.trim()+'" ('+ids.length+' produtos)');
+    notify(label+' atualizado em '+ids.length+' produto(s)!');
+    pgEstoque();
+  }catch(e){ showLoading(false); notify('Erro ao atualizar: '+e.message,'err'); }
+}
+async function estBulkExcluir(){
+  if(!_estSel.size) return;
+  if(!confirm('Excluir '+_estSel.size+' produto(s) selecionado(s)? Esta ação não pode ser desfeita.')) return;
+  const ids=[..._estSel];
+  try{
+    showLoading(true,'Excluindo...');
+    for(const id of ids){ await deleteProduto(id); }
+    _estSel.clear();
+    showLoading(false);
+    registrarAudit('ESTOQUE_EXCLUSAO_MASSA', ids.length+' produto(s) excluído(s) em massa');
+    notify(ids.length+' produto(s) excluído(s)!','warn');
+    pgEstoque();
+  }catch(e){ showLoading(false); notify('Erro ao excluir: '+e.message,'err'); }
 }
 
 function calcMarkup(){
