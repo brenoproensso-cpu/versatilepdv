@@ -3318,6 +3318,10 @@ async function loadAll(){
 function _paginaSeguraParaRerender(){
   if(curPage==='venda') return false;
   if(document.querySelector('.modal-backdrop:not(.hidden)')) return false;
+  // Não interrompe quem está digitando/selecionando um filtro (ex: busca no Estoque) —
+  // a atualização automática recria a página e zeraria o que a pessoa estava digitando.
+  const ae=document.activeElement;
+  if(ae && document.getElementById('page')?.contains(ae) && ['INPUT','SELECT','TEXTAREA'].includes(ae.tagName)) return false;
   return true;
 }
 // Atualização silenciosa (sem overlay) — usada pela reconexão automática e pelo botão manual
