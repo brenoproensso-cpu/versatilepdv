@@ -2336,8 +2336,9 @@ async function finalizarVenda(){
     });
   }
   try{
-    // salvar venda, movimento e produtos em paralelo
-    const movObj={tipo:'entrada',desc:'Venda #'+venda.id+(venda.clienteNome?' — '+venda.clienteNome:'')+(retroAtiva?' (retroativa)':''),val:tot,data:retroAtiva?retroDataYMD:today(),vendaId:venda.id};
+    // salvar venda e produtos em paralelo — o lançamento financeiro da venda é
+    // criado automaticamente por trigger no banco (atômico com o insert da venda,
+    // não depende de uma segunda chamada de rede que pode falhar separadamente).
     await Promise.all([
       saveVenda(venda),
       ...produtosAlterar.map(p=>sbPatch('produtos',`id=eq.${p.id}`,{grade:p.grade,qtd:p.qtd}))
@@ -2346,7 +2347,6 @@ async function finalizarVenda(){
   if(!(retroAtiva&&retroNaoEstoque)){
     venda.itens?.forEach(item=>{ if(!item.avulso) addMovEstoque(item.id,'VENDA',-item.qtd,'Venda '+venda.id,item.tam||null); });
   }
-    await saveMovimento(movObj);
     cart=[];vendaCliId=null;vendaCliNome='';
     if(retroAtiva){
       const chk=document.getElementById('usar-retroativa');if(chk)chk.checked=false;
