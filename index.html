@@ -602,7 +602,12 @@ tr.h-exp-row td{padding:0;background:var(--bg2)}
 const LOCAL_KEY = 'versatile_local_v1';
 const SB_URL  = 'https://gdlluupqfvnzfocgzqmf.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdkbGx1dXBxZnZuemZvY2d6cW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzc2NTAsImV4cCI6MjA4OTcxMzY1MH0.ICm0IaV_0ZXImdPpjgQsXSJQxuqLMsxD27TKia_pS20';
-function sbH(x){return Object.assign({'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON,'Content-Type':'application/json'},x||{});}
+// Cliente único para autenticação (login real via Supabase Auth) + realtime.
+// sbH() usa o token da sessão autenticada quando existe; sem sessão, cai pro anon (só leitura pública, se houver).
+const _authClient = supabase.createClient(SB_URL, SB_ANON, {realtime:{params:{eventsPerSecond:5}}});
+let _authToken = null;
+_authClient.auth.onAuthStateChange((_evt, session)=>{ _authToken = (session && session.access_token) || null; });
+function sbH(x){return Object.assign({'apikey':SB_ANON,'Authorization':'Bearer '+(_authToken||SB_ANON),'Content-Type':'application/json'},x||{});}
 async function sbGet(t,f,o,s){
   s=s||'*';f=f||'';o=o||'';
   let u=SB_URL+'/rest/v1/'+t+'?select='+s;
@@ -932,6 +937,16 @@ async function doLogin(){
     const res=await r.json();
     if(!res.ok){err.textContent='Usuário ou senha incorretos';err.style.color='var(--red)';err.classList.remove('hidden');if(btn){btn.textContent='Entrar';btn.disabled=false;}return;}
     const user=res.usuario;
+    // Abre sessão real no Supabase Auth (necessária pra RLS liberar acesso às tabelas) usando o mesmo usuário/senha.
+    const {data:authData,error:authErr}=await _authClient.auth.signInWithPassword({email:u+'@versatilepdv.local',password:p});
+    if(authErr||!authData.session){
+      showLoading(false);
+      err.textContent='Não foi possível abrir sessão segura. Contate o suporte.';err.style.color='var(--red)';err.classList.remove('hidden');
+      if(btn){btn.textContent='Entrar';btn.disabled=false;}
+      console.error('AUTH:',authErr);
+      return;
+    }
+    _authToken=authData.session.access_token;
     ses={usuario:{id:user.id,nome:user.nome,username:user.username,role:user.role,ativo:user.ativo,criado:user.criado,permissoes:user.permissoes||null}};
     await loadAll();
     document.getElementById('login-screen').classList.add('hidden');
@@ -954,6 +969,8 @@ function doLogout(){
   db={usuarios:[],produtos:[],clientes:[],vendas:[],movimentos:[],caixas:[]};
   rtStop();
   stopAutoRefreshLoop();
+  _authClient.auth.signOut();
+  _authToken=null;
   document.getElementById('app').classList.add('hidden');
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('lu').value='';document.getElementById('lp').value='';
@@ -962,11 +979,10 @@ function doLogout(){
 // ============================================================
 // REALTIME — sincronização automática entre dispositivos
 // ============================================================
-let _sbClient=null, _rtChannel=null;
+let _rtChannel=null;
 function rtStart(){
   if(_rtChannel) return;
-  _sbClient=supabase.createClient(SB_URL,SB_ANON,{realtime:{params:{eventsPerSecond:5}}});
-  _rtChannel=_sbClient.channel('db-sync')
+  _rtChannel=_authClient.channel('db-sync')
     .on('postgres_changes',{event:'*',schema:'public',table:'produtos'},p=>rtHandle('produtos',p))
     .on('postgres_changes',{event:'*',schema:'public',table:'vendas'},p=>rtHandle('vendas',p))
     .on('postgres_changes',{event:'*',schema:'public',table:'clientes'},p=>rtHandle('clientes',p))
@@ -981,8 +997,7 @@ function rtStart(){
     });
 }
 function rtStop(){
-  if(_rtChannel){_rtChannel.unsubscribe();_rtChannel=null;}
-  if(_sbClient){_sbClient.removeAllChannels();_sbClient=null;}
+  if(_rtChannel){_rtChannel.unsubscribe();_authClient.removeAllChannels();_rtChannel=null;}
 }
 // --- Recuperação ao voltar o foco/aba/conexão (celular trava socket em segundo plano) ---
 let _rtHealthBusy=false;
@@ -3387,7 +3402,7 @@ async function _fetchAndApplyData(){
     try{
       const opts = t.rpc
         ? {method:'POST',headers:sbH(),body:'{}'}
-        : {headers:{'apikey':SB_ANON,'Authorization':'Bearer '+SB_ANON}};
+        : {headers:sbH()};
       const r = await fetch(t.url, opts);
       const txt = await r.text();
       if(r.ok){
