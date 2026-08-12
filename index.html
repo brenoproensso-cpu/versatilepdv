@@ -964,16 +964,13 @@ async function doLogin(){
   }
   if(btn){btn.textContent='Entrar';btn.disabled=false;}
 }
-function doLogout(){
-  ses=null;cart=[];
-  db={usuarios:[],produtos:[],clientes:[],vendas:[],movimentos:[],caixas:[]};
+async function doLogout(){
   rtStop();
   stopAutoRefreshLoop();
-  _authClient.auth.signOut();
-  _authToken=null;
-  document.getElementById('app').classList.add('hidden');
-  document.getElementById('login-screen').classList.remove('hidden');
-  document.getElementById('lu').value='';document.getElementById('lp').value='';
+  await _authClient.auth.signOut();
+  // Recarrega a página: garante que a próxima conta a logar comece com o socket
+  // de tempo real e o cliente de auth 100% limpos, sem sobra da sessão anterior.
+  location.reload();
 }
 
 // ============================================================
