@@ -977,8 +977,9 @@ async function doLogout(){
 // REALTIME — sincronização automática entre dispositivos
 // ============================================================
 let _rtChannel=null;
+let _rtStopping=false;
 function rtStart(){
-  if(_rtChannel) return;
+  if(_rtChannel||_rtStopping) return;
   _rtChannel=_authClient.channel('db-sync')
     .on('postgres_changes',{event:'*',schema:'public',table:'produtos'},p=>rtHandle('produtos',p))
     .on('postgres_changes',{event:'*',schema:'public',table:'vendas'},p=>rtHandle('vendas',p))
@@ -986,15 +987,24 @@ function rtStart(){
     .on('postgres_changes',{event:'*',schema:'public',table:'movimentos'},p=>rtHandle('movimentos',p))
     .on('postgres_changes',{event:'*',schema:'public',table:'caixas'},p=>rtHandle('caixas',p))
     .subscribe(status=>{
-      // Conexão caiu (rede, app em segundo plano, etc.) — reconecta sozinho
-      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
+      // Conexão caiu (rede, app em segundo plano, etc.) — reconecta sozinho.
+      // _rtStopping evita reentrada: unsubscribe() dispara esse mesmo callback de
+      // novo, de forma síncrona, e sem essa trava ele chamava rtStop() por cima
+      // de si mesmo indefinidamente (stack overflow) sempre que a reconexão falhava.
+      if((status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED')&&!_rtStopping){
         rtStop();
         setTimeout(()=>{ if(ses) rtStart(); },3000);
       }
     });
 }
 function rtStop(){
-  if(_rtChannel){_rtChannel.unsubscribe();_authClient.removeAllChannels();_rtChannel=null;}
+  if(!_rtChannel||_rtStopping) return;
+  _rtStopping=true;
+  const ch=_rtChannel;
+  _rtChannel=null;
+  ch.unsubscribe();
+  _authClient.removeAllChannels();
+  _rtStopping=false;
 }
 // --- Recuperação ao voltar o foco/aba/conexão (celular trava socket em segundo plano) ---
 let _rtHealthBusy=false;
