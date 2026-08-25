@@ -1446,7 +1446,7 @@ function renderEstoqueProdutos(){
 }
 
 function estCalcProd(p){
-  const tot=p.grade?p.grade.reduce((s,g)=>s+g.q,0):(p.qtd||0);
+  const tot=p.grade&&p.grade.length?p.grade.reduce((s,g)=>s+g.q,0):(p.qtd||0);
   const st=tot===0?'red':tot<=(p.min||2)?'amber':'green';
   const lab=tot===0?'Esgotado':tot<=(p.min||2)?'Baixo':'OK';
   const margem=p.custo&&p.preco?Math.round(((p.preco-p.custo)/p.preco)*100):null;
@@ -2371,7 +2371,7 @@ async function finalizarVenda(){
       const p=db.produtos.find(x=>x.id===ci.id);if(!p)return;
       if(p.grade&&ci.tam){const g=p.grade.find(x=>x.n===ci.tam);if(g)g.q=Math.max(0,g.q-ci.qtd);}
       else p.qtd=Math.max(0,(p.qtd||0)-ci.qtd);
-      p.qtd=p.grade?p.grade.reduce((s,g)=>s+g.q,0):p.qtd;
+      p.qtd=p.grade&&p.grade.length?p.grade.reduce((s,g)=>s+g.q,0):p.qtd;
       if(!produtosAlterar.find(x=>x.id===p.id)) produtosAlterar.push(p);
     });
   }
