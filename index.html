@@ -771,7 +771,7 @@ async function saveCliente(obj){
 }
 async function deleteCliente(id){await sbDelete('clientes','id=eq.'+id);db.clientes=db.clientes.filter(x=>x.id!==id);saveLocal();}
 async function saveVenda(obj){
-  const row={id:obj.id,data:obj.data,cliente_id:obj.clienteId||null,cliente_nome:obj.clienteNome||'',pgto:obj.pgto,recebido:obj.recebido,troco:obj.troco,modalidade:obj.modalidade,itens:obj.itens,subtotal:obj.subtotal,desconto:obj.desconto,total:obj.total,vendedor_nome:obj.vendedor,vendedor_id:obj.vendedorId||null};
+  const row={id:obj.id,data:obj.data,cliente_id:obj.clienteId||null,cliente_nome:obj.clienteNome||'',pgto:obj.pgto,recebido:obj.recebido,troco:obj.troco,modalidade:obj.modalidade,itens:obj.itens,subtotal:obj.subtotal,desconto:obj.desconto,total:obj.total,vendedor_nome:obj.vendedor,vendedor_id:obj.vendedorId||null,bandeira:obj.bandeira||null,parcelas:obj.parcelas||1,taxa_maquininha:obj.taxaMaquininha||0,valor_liquido:obj.valorLiquido,desconto_maquininha:obj.descontoMaquininha||0};
   await sbPost('vendas',row);db.vendas.unshift({...obj});saveLocal();
 }
 async function saveMovimento(obj){
