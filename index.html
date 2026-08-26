@@ -4125,18 +4125,25 @@ function finLucroPorProdutoCalc(mes){
   const despOp = db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&mv.data.startsWith(mes)&&!mv.vendaId&&mv.categoria!=='Fornecedor / Mercadoria').reduce((s,mv)=>s+mv.val,0);
   const despPorPar = paresTotal>0 ? despOp/paresTotal : 0;
   const porProduto={};
-  vendasMes.forEach(v=>(v.itens||[]).forEach(item=>{
-    const qtd=item.qtd||1;
-    const prod=db.produtos.find(p=>p.id===item.id);
-    const custoUnit=prod?.custo||0;
-    if(!porProduto[item.id]) porProduto[item.id]={id:item.id,nome:item.nome,marca:item.marca||prod?.marca||'',pares:0,receita:0,custo:0};
-    porProduto[item.id].pares += qtd;
-    porProduto[item.id].receita += (item.preco||0)*qtd;
-    porProduto[item.id].custo += custoUnit*qtd;
-  }));
+  vendasMes.forEach(v=>{
+    const taxaVenda = calcLucroVenda(v).taxaDesc;
+    (v.itens||[]).forEach(item=>{
+      const qtd=item.qtd||1;
+      const prod=db.produtos.find(p=>p.id===item.id);
+      const custoUnit=prod?.custo||0;
+      const receitaItem=(item.preco||0)*qtd;
+      // Rateio da taxa da maquininha proporcional ao valor do item na venda
+      const taxaItem = (taxaVenda>0 && v.total>0) ? taxaVenda*(receitaItem/v.total) : 0;
+      if(!porProduto[item.id]) porProduto[item.id]={id:item.id,nome:item.nome,marca:item.marca||prod?.marca||'',pares:0,receita:0,custo:0,taxaMaquininha:0};
+      porProduto[item.id].pares += qtd;
+      porProduto[item.id].receita += receitaItem;
+      porProduto[item.id].custo += custoUnit*qtd;
+      porProduto[item.id].taxaMaquininha += taxaItem;
+    });
+  });
   const linhas = Object.values(porProduto).map(p=>{
     const despesaRateada = despPorPar*p.pares;
-    const lucroReal = p.receita - p.custo - despesaRateada;
+    const lucroReal = p.receita - p.custo - p.taxaMaquininha - despesaRateada;
     const margem = p.receita>0 ? (lucroReal/p.receita*100) : 0;
     return {...p, despesaRateada, lucroReal, margem};
   }).sort((a,b)=>b.pares-a.pares);
@@ -4150,6 +4157,7 @@ function renderLucroPorProduto(mesVal){
   const totPares=linhas.reduce((s,l)=>s+l.pares,0);
   const totReceita=linhas.reduce((s,l)=>s+l.receita,0);
   const totCusto=linhas.reduce((s,l)=>s+l.custo,0);
+  const totTaxa=linhas.reduce((s,l)=>s+l.taxaMaquininha,0);
   const totDespesa=linhas.reduce((s,l)=>s+l.despesaRateada,0);
   const totLucro=linhas.reduce((s,l)=>s+l.lucroReal,0);
   const margGeral = totReceita>0?(totLucro/totReceita*100):0;
@@ -4170,13 +4178,14 @@ function renderLucroPorProduto(mesVal){
   <div class="card">
     <div class="sec-title">${icon('tag')} Lucro Real por Produto</div>
     ${linhas.length?`<div class="table-wrap"><table>
-      <thead><tr><th>Produto</th><th class="text-right">Pares</th><th class="text-right">Receita</th><th class="text-right">Custo</th><th class="text-right">Despesa Rateada</th><th class="text-right">Lucro Real</th><th class="text-right">Margem</th></tr></thead>
+      <thead><tr><th>Produto</th><th class="text-right">Pares</th><th class="text-right">Receita</th><th class="text-right">Custo</th><th class="text-right">Taxa Maquininha</th><th class="text-right">Despesa Rateada</th><th class="text-right">Lucro Real</th><th class="text-right">Margem</th></tr></thead>
       <tbody>
         ${linhas.map(l=>`<tr>
           <td class="font-med">${l.nome}${l.marca?`<div class="text-xs text-dim">${l.marca}</div>`:''}</td>
           <td class="text-right">${l.pares}</td>
           <td class="text-right">${fmt(l.receita)}</td>
           <td class="text-right text-red">- ${fmt(l.custo)}</td>
+          <td class="text-right text-red">${l.taxaMaquininha>0?'- '+fmt(l.taxaMaquininha):'—'}</td>
           <td class="text-right text-red">- ${fmt(l.despesaRateada)}</td>
           <td class="text-right font-bold ${l.lucroReal>=0?'text-green':'text-red'}">${fmt(l.lucroReal)}</td>
           <td class="text-right">${badgeMargem(l.margem)}</td>
@@ -4187,6 +4196,7 @@ function renderLucroPorProduto(mesVal){
         <td class="text-right">${totPares}</td>
         <td class="text-right">${fmt(totReceita)}</td>
         <td class="text-right text-red">- ${fmt(totCusto)}</td>
+        <td class="text-right text-red">- ${fmt(totTaxa)}</td>
         <td class="text-right text-red">- ${fmt(totDespesa)}</td>
         <td class="text-right ${totLucro>=0?'text-green':'text-red'}">${fmt(totLucro)}</td>
         <td class="text-right">${margGeral.toFixed(1)}%</td>
@@ -4200,8 +4210,8 @@ function expLucroPorProduto(){
   const mes=document.getElementById('lpmes')?.value||_finProdMes||thisMonth();
   const {linhas} = finLucroPorProdutoCalc(mes);
   if(!linhas.length){notify('Nenhuma venda no período','warn');return;}
-  const hds=['Produto','Pares','Receita','Custo','Despesa Rateada','Lucro Real','Margem %'];
-  const rows=linhas.map(l=>[l.nome,l.pares,l.receita.toFixed(2),l.custo.toFixed(2),l.despesaRateada.toFixed(2),l.lucroReal.toFixed(2),l.margem.toFixed(1)]);
+  const hds=['Produto','Pares','Receita','Custo','Taxa Maquininha','Despesa Rateada','Lucro Real','Margem %'];
+  const rows=linhas.map(l=>[l.nome,l.pares,l.receita.toFixed(2),l.custo.toFixed(2),l.taxaMaquininha.toFixed(2),l.despesaRateada.toFixed(2),l.lucroReal.toFixed(2),l.margem.toFixed(1)]);
   dlXL('LucroPorProduto_Versatile.xls',hds,rows);
 }
 
