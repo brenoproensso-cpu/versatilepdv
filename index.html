@@ -1045,7 +1045,7 @@ function rtHandle(table,payload){
     else if(ev==='UPDATE'){const i=db.produtos.findIndex(x=>x.id===p.id);if(i>=0)db.produtos[i]=p;}
     else if(ev==='DELETE'){db.produtos=db.produtos.filter(x=>x.id!==(old.id||row.id));}
   }else if(table==='vendas'){
-    const v={id:row.id,data:row.data,clienteId:row.cliente_id,clienteNome:row.cliente_nome||'',pgto:row.pgto,recebido:parseFloat(row.recebido||0),troco:parseFloat(row.troco||0),modalidade:row.modalidade||'Presencial',itens:row.itens||[],subtotal:parseFloat(row.subtotal||0),desconto:parseFloat(row.desconto||0),total:parseFloat(row.total||0),vendedor:row.vendedor_nome,vendedorId:row.vendedor_id};
+    const v={id:row.id,data:row.data,clienteId:row.cliente_id,clienteNome:row.cliente_nome||'',pgto:row.pgto,recebido:parseFloat(row.recebido||0),troco:parseFloat(row.troco||0),modalidade:row.modalidade||'Presencial',itens:row.itens||[],subtotal:parseFloat(row.subtotal||0),desconto:parseFloat(row.desconto||0),total:parseFloat(row.total||0),vendedor:row.vendedor_nome,vendedorId:row.vendedor_id,bandeira:row.bandeira||null,parcelas:row.parcelas||1,taxaMaquininha:(row.taxa_maquininha!=null?parseFloat(row.taxa_maquininha):null),valorLiquido:(row.valor_liquido!=null?parseFloat(row.valor_liquido):null),descontoMaquininha:(row.desconto_maquininha!=null?parseFloat(row.desconto_maquininha):null)};
     if(ev==='INSERT'){if(!db.vendas.find(x=>x.id===v.id))db.vendas.unshift(v);}
     else if(ev==='UPDATE'){const i=db.vendas.findIndex(x=>x.id===v.id);if(i>=0)db.vendas[i]=v;}
     else if(ev==='DELETE'){db.vendas=db.vendas.filter(x=>x.id!==(old.id||row.id));}
@@ -3468,7 +3468,7 @@ async function _fetchAndApplyData(){
   if(us.length) db.usuarios=(us).map(r=>({id:r.id,nome:r.nome,username:r.username,role:r.role,ativo:r.ativo,criado:r.criado,permissoes:r.permissoes||null}));
   if(pr.length) db.produtos=(pr).map(r=>({id:r.id,cod:r.cod,nome:r.nome,marca:r.marca,cor:r.cor,custo:parseFloat(r.custo||0),preco:parseFloat(r.preco||0),min:r.min||2,obs:r.obs,grade:r.grade||[],qtd:r.qtd||0,tam:r.tam,foto:r.foto||null}));
   if(cl.length) db.clientes=(cl).map(r=>({id:r.id,nome:r.nome,cpf:r.cpf,nasc:r.nasc,whatsapp:r.whatsapp,email:r.email,end:r.endereco,obs:r.obs,criado:r.criado}));
-  if(vn.length) db.vendas=(vn).map(r=>({id:r.id,data:r.data,clienteId:r.cliente_id,clienteNome:r.cliente_nome||'',pgto:r.pgto,recebido:parseFloat(r.recebido||0),troco:parseFloat(r.troco||0),modalidade:r.modalidade||'Presencial',itens:r.itens||[],subtotal:parseFloat(r.subtotal||0),desconto:parseFloat(r.desconto||0),total:parseFloat(r.total||0),vendedor:r.vendedor_nome,vendedorId:r.vendedor_id})).sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;});
+  if(vn.length) db.vendas=(vn).map(r=>({id:r.id,data:r.data,clienteId:r.cliente_id,clienteNome:r.cliente_nome||'',pgto:r.pgto,recebido:parseFloat(r.recebido||0),troco:parseFloat(r.troco||0),modalidade:r.modalidade||'Presencial',itens:r.itens||[],subtotal:parseFloat(r.subtotal||0),desconto:parseFloat(r.desconto||0),total:parseFloat(r.total||0),vendedor:r.vendedor_nome,vendedorId:r.vendedor_id,bandeira:r.bandeira||null,parcelas:r.parcelas||1,taxaMaquininha:(r.taxa_maquininha!=null?parseFloat(r.taxa_maquininha):null),valorLiquido:(r.valor_liquido!=null?parseFloat(r.valor_liquido):null),descontoMaquininha:(r.desconto_maquininha!=null?parseFloat(r.desconto_maquininha):null)})).sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;});
   if(mv.length) db.movimentos=(mv).map(r=>({id:r.id,tipo:r.tipo,desc:r.descricao,val:parseFloat(r.val||0),data:r.data,vendaId:r.venda_id,categoria:r.categoria||null})).sort((a,b)=>b.data>a.data?1:-1);
   if(cx.length) db.caixas=(cx).map(r=>({id:r.id,data:r.data,hora:r.hora,vendedorId:r.vendedor_id,vendedorNome:r.vendedor_nome,total:parseFloat(r.total||0),qtdVendas:r.qtd_vendas||0,obs:r.obs})).sort((a,b)=>b.data>a.data?1:-1);
   if(tn.length){
@@ -4013,9 +4013,9 @@ function calcLucroVenda(v){
   // Taxa da maquininha — usa dado salvo OU recalcula pela forma de pagamento
   let taxaDesc = 0;
   let taxaPct  = 0;
-  if(v.descontoMaquininha){
-    // Dado salvo na venda (vendas novas)
-    taxaDesc = v.descontoMaquininha;
+  if(v.valorLiquido!=null){
+    // Dado salvo na venda (vendas novas) — inclui taxa zero legítima (ex: PIX)
+    taxaDesc = v.descontoMaquininha||0;
     taxaPct  = v.taxaMaquininha || 0;
   } else if(v.total > 0) {
     // Recalcular pela forma de pagamento (vendas antigas)
