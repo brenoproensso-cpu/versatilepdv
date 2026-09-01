@@ -960,6 +960,7 @@ async function doLogin(){
     _authToken=authData.session.access_token;
     ses={usuario:{id:user.id,nome:user.nome,username:user.username,role:user.role,ativo:user.ativo,criado:user.criado,permissoes:user.permissoes||null}};
     await loadAll();
+    _lastRefreshAt=Date.now(); // acabou de carregar tudo fresco — evita recarregar de novo já de cara
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     document.getElementById('sb-name').textContent=ses.usuario.nome;
@@ -1005,6 +1006,10 @@ function rtStart(){
       if((status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED')&&!_rtStopping){
         rtStop();
         setTimeout(()=>{ if(ses) rtStart(); },3000);
+      } else if(status==='SUBSCRIBED'){
+        // Acabou de conectar (ou reconectar) — se ficou um tempo sem receber
+        // eventos, essa é a hora certa de conferir se perdeu alguma mudança.
+        refreshIfNeeded();
       }
     });
 }
@@ -1025,7 +1030,7 @@ async function checkRealtimeHealth(){
   try{
     const state=_rtChannel&&_rtChannel.state;
     if(!_rtChannel||state==='closed'||state==='errored'){ rtStop(); rtStart(); }
-    await refreshDataSilent();
+    await refreshIfNeeded();
   }finally{ _rtHealthBusy=false; }
 }
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') checkRealtimeHealth(); });
@@ -1034,7 +1039,11 @@ window.addEventListener('online',checkRealtimeHealth);
 let _autoRefreshTimer=null;
 function startAutoRefreshLoop(){
   stopAutoRefreshLoop();
-  _autoRefreshTimer=setInterval(()=>{ if(ses&&document.visibilityState==='visible') refreshDataSilent(); },45000);
+  // Rede de segurança de última instância: o tempo real (rtStart) e os gatilhos de
+  // reconexão (foco/visibilidade/online, em checkRealtimeHealth) já cobrem os casos
+  // reais de sincronização perdida. Esse intervalo é só uma garantia extra, por isso
+  // pode ser bem espaçado — evita recarregar as tabelas inteiras sem necessidade.
+  _autoRefreshTimer=setInterval(()=>{ if(ses&&document.visibilityState==='visible') refreshIfNeeded(); },10*60*1000);
 }
 function stopAutoRefreshLoop(){ if(_autoRefreshTimer){clearInterval(_autoRefreshTimer);_autoRefreshTimer=null;} }
 function rtHandle(table,payload){
@@ -3527,9 +3536,17 @@ function _paginaSeguraParaRerender(){
   return true;
 }
 // Atualização silenciosa (sem overlay) — usada pela reconexão automática e pelo botão manual
+let _lastRefreshAt=0;
+const REFRESH_MIN_GAP_MS=20000; // nunca recarrega tudo de novo antes de 20s do último recarregamento
+async function refreshIfNeeded(){
+  if(!ses) return;
+  if(Date.now()-_lastRefreshAt<REFRESH_MIN_GAP_MS) return; // já recarregou há pouco, evita rajada de recargas
+  await refreshDataSilent();
+}
 async function refreshDataSilent(){
   try{ await _fetchAndApplyData(); }
   catch(e){ console.warn('Atualização em segundo plano falhou:',e); return false; }
+  _lastRefreshAt=Date.now();
   if(curPage==='venda'){ renderPCards(); }              // só atualiza estoque exibido, sem tocar no formulário
   else if(_paginaSeguraParaRerender() && curPage){
     // O refresh silencioso recria o HTML da página — sem isso, qualquer rolagem que o usuário tenha feito
