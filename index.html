@@ -658,7 +658,7 @@ const TAXAS = {
     elo_amex:    { parcelas: [ {x:1,taxa:0.0550},{x:2,taxa:0.0719},{x:3,taxa:0.0804},{x:4,taxa:0.0889},{x:5,taxa:0.0974},{x:6,taxa:0.1059},{x:7,taxa:0.1144},{x:8,taxa:0.1229},{x:9,taxa:0.1314},{x:10,taxa:0.1399},{x:11,taxa:0.1484},{x:12,taxa:0.1569} ] }
   }
 };
-let TAXAS_NUVEMPAGO={}; // {parcelas: {taxa_percentual, taxa_fixa, prazo}} — carregado do Supabase em loadAll()
+let TAXAS_NUVEMPAGO={}; // {parcelas: {taxaBase, extraParcelamento, taxaFixa, prazo}} — carregado do Supabase em loadAll()
 function calcLiquido(total,pgto,bandeira,parcelas){
   if(!total||pgto==='Dinheiro'||pgto==='Boleto'||pgto==='Transferência'||pgto==='Cheque'||pgto==='Voucher')
     return {liquido:total,taxa:0,desconto:0,parcelas:1};
@@ -666,10 +666,12 @@ function calcLiquido(total,pgto,bandeira,parcelas){
   if(pgto==='Nuvem Pago'){
     const p=parcelas||1;
     const t=TAXAS_NUVEMPAGO[p];
-    if(!t||t.taxa_percentual===null||t.taxa_percentual===undefined)
+    if(!t||t.extraParcelamento===null||t.extraParcelamento===undefined)
       return {liquido:total,taxa:0,desconto:0,parcelas:p,semTaxaCadastrada:true};
-    const d=total*(t.taxa_percentual/100)+Number(t.taxa_fixa||0);
-    return {liquido:total-d,taxa:t.taxa_percentual,desconto:d,parcelas:p};
+    // Modelo Nuvemshop: taxa base + extra por parcela (somados), incidindo sobre o total pago, + taxa fixa por venda
+    const taxaTotal = Number(t.taxaBase||0) + Number(t.extraParcelamento||0);
+    const d=total*(taxaTotal/100)+Number(t.taxaFixa||0);
+    return {liquido:total-d,taxa:taxaTotal,desconto:d,parcelas:p};
   }
   if(pgto==='Débito'){
     const b=bandeira==='elo'?TAXAS.debito.elo:TAXAS.debito.visa_master;
@@ -2270,8 +2272,8 @@ function renderPgtoExtra(v){
       '<select class="form-control" id="v-parcelas" onchange="calcTot()">'+
       [1,2,3,4,5,6,7,8,9,10,11,12].map(n=>{
         const t=TAXAS_NUVEMPAGO[n];
-        const label=(t&&t.taxa_percentual!=null)
-          ? n+'x'+(n===1?' à vista':'')+' (taxa '+Number(t.taxa_percentual).toFixed(2)+'%)'
+        const label=(t&&t.extraParcelamento!=null)
+          ? n+'x'+(n===1?' à vista':'')+' (taxa '+(Number(t.taxaBase||0)+Number(t.extraParcelamento||0)).toFixed(2)+'%)'
           : n+'x — taxa não cadastrada';
         return '<option value="'+n+'">'+label+'</option>';
       }).join('')+
@@ -3473,7 +3475,7 @@ async function _fetchAndApplyData(){
   if(cx.length) db.caixas=(cx).map(r=>({id:r.id,data:r.data,hora:r.hora,vendedorId:r.vendedor_id,vendedorNome:r.vendedor_nome,total:parseFloat(r.total||0),qtdVendas:r.qtd_vendas||0,obs:r.obs})).sort((a,b)=>b.data>a.data?1:-1);
   if(tn.length){
     TAXAS_NUVEMPAGO={};
-    tn.forEach(r=>{TAXAS_NUVEMPAGO[r.parcelas]={taxa_percentual:r.taxa_percentual===null?null:parseFloat(r.taxa_percentual),taxa_fixa:parseFloat(r.taxa_fixa||0),prazo:r.prazo||''};});
+    tn.forEach(r=>{TAXAS_NUVEMPAGO[r.parcelas]={taxaBase:parseFloat(r.taxa_base||0),extraParcelamento:r.extra_parcelamento===null?null:parseFloat(r.extra_parcelamento),taxaFixa:parseFloat(r.taxa_fixa||0),prazo:r.prazo||''};});
   }
 
   saveLocal();
@@ -4581,16 +4583,21 @@ function renderConfiguracoes(){
     <!-- TAXAS NUVEM PAGO -->
     <div class="card">
       <div class="sec-title">${icon('card')} Taxas do Nuvem Pago</div>
-      <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Confira em Nuvemshop → Configurações → Nuvem Pago → Editar → Prazo de recebimento. Enquanto a taxa de uma parcela não for preenchida, essa opção fica bloqueada na Nova Venda.</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Modelo: taxa base + extra fixo por parcela (ambos somados, incidindo sobre o total pago). Confira em Nuvemshop → Configurações → Nuvem Pago → Editar → Prazo de recebimento. Enquanto o extra de uma parcela não for preenchido, essa opção fica bloqueada na Nova Venda.</div>
+      <div class="form-row col2" style="margin-bottom:14px">
+        <div class="form-group"><label class="form-label">Taxa base (%)</label>
+          <input class="form-control" type="number" step="0.01" id="tnp-base" value="${(TAXAS_NUVEMPAGO[1]?.taxaBase!=null?TAXAS_NUVEMPAGO[1].taxaBase:5.19)}"></div>
+        <div class="form-group"><label class="form-label">Taxa fixa por venda (R$)</label>
+          <input class="form-control" type="number" step="0.01" id="tnp-fix" value="${(TAXAS_NUVEMPAGO[1]?.taxaFixa!=null?TAXAS_NUVEMPAGO[1].taxaFixa:0.35)}"></div>
+      </div>
       <div class="table-wrap"><table>
-        <thead><tr><th>Parcela</th><th>Taxa %</th><th>Taxa Fixa (R$)</th><th>Prazo</th></tr></thead>
+        <thead><tr><th>Parcela</th><th>Extra Parcelamento (%)</th><th>Prazo</th></tr></thead>
         <tbody>
           ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n=>{
             const t=TAXAS_NUVEMPAGO[n]||{};
             return `<tr>
               <td>${n}x${n===1?' à vista':''}</td>
-              <td><input class="form-control" type="number" step="0.01" id="tnp-pct-${n}" value="${t.taxa_percentual!=null?t.taxa_percentual:''}" placeholder="não cadastrada" style="width:110px"></td>
-              <td><input class="form-control" type="number" step="0.01" id="tnp-fix-${n}" value="${t.taxa_fixa!=null?t.taxa_fixa:'0.35'}" style="width:100px"></td>
+              <td><input class="form-control" type="number" step="0.01" id="tnp-extra-${n}" value="${t.extraParcelamento!=null?t.extraParcelamento:''}" placeholder="não cadastrada" style="width:110px"></td>
               <td><input class="form-control" id="tnp-prazo-${n}" value="${t.prazo||'D+2'}" style="width:80px"></td>
             </tr>`;
           }).join('')}
@@ -4681,16 +4688,17 @@ async function salvarCfgTaxas(){
 }
 
 async function salvarCfgTaxasNuvempago(){
+  const base=parseFloat(document.getElementById('tnp-base')?.value)||0;
+  const fix=parseFloat(document.getElementById('tnp-fix')?.value)||0;
   const rows=[1,2,3,4,5,6,7,8,9,10,11,12].map(n=>{
-    const pctRaw=document.getElementById('tnp-pct-'+n)?.value;
-    const pct=(pctRaw===''||pctRaw===undefined||pctRaw===null)?null:parseFloat(pctRaw);
-    const fix=parseFloat(document.getElementById('tnp-fix-'+n)?.value)||0;
+    const extraRaw=document.getElementById('tnp-extra-'+n)?.value;
+    const extra=(extraRaw===''||extraRaw===undefined||extraRaw===null)?null:parseFloat(extraRaw);
     const prazo=document.getElementById('tnp-prazo-'+n)?.value.trim()||'D+2';
-    return {parcelas:n, taxa_percentual:pct, taxa_fixa:fix, prazo, atualizado:new Date().toISOString()};
+    return {parcelas:n, taxa_base:base, extra_parcelamento:extra, taxa_fixa:fix, prazo, atualizado:new Date().toISOString()};
   });
   const r=await fetch(SB_URL+'/rest/v1/taxas_nuvempago',{method:'POST',headers:sbH({'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify(rows)});
   if(!r.ok){const e=await r.text();notify('Erro ao salvar taxas do Nuvem Pago: '+e.slice(0,120),'err',6000);return;}
-  rows.forEach(row=>{TAXAS_NUVEMPAGO[row.parcelas]={taxa_percentual:row.taxa_percentual,taxa_fixa:row.taxa_fixa,prazo:row.prazo};});
+  rows.forEach(row=>{TAXAS_NUVEMPAGO[row.parcelas]={taxaBase:row.taxa_base,extraParcelamento:row.extra_parcelamento,taxaFixa:row.taxa_fixa,prazo:row.prazo};});
   notify('Taxas do Nuvem Pago atualizadas! ✓');
   registrarAudit('CONFIG_SALVA','Taxas do Nuvem Pago atualizadas');
 }
