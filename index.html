@@ -2230,6 +2230,12 @@ function onPgChange(){
   const vrec=document.getElementById('vrec');
   if(vrec)vrec.value='';
   if(document.getElementById('vtrocobox'))document.getElementById('vtrocobox').innerHTML='';
+  // Nuvem Pago só existe como venda online — trava a modalidade automaticamente
+  const modalSel=document.getElementById('v-modal');
+  if(modalSel){
+    if(v==='Nuvem Pago'){ modalSel.value='Online'; modalSel.disabled=true; }
+    else{ modalSel.disabled=false; }
+  }
   // Mostrar campo de bandeira/parcelas
   renderPgtoExtra(v);
   calcTot();
