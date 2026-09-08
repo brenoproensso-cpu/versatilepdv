@@ -3092,8 +3092,8 @@ function renderFin(){
   const f=_finFiltro;
   const {de,ate}=finPeriodoRange();
   let movs=[...db.movimentos];
-  if(de) movs=movs.filter(m=>m.data&&m.data.slice(0,10)>=de);
-  if(ate) movs=movs.filter(m=>m.data&&m.data.slice(0,10)<=ate);
+  if(de) movs=movs.filter(m=>m.data&&localDate(m.data)>=de);
+  if(ate) movs=movs.filter(m=>m.data&&localDate(m.data)<=ate);
   if(f.tipo!=='todos') movs=movs.filter(m=>m.tipo===f.tipo);
   if(f.origem==='vendas') movs=movs.filter(m=>!!m.vendaId);
   if(f.origem==='manual') movs=movs.filter(m=>!m.vendaId);
@@ -4147,7 +4147,7 @@ function expLucro(xl){
 function finLucroPorProdutoCalc(mes){
   const vendasMes = db.vendas.filter(v=>v.data&&localDate(v.data).startsWith(mes));
   const paresTotal = vendasMes.reduce((s,v)=>s+(v.itens||[]).reduce((si,i)=>si+(i.qtd||1),0),0);
-  const despOp = db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&mv.data.startsWith(mes)&&!mv.vendaId&&mv.categoria!=='Fornecedor / Mercadoria').reduce((s,mv)=>s+mv.val,0);
+  const despOp = db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&localDate(mv.data).startsWith(mes)&&!mv.vendaId&&mv.categoria!=='Fornecedor / Mercadoria').reduce((s,mv)=>s+mv.val,0);
   const despPorPar = paresTotal>0 ? despOp/paresTotal : 0;
   const porProduto={};
   vendasMes.forEach(v=>{
@@ -5184,7 +5184,7 @@ function renderDRE(anoSel){
     const recBruto=vms.reduce((s,v)=>s+v.total,0);
     const taxa=vms.reduce((s,v)=>{const l=calcLucroVenda(v);return s+l.taxaDesc;},0);
     const cme=vms.reduce((s,v)=>{const l=calcLucroVenda(v);return s+l.custo;},0);
-    const movs=db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&mv.data.startsWith(ym)&&!mv.vendaId&&mv.categoria!=='Fornecedor / Mercadoria');
+    const movs=db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&localDate(mv.data).startsWith(ym)&&!mv.vendaId&&mv.categoria!=='Fornecedor / Mercadoria');
     const despOp=movs.reduce((s,mv)=>s+mv.val,0);
     const recLiq=recBruto-taxa;
     const lucBruto=recLiq-cme;
