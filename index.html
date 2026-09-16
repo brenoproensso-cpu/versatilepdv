@@ -709,6 +709,7 @@ function temPerm(page){
 }
 let ses=null;
 let cart=[];
+let _finalizandoVenda=false;
 let editId=null;
 let curPage='';
 let vendaCliId=null;
@@ -2015,7 +2016,7 @@ function pgVenda(){
         <div style="display:flex;justify-content:space-between;font-family:var(--font-head);font-size:22px;font-weight:700;padding:8px 0;margin-top:4px;border-top:1px solid var(--border)">
           <span>TOTAL</span><span id="tfinal">R$ 0,00</span>
         </div>
-        <button class="btn primary w-full" onclick="finalizarVenda()"
+        <button class="btn primary w-full" id="btn-finalizar-venda" onclick="finalizarVenda()"
           style="justify-content:center;padding:13px;font-size:16px;font-weight:700;margin-top:8px;letter-spacing:.5px">
           ${icon('check')} FINALIZAR VENDA
         </button>
@@ -2332,7 +2333,14 @@ function calcTroco(){
   </div>`;
 }
 async function finalizarVenda(){
+  // Trava de reentrância — ignora clique duplicado (duplo toque/duplo clique)
+  // enquanto uma venda já está em processo de finalização
+  if(_finalizandoVenda) return;
   if(!cart.length){notify('Carrinho vazio','warn');return;}
+  _finalizandoVenda=true;
+  const btnFin=document.getElementById('btn-finalizar-venda');
+  if(btnFin){btnFin.disabled=true;btnFin.style.opacity='.6';btnFin.style.cursor='not-allowed';}
+  try{
   // Venda retroativa (admin) — data antiga e opção de não alterar estoque
   const retroAtiva = isAdmin() && document.getElementById('usar-retroativa')?.checked;
   let retroDataISO = null, retroDataYMD = null, retroNaoEstoque = false;
@@ -2359,6 +2367,20 @@ async function finalizarVenda(){
   if(simul.semTaxaCadastrada){
     notify('Taxa de '+parc+'x do Nuvem Pago ainda não foi cadastrada. Configure em Configurações antes de fechar essa venda.','err',6000);
     return;
+  }
+  // Revalidar estoque no exato momento do fechamento — evita registrar a venda
+  // de um item que já foi baixado por outro lançamento entre o "adicionar ao
+  // carrinho" e o "finalizar" (ex.: duplo toque no botão finalizando duas vezes)
+  if(!(retroAtiva&&retroNaoEstoque)){
+    for(const ci of cart){
+      const p=db.produtos.find(x=>x.id===ci.id);if(!p)continue;
+      let disp;
+      if(p.grade&&ci.tam){const g=p.grade.find(x=>x.n===ci.tam);disp=g?g.q:0;}else disp=p.qtd||0;
+      if(ci.qtd>disp){
+        notify('Estoque insuficiente para "'+ci.nome+'"'+(ci.tam?' Nº'+ci.tam:'')+' — restam '+disp+'. Ajuste o carrinho.','err',6000);
+        return;
+      }
+    }
   }
   // Gerar ID baseado no MAIOR número existente — evita conflito com chave única
   const maxNum = db.vendas.reduce((max, v) => {
@@ -2419,6 +2441,10 @@ async function finalizarVenda(){
     console.error('Venda error:',e);
   }
   showLoading(false);
+  } finally {
+    _finalizandoVenda=false;
+    if(btnFin){btnFin.disabled=false;btnFin.style.opacity='';btnFin.style.cursor='';}
+  }
 }
 
 // ============================================================
