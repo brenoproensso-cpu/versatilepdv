@@ -2377,6 +2377,10 @@ async function finalizarVenda(){
   const recebido=pgto==='Dinheiro'?(parseFloat(document.getElementById('vrec')?.value)||0):tot;
   const veioTrafego=document.getElementById('v-trafego')?.checked||false;
   const trafegoUf=veioTrafego?(document.getElementById('v-trafego-uf')?.value||null):null;
+  if(veioTrafego&&!trafegoUf){
+    notify('Selecione a UF do cliente para registrar a venda de tráfego pago','warn',4000);
+    return;
+  }
   const band=document.getElementById('v-bandeira')?.value||null;
   const parc=parseInt(document.getElementById('v-parcelas')?.value||'1');
   const usePgto2=document.getElementById('usar-pgto2')?.checked;
