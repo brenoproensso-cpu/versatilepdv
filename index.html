@@ -2082,7 +2082,7 @@ function addCart(pid,tam){
   let disp;
   if(p.grade&&tam){const g=p.grade.find(x=>x.n===tam);disp=g?g.q:0;}else disp=p.qtd||0;
   if(ci){if(ci.qtd>=disp){notify('Estoque insuficiente','warn');return;}ci.qtd++;}
-  else cart.push({ck,id:pid,nome:p.nome,marca:p.marca,tam:tam||p.tam,cor:p.cor,preco:p.preco,qtd:1});
+  else cart.push({ck,id:pid,nome:p.nome,marca:p.marca,tam:tam||p.tam,cor:p.cor,preco:p.preco,custo:p.custo||0,qtd:1});
   renderCart();notify('Adicionado!');
 }
 function renderCart(){
@@ -3240,6 +3240,11 @@ function renderTrafegoPago(){
   if(de) gastoMkt=gastoMkt.filter(m=>m.data&&localDate(m.data)>=de);
   if(ate) gastoMkt=gastoMkt.filter(m=>m.data&&localDate(m.data)<=ate);
   const totalMkt=gastoMkt.reduce((s,m)=>s+m.val,0);
+  // custo histórico: usa o custo gravado no item na hora da venda; vendas antigas
+  // (antes dessa gravação existir) caem no custo atual do produto como aproximação
+  const custoItem=(it)=>it.custo!=null?it.custo:(db.produtos.find(p=>p.id===it.id)?.custo||0);
+  const custoVenda=(v)=>(v.itens||[]).reduce((s,it)=>s+custoItem(it)*(it.qtd||1),0);
+  const vendasLinhas=vendas.map(v=>{const c=custoVenda(v);return {...v,_custo:c,_lucro:v.total-c};});
 
   document.getElementById('fin-subview').innerHTML=`
   <div class="card mb-4">
@@ -3267,10 +3272,38 @@ function renderTrafegoPago(){
   </div>
   <div class="card"><div class="sec-title">${icon('target')} Vendas <span class="text-dim" style="font-weight:400;font-size:12px">— ${periodoLabel} · ${vendas.length} registro(s)</span></div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Nº</th><th>Data</th><th>Cliente</th><th>UF</th><th>Total</th></tr></thead>
-      <tbody>${vendas.length?[...vendas].sort((a,b)=>b.data>a.data?1:-1).map(v=>`<tr><td><strong>${v.id}</strong></td><td class="text-xs text-dim">${fmtDia(v.data)}</td><td>${v.clienteNome||'Consumidor Final'}</td><td>${v.trafegoUf||'—'}</td><td>${fmt(v.total)}</td></tr>`).join(''):'<tr><td colspan="5"><div class="empty"><p>Nenhuma venda de tráfego pago no período</p></div></td></tr>'}</tbody>
+      <thead><tr><th style="width:32px"></th><th>Nº</th><th>Data</th><th>Cliente</th><th>UF</th><th>Receita</th><th>Custo</th><th>Lucro</th></tr></thead>
+      <tbody>${vendasLinhas.length?[...vendasLinhas].sort((a,b)=>b.data>a.data?1:-1).map(v=>{
+        const itensGrid=(v.itens||[]).map(it=>{
+          const cUnit=custoItem(it);const qtdIt=it.qtd||1;
+          const estimado=it.custo==null?' <span style="color:var(--amber)">(estimado pelo custo atual do produto)</span>':'';
+          return `<div class="h-exp-item"><div><div class="h-exp-nome">${qtdIt}x ${it.nome}${it.tam?' · Nº'+it.tam:''}</div>
+            <div class="h-exp-sub">Custo unit.: ${fmt(cUnit)}${estimado} &nbsp;·&nbsp; Venda unit.: ${fmt(it.preco)}</div></div>
+            <div class="h-exp-preco text-red">${fmt(cUnit*qtdIt)}</div></div>`;
+        }).join('');
+        return `<tr id="trow-${v.id}" class="h-data-row">
+        <td><button class="h-btn-exp" id="tbtn-${v.id}" onclick="togTrafegoVenda('${v.id}')" aria-label="Expandir itens">&#9658;</button></td>
+        <td><strong>${v.id}</strong></td>
+        <td class="text-xs text-dim">${fmtDia(v.data)}</td>
+        <td>${v.clienteNome||'Consumidor Final'}</td>
+        <td>${v.trafegoUf||'—'}</td>
+        <td class="text-green">${fmt(v.total)}</td>
+        <td class="text-red">${fmt(v._custo)}</td>
+        <td><strong class="${v._lucro>=0?'text-green':'text-red'}">${fmt(v._lucro)}</strong></td>
+      </tr><tr class="h-exp-row"><td colspan="8"><div class="h-exp-inner" id="texp-${v.id}"><div class="h-exp-content"><div class="h-exp-grid">${itensGrid}</div></div></div></td></tr>`;
+      }).join(''):'<tr><td colspan="8"><div class="empty"><p>Nenhuma venda de tráfego pago no período</p></div></td></tr>'}</tbody>
     </table></div>
   </div>`;
+}
+function togTrafegoVenda(id){
+  const btn=document.getElementById('tbtn-'+id);
+  const exp=document.getElementById('texp-'+id);
+  const row=document.getElementById('trow-'+id);
+  if(!btn||!exp||!row)return;
+  const isOpen=exp.classList.contains('open');
+  exp.classList.toggle('open',!isOpen);
+  btn.classList.toggle('open',!isOpen);
+  row.classList.toggle('open',!isOpen);
 }
 function finAtualizarCategorias(){
   const tipo=document.getElementById('mt')?.value||'entrada';
