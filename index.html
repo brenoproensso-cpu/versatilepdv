@@ -3276,7 +3276,11 @@ function renderTrafegoPago(){
       <tbody>${vendasLinhas.length?[...vendasLinhas].sort((a,b)=>b.data>a.data?1:-1).map(v=>{
         const itensGrid=(v.itens||[]).map(it=>{
           const cUnit=custoItem(it);const qtdIt=it.qtd||1;
-          const estimado=it.custo==null?' <span style="color:var(--amber)">(estimado pelo custo atual do produto)</span>':'';
+          const prodAtual=db.produtos.find(p=>p.id===it.id);
+          let estimado='';
+          if(it.custo==null){
+            estimado=prodAtual?' <span style="color:var(--amber)">(estimado pelo custo atual do produto)</span>':' <span style="color:var(--text3)">(sem custo cadastrado — item avulso)</span>';
+          }
           return `<div class="h-exp-item"><div><div class="h-exp-nome">${qtdIt}x ${it.nome}${it.tam?' · Nº'+it.tam:''}</div>
             <div class="h-exp-sub">Custo unit.: ${fmt(cUnit)}${estimado} &nbsp;·&nbsp; Venda unit.: ${fmt(it.preco)}</div></div>
             <div class="h-exp-preco text-red">${fmt(cUnit*qtdIt)}</div></div>`;
