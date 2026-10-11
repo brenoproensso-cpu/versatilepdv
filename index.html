@@ -851,6 +851,18 @@ function _parseDt(iso){
   }
   return new Date(iso);
 }
+// ============================================================
+// ATENÇÃO — PADRÃO DE DATA/HORA (leia antes de formatar ou filtrar datas)
+// ============================================================
+// fmtD/fmtDs/localDate CONVERTEM pro fuso de Palmas/TO (America/Araguaina) —
+// use sempre que o campo guardar um INSTANTE real (hora junto, ex.: vendas.data,
+// timestamps de auditoria). Sem essa conversão, venda feita à noite em UTC já
+// "vira o dia seguinte" na exibição/filtro (foi exatamente o bug da V0586).
+// fmtDia NÃO converte fuso — lê os dígitos direto do texto ISO. Ela existe só
+// pra campos de DATA PURA sem hora relevante (ex.: movimentos.data, lançamentos
+// manuais), onde converter fuso geraria o erro inverso (viraria o dia anterior).
+// Regra prática: tem hora de verdade (vendas, timestamps)? fmtD/fmtDs/localDate.
+// É só um "dia" sem hora (movimentos manuais)? fmtDia. Na dúvida, use fmtDs.
 const fmtD=iso=>{
   const d=_parseDt(iso);if(!d)return'—';
   return d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'America/Araguaina'});
@@ -860,6 +872,8 @@ const fmtDs=iso=>{
   return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'America/Araguaina'});
 };
 // Formata apenas a data (DD/MM/AAAA) extraindo direto do texto ISO, sem shift de fuso
+// — só para campos de data pura (sem hora), como movimentos.data. NÃO use para
+// vendas.data ou qualquer timestamp com hora real: use fmtD/fmtDs nesses casos.
 const fmtDia=iso=>{
   if(!iso)return'—';
   const m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -3292,7 +3306,7 @@ function renderTrafegoPago(){
         return `<tr id="trow-${v.id}" class="h-data-row">
         <td><button class="h-btn-exp" id="tbtn-${v.id}" onclick="togTrafegoVenda('${v.id}')" aria-label="Expandir itens">&#9658;</button></td>
         <td><strong>${v.id}</strong></td>
-        <td class="text-xs text-dim">${fmtDia(v.data)}</td>
+        <td class="text-xs text-dim">${fmtDs(v.data)}</td>
         <td>${v.clienteNome||'Consumidor Final'}</td>
         <td>${v.trafegoUf||'—'}</td>
         <td class="text-green">${fmt(v.total)}</td>
