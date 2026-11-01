@@ -893,6 +893,18 @@ const localDate=d=>{
   if(isNaN(dt.getTime()))return '';
   return dt.toLocaleDateString('pt-BR',{timeZone:'America/Araguaina'}).split('/').reverse().join('-');
 };
+// Data (YYYY-MM-DD) para FILTRAR/classificar um registro de movimentos por período.
+// movimentos.data mistura dois tipos: linhas vindas de venda (venda_id setado, trigger do
+// banco copia a HORA REAL da venda) e linhas manuais (venda_id nulo, só uma data escolhida
+// no calendário, sem hora — vira meia-noite UTC). Aplicar localDate() nas manuais empurra a
+// data um dia pra trás (meia-noite UTC = 21h do dia anterior em Palmas) — foi o bug do
+// lançamento de Aluguel de 01/10 aparecendo em setembro. Por isso: com venda_id, converte
+// fuso (localDate); sem venda_id, lê a data direto do texto (mesmo princípio do fmtDia).
+const localDateMov=mv=>{
+  if(mv.vendaId) return localDate(mv.data);
+  const m=String(mv.data||'').match(/^(\d{4}-\d{2}-\d{2})/);
+  return m?m[1]:localDate(mv.data);
+};
 // Data (YYYY-MM-DD, já no fuso de Palmas) ancorada ao meio-dia — segura para aritmética de calendário
 // (somar/subtrair dias ou meses) sem risco de virar o dia por causa do fuso do dispositivo.
 const localNoon=ymd=>{
@@ -3159,8 +3171,8 @@ function renderFin(){
   const f=_finFiltro;
   const {de,ate}=finPeriodoRange();
   let movs=[...db.movimentos];
-  if(de) movs=movs.filter(m=>m.data&&localDate(m.data)>=de);
-  if(ate) movs=movs.filter(m=>m.data&&localDate(m.data)<=ate);
+  if(de) movs=movs.filter(m=>m.data&&localDateMov(m)>=de);
+  if(ate) movs=movs.filter(m=>m.data&&localDateMov(m)<=ate);
   if(f.tipo!=='todos') movs=movs.filter(m=>m.tipo===f.tipo);
   if(f.origem==='vendas') movs=movs.filter(m=>!!m.vendaId);
   if(f.origem==='manual') movs=movs.filter(m=>!m.vendaId);
@@ -3255,8 +3267,8 @@ function renderTrafegoPago(){
   });
   const ufs=Object.entries(porUf).map(([nome,d])=>({nome,...d})).sort((a,b)=>b.receita-a.receita);
   let gastoMkt=db.movimentos.filter(m=>m.tipo==='saida'&&m.categoria==='Marketing');
-  if(de) gastoMkt=gastoMkt.filter(m=>m.data&&localDate(m.data)>=de);
-  if(ate) gastoMkt=gastoMkt.filter(m=>m.data&&localDate(m.data)<=ate);
+  if(de) gastoMkt=gastoMkt.filter(m=>m.data&&localDateMov(m)>=de);
+  if(ate) gastoMkt=gastoMkt.filter(m=>m.data&&localDateMov(m)<=ate);
   const totalMkt=gastoMkt.reduce((s,m)=>s+m.val,0);
   // custo histórico: usa o custo gravado no item na hora da venda; vendas antigas
   // (antes dessa gravação existir) caem no custo atual do produto como aproximação
@@ -3559,8 +3571,8 @@ function expV(xl){
 function expF(xl){
   const ini=document.getElementById('rfi')?.value,fim=document.getElementById('rff')?.value;
   let f=[...db.movimentos];
-  if(ini)f=f.filter(m=>m.data&&m.data>=ini);
-  if(fim)f=f.filter(m=>m.data&&m.data<=fim);
+  if(ini)f=f.filter(m=>m.data&&localDateMov(m)>=ini);
+  if(fim)f=f.filter(m=>m.data&&localDateMov(m)<=fim);
   if(!f.length){notify('Nenhum movimento','warn');return;}
   const h=['Data','Origem','Tipo','Categoria','Descricao','Valor'];
   const r=f.map(m=>[m.data||'',m.vendaId?'Venda':'Manual',m.tipo==='entrada'?'Entrada':'Saida',m.categoria||'',m.desc,Number(m.val).toFixed(2)]);
@@ -4304,7 +4316,7 @@ function expLucro(xl){
 function finLucroPorProdutoCalc(mes){
   const vendasMes = db.vendas.filter(v=>v.data&&localDate(v.data).startsWith(mes));
   const paresTotal = vendasMes.reduce((s,v)=>s+(v.itens||[]).reduce((si,i)=>si+(i.qtd||1),0),0);
-  const despOp = db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&localDate(mv.data).startsWith(mes)&&!mv.vendaId&&mv.categoria!=='Fornecedor / Mercadoria').reduce((s,mv)=>s+mv.val,0);
+  const despOp = db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&localDateMov(mv).startsWith(mes)&&!mv.vendaId&&mv.categoria!=='Fornecedor / Mercadoria').reduce((s,mv)=>s+mv.val,0);
   const despPorPar = paresTotal>0 ? despOp/paresTotal : 0;
   const porProduto={};
   vendasMes.forEach(v=>{
@@ -5341,7 +5353,7 @@ function renderDRE(anoSel){
     const recBruto=vms.reduce((s,v)=>s+v.total,0);
     const taxa=vms.reduce((s,v)=>{const l=calcLucroVenda(v);return s+l.taxaDesc;},0);
     const cme=vms.reduce((s,v)=>{const l=calcLucroVenda(v);return s+l.custo;},0);
-    const movs=db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&localDate(mv.data).startsWith(ym)&&!mv.vendaId&&mv.categoria!=='Fornecedor / Mercadoria');
+    const movs=db.movimentos.filter(mv=>mv.tipo==='saida'&&mv.data&&localDateMov(mv).startsWith(ym)&&!mv.vendaId&&mv.categoria!=='Fornecedor / Mercadoria');
     const despOp=movs.reduce((s,mv)=>s+mv.val,0);
     const recLiq=recBruto-taxa;
     const lucBruto=recLiq-cme;
