@@ -659,6 +659,28 @@ const TAXAS = {
   }
 };
 let TAXAS_NUVEMPAGO={}; // {parcelas: {taxaBase, extraParcelamento, taxaFixa, prazo}} — carregado do Supabase em loadAll()
+// Liga/desliga o preço por forma de pagamento (Black Friday). false = sempre usa produto.preco, como sempre foi.
+let PRECOS_POR_FORMA_ATIVO=false;
+// ============================================================
+// PREÇO POR FORMA DE PAGAMENTO (Black Friday)
+// ============================================================
+// Mapeia a forma de pagamento pro campo do produto que guarda o preço daquela
+// forma. PIX e Dinheiro usam a mesma tabela (preço à vista). Formas fora dessa
+// lista (Boleto, Transferência, Cheque, Voucher) não têm preço Black — usam preco.
+const CAMPO_PRECO_POR_FORMA={'PIX':'precoPix','Dinheiro':'precoPix','Débito':'precoDebito','Crédito':'precoMaquininha','Link de Pagamento':'precoLink','Nuvem Pago':'precoNormal'};
+const LABEL_TABELA_PRECO={'PIX':'Pix','Dinheiro':'Pix','Débito':'Débito','Crédito':'Maquininha','Link de Pagamento':'Link','Nuvem Pago':'Normal'};
+// Versão em minúsculo gravada em itens[].tabela (pix/debito/maquininha/link/normal)
+const TABELA_KEY_POR_FORMA={'PIX':'pix','Dinheiro':'pix','Débito':'debito','Crédito':'maquininha','Link de Pagamento':'link','Nuvem Pago':'normal'};
+// Preço efetivo de um produto numa forma de pagamento: NULL na coluna especial,
+// forma sem coluna própria, ou feature desligada -> cai sempre no preco (reserva).
+function precoPorForma(produto,pgto){
+  if(!produto) return 0;
+  if(!PRECOS_POR_FORMA_ATIVO) return produto.preco;
+  const campo=CAMPO_PRECO_POR_FORMA[pgto];
+  if(!campo) return produto.preco;
+  const v=produto[campo];
+  return v!=null?v:produto.preco;
+}
 function calcLiquido(total,pgto,bandeira,parcelas){
   if(!total||pgto==='Dinheiro'||pgto==='Boleto'||pgto==='Transferência'||pgto==='Cheque'||pgto==='Voucher')
     return {liquido:total,taxa:0,desconto:0,parcelas:1};
@@ -774,7 +796,7 @@ async function saveCliente(obj){
 }
 async function deleteCliente(id){await sbDelete('clientes','id=eq.'+id);db.clientes=db.clientes.filter(x=>x.id!==id);saveLocal();}
 async function saveVenda(obj){
-  const row={id:obj.id,data:obj.data,cliente_id:obj.clienteId||null,cliente_nome:obj.clienteNome||'',pgto:obj.pgto,recebido:obj.recebido,troco:obj.troco,modalidade:obj.modalidade,itens:obj.itens,subtotal:obj.subtotal,desconto:obj.desconto,total:obj.total,vendedor_nome:obj.vendedor,vendedor_id:obj.vendedorId||null,bandeira:obj.bandeira||null,parcelas:obj.parcelas||1,taxa_maquininha:obj.taxaMaquininha||0,valor_liquido:obj.valorLiquido,desconto_maquininha:obj.descontoMaquininha||0,veio_trafego:obj.veioTrafego||false,trafego_uf:obj.trafegoUf||null};
+  const row={id:obj.id,data:obj.data,cliente_id:obj.clienteId||null,cliente_nome:obj.clienteNome||'',pgto:obj.pgto,recebido:obj.recebido,troco:obj.troco,modalidade:obj.modalidade,itens:obj.itens,subtotal:obj.subtotal,desconto:obj.desconto,total:obj.total,vendedor_nome:obj.vendedor,vendedor_id:obj.vendedorId||null,bandeira:obj.bandeira||null,parcelas:obj.parcelas||1,taxa_maquininha:obj.taxaMaquininha||0,valor_liquido:obj.valorLiquido,desconto_maquininha:obj.descontoMaquininha||0,veio_trafego:obj.veioTrafego||false,trafego_uf:obj.trafegoUf||null,pagamentos:obj.pagamentos||null};
   await sbPost('vendas',row);db.vendas.unshift({...obj});saveLocal();
 }
 async function saveMovimento(obj){
@@ -1078,12 +1100,12 @@ function rtHandle(table,payload){
   const row=payload.new||{};
   const old=payload.old||{};
   if(table==='produtos'){
-    const p={id:row.id,cod:row.cod,nome:row.nome,marca:row.marca,cor:row.cor,custo:parseFloat(row.custo||0),preco:parseFloat(row.preco||0),min:row.min||2,obs:row.obs,grade:row.grade||[],qtd:row.qtd||0,tam:row.tam,foto:row.foto||null};
+    const p={id:row.id,cod:row.cod,nome:row.nome,marca:row.marca,cor:row.cor,custo:parseFloat(row.custo||0),preco:parseFloat(row.preco||0),min:row.min||2,obs:row.obs,grade:row.grade||[],qtd:row.qtd||0,tam:row.tam,foto:row.foto||null,precoPix:(row.preco_pix!=null?parseFloat(row.preco_pix):null),precoDebito:(row.preco_debito!=null?parseFloat(row.preco_debito):null),precoMaquininha:(row.preco_maquininha!=null?parseFloat(row.preco_maquininha):null),precoLink:(row.preco_link!=null?parseFloat(row.preco_link):null),precoNormal:(row.preco_normal!=null?parseFloat(row.preco_normal):null)};
     if(ev==='INSERT'){if(!db.produtos.find(x=>x.id===p.id))db.produtos.push(p);}
     else if(ev==='UPDATE'){const i=db.produtos.findIndex(x=>x.id===p.id);if(i>=0)db.produtos[i]=p;}
     else if(ev==='DELETE'){db.produtos=db.produtos.filter(x=>x.id!==(old.id||row.id));}
   }else if(table==='vendas'){
-    const v={id:row.id,data:row.data,clienteId:row.cliente_id,clienteNome:row.cliente_nome||'',pgto:row.pgto,recebido:parseFloat(row.recebido||0),troco:parseFloat(row.troco||0),modalidade:row.modalidade||'Presencial',itens:row.itens||[],subtotal:parseFloat(row.subtotal||0),desconto:parseFloat(row.desconto||0),total:parseFloat(row.total||0),vendedor:row.vendedor_nome,vendedorId:row.vendedor_id,bandeira:row.bandeira||null,parcelas:row.parcelas||1,taxaMaquininha:(row.taxa_maquininha!=null?parseFloat(row.taxa_maquininha):null),valorLiquido:(row.valor_liquido!=null?parseFloat(row.valor_liquido):null),descontoMaquininha:(row.desconto_maquininha!=null?parseFloat(row.desconto_maquininha):null),veioTrafego:!!row.veio_trafego,trafegoUf:row.trafego_uf||null};
+    const v={id:row.id,data:row.data,clienteId:row.cliente_id,clienteNome:row.cliente_nome||'',pgto:row.pgto,recebido:parseFloat(row.recebido||0),troco:parseFloat(row.troco||0),modalidade:row.modalidade||'Presencial',itens:row.itens||[],subtotal:parseFloat(row.subtotal||0),desconto:parseFloat(row.desconto||0),total:parseFloat(row.total||0),vendedor:row.vendedor_nome,vendedorId:row.vendedor_id,bandeira:row.bandeira||null,parcelas:row.parcelas||1,taxaMaquininha:(row.taxa_maquininha!=null?parseFloat(row.taxa_maquininha):null),valorLiquido:(row.valor_liquido!=null?parseFloat(row.valor_liquido):null),descontoMaquininha:(row.desconto_maquininha!=null?parseFloat(row.desconto_maquininha):null),veioTrafego:!!row.veio_trafego,trafegoUf:row.trafego_uf||null,pagamentos:row.pagamentos||null};
     if(ev==='INSERT'){if(!db.vendas.find(x=>x.id===v.id))db.vendas.unshift(v);}
     else if(ev==='UPDATE'){const i=db.vendas.findIndex(x=>x.id===v.id);if(i>=0)db.vendas[i]=v;}
     else if(ev==='DELETE'){db.vendas=db.vendas.filter(x=>x.id!==(old.id||row.id));}
@@ -1986,6 +2008,7 @@ function pgVenda(){
               <option value="Cheque">Cheque</option>
               <option value="Voucher">Voucher</option>
             </select>
+            <div id="tabela-preco-ativa" style="display:none;margin-top:6px"></div>
           </div>
           <div style="margin-top:8px">
             <label class="form-label">Cliente (opcional)</label>
@@ -1997,6 +2020,7 @@ function pgVenda(){
             <div>
               <label class="form-label">Desconto (R$)</label>
               <input class="form-control" type="number" id="vdesc" value="0" min="0" oninput="calcTot()" style="height:36px">
+              <div id="aviso-desc-black" style="display:none;margin-top:4px;font-size:11px;color:var(--amber)"></div>
             </div>
             <div id="vrecwrap">
               <label class="form-label">Valor Recebido (R$)</label>
@@ -2006,6 +2030,30 @@ function pgVenda(){
           <div id="pgto-extra" style="margin-top:8px"></div>
           <div id="vtrocobox"></div>
           <div id="vliquido"></div>
+          <div style="margin-top:10px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);cursor:pointer">
+              <input type="checkbox" id="usar-split" onchange="toggleSplitPgto()" style="accent-color:var(--accent)">
+              ${icon('exchange')} Dividir pagamento em 2 formas
+            </label>
+            <div id="split-wrap" style="display:none;margin-top:8px;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r)">
+              <div class="form-group">
+                <label class="form-label">Valor pago na forma principal (acima)</label>
+                <input class="form-control" type="number" id="split-val1" min="0" step="0.01" oninput="calcTot()" placeholder="0,00" style="height:36px">
+              </div>
+              <div class="form-group">
+                <label class="form-label">2ª forma de pagamento (cobre o restante)</label>
+                <select class="form-control" id="split-pgto2" onchange="renderSplitExtra();calcTot()" style="height:36px">
+                  <option value="Dinheiro">Dinheiro</option>
+                  <option value="PIX">PIX</option>
+                  <option value="Débito">Débito</option>
+                  <option value="Crédito">Crédito</option>
+                  <option value="Link de Pagamento">Link de Pagamento</option>
+                </select>
+              </div>
+              <div id="split-extra"></div>
+              <div id="split-resumo" style="margin-top:8px;font-size:12px;color:var(--text2)"></div>
+            </div>
+          </div>
           <div style="margin-top:10px">
             <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);cursor:pointer">
               <input type="checkbox" id="v-trafego" onchange="toggleTrafegoPago()" style="accent-color:var(--accent)">
@@ -2108,8 +2156,25 @@ function addCart(pid,tam){
   let disp;
   if(p.grade&&tam){const g=p.grade.find(x=>x.n===tam);disp=g?g.q:0;}else disp=p.qtd||0;
   if(ci){if(ci.qtd>=disp){notify('Estoque insuficiente','warn');return;}ci.qtd++;}
-  else cart.push({ck,id:pid,nome:p.nome,marca:p.marca,tam:tam||p.tam,cor:p.cor,preco:p.preco,custo:p.custo||0,qtd:1});
+  else{
+    const pgtoAtivo=document.getElementById('vpgto')?.value||'Dinheiro';
+    cart.push({ck,id:pid,nome:p.nome,marca:p.marca,tam:tam||p.tam,cor:p.cor,preco:precoPorForma(p,pgtoAtivo),custo:p.custo||0,qtd:1});
+  }
   renderCart();notify('Adicionado!');
+}
+// Reaplica o preço de cada item do carrinho conforme a forma de pagamento atual —
+// chamado ao trocar a forma (Black Friday: cada forma pode ter preço diferente).
+// Item avulso não tem produto cadastrado por trás, então mantém o preço como está.
+function recalcularPrecosCarrinho(){
+  const pgto=document.getElementById('vpgto')?.value||'Dinheiro';
+  let mudou=false;
+  cart.forEach(ci=>{
+    if(ci.avulso)return;
+    const p=db.produtos.find(x=>x.id===ci.id);if(!p)return;
+    const novo=precoPorForma(p,pgto);
+    if(novo!==ci.preco){ci.preco=novo;mudou=true;}
+  });
+  if(mudou)renderCart();
 }
 function renderCart(){
   const el=document.getElementById('cbody');if(!el)return;
@@ -2147,53 +2212,175 @@ function calcTot(){
   const nItens=cart.reduce((s,i)=>s+i.qtd,0);
   set('cmb-info',nItens?nItens+(nItens!==1?' itens':' item')+' no carrinho':'Carrinho vazio');
   set('cmb-total',fmt(tot));
-  // Calcular líquido da maquininha (suporta pagamento dividido)
+  // Aviso (não bloqueia) — desconto manual em cima de item com preço Black
+  const avisoDesc=document.getElementById('aviso-desc-black');
+  if(avisoDesc){
+    if(desc>0&&carrinhoTemPrecoBlack()){
+      avisoDesc.style.display='block';
+      avisoDesc.textContent='⚠ Este carrinho já tem item com preço Black — o desconto é aplicado em cima dele.';
+    } else { avisoDesc.style.display='none'; avisoDesc.textContent=''; }
+  }
   const pgto=document.getElementById('vpgto')?.value||'Dinheiro';
   const band=document.getElementById('v-bandeira')?.value||'visa_master';
   const parc=parseInt(document.getElementById('v-parcelas')?.value||'1');
-  const usePgto2 = document.getElementById('usar-pgto2')?.checked;
-  const pgto2 = document.getElementById('vpgto2')?.value||'';
-  const val2 = usePgto2 ? (parseFloat(document.getElementById('vpgto2val')?.value)||0) : 0;
-  const val1 = usePgto2 ? Math.max(0, tot - val2) : tot;
-  const res1 = calcLiquido(val1, pgto, band, parc);
-  const res2 = usePgto2 ? calcLiquido(val2, pgto2, 'visa_master', 1) : {liquido:0,taxa:0,desconto:0,parcelas:1};
-  const res = {
-    liquido: res1.liquido + res2.liquido,
-    taxa: res1.taxa,
-    desconto: res1.desconto + res2.desconto,
-    parcelas: parc
-  };
+  const split=calcSplit();
   const liqEl=document.getElementById('vliquido');
-  if(liqEl){
-    if(res1.semTaxaCadastrada&&tot>0){
-      liqEl.style.display='block';
-      liqEl.innerHTML='<div style="margin-top:8px;padding:10px 12px;background:var(--reddim);border:1px solid var(--red);border-radius:var(--r);font-size:12px;color:var(--red)">'+
-        'Taxa de '+res.parcelas+'x do Nuvem Pago ainda não foi cadastrada. Configure em Configurações antes de fechar essa venda.</div>';
-    } else if(pgto!=='Dinheiro'&&pgto!=='Boleto'&&tot>0){
-      const parcelaTxt=res.parcelas>1?' ('+res.parcelas+'x de '+fmt(tot/res.parcelas)+')':'';
-      liqEl.style.display='block';
-      liqEl.innerHTML=
-        '<div style="margin-top:8px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r)">'+
-        '<div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);font-weight:700;margin-bottom:6px">Simulação Maquininha</div>'+
-        '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);padding:3px 0">'+
-          '<span>Valor cobrado do cliente</span><span>'+fmt(tot)+parcelaTxt+'</span></div>'+
-        '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--red);padding:3px 0">'+
-          '<span>Taxa maquininha ('+res.taxa.toFixed(2)+'%)</span><span>- '+fmt(res.desconto)+'</span></div>'+
-        '<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--green);padding:6px 0;border-top:1px solid var(--border);margin-top:4px">'+
-          '<span>Você recebe líquido</span><span>'+fmt(res.liquido)+'</span></div>'+
-        '</div>';
-    } else {
-      liqEl.style.display='none';liqEl.innerHTML='';
+  const resumoEl=document.getElementById('split-resumo');
+  if(split){
+    // Pagamento dividido: some a simulação única e mostra o resumo das 2 partes
+    if(liqEl){liqEl.style.display='none';liqEl.innerHTML='';}
+    if(resumoEl){
+      const totalCobrado=split.v1+split.v2;
+      const totalLiquido=split.res1.liquido+split.res2.liquido;
+      resumoEl.innerHTML=
+        '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>'+split.pgto1+'</span><span>'+fmt(split.v1)+'</span></div>'+
+        '<div style="display:flex;justify-content:space-between;padding:2px 0"><span>'+split.pgto2+' (resto)</span><span>'+fmt(split.v2)+'</span></div>'+
+        '<div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid var(--border);margin-top:4px;font-weight:700"><span>Total cobrado</span><span>'+fmt(totalCobrado)+'</span></div>'+
+        '<div style="display:flex;justify-content:space-between;padding:2px 0;color:var(--green);font-weight:700"><span>Você recebe líquido</span><span>'+fmt(totalLiquido)+'</span></div>'+
+        (precoBlackEParcelasAcima3(split.parc1,split.parc2)?'<div style="margin-top:6px;color:var(--amber);font-size:11px">⚠ Preço Black vale só até 3x — tem parte parcelada acima disso.</div>':'');
+    }
+  } else {
+    if(resumoEl)resumoEl.innerHTML='';
+    const res1=calcLiquido(tot,pgto,band,parc);
+    if(liqEl){
+      if(res1.semTaxaCadastrada&&tot>0){
+        liqEl.style.display='block';
+        liqEl.innerHTML='<div style="margin-top:8px;padding:10px 12px;background:var(--reddim);border:1px solid var(--red);border-radius:var(--r);font-size:12px;color:var(--red)">'+
+          'Taxa de '+parc+'x do Nuvem Pago ainda não foi cadastrada. Configure em Configurações antes de fechar essa venda.</div>';
+      } else if(pgto!=='Dinheiro'&&pgto!=='Boleto'&&tot>0){
+        const parcelaTxt=parc>1?' ('+parc+'x de '+fmt(tot/parc)+')':'';
+        liqEl.style.display='block';
+        liqEl.innerHTML=
+          '<div style="margin-top:8px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r)">'+
+          '<div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);font-weight:700;margin-bottom:6px">Simulação Maquininha</div>'+
+          '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);padding:3px 0">'+
+            '<span>Valor cobrado do cliente</span><span>'+fmt(tot)+parcelaTxt+'</span></div>'+
+          '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--red);padding:3px 0">'+
+            '<span>Taxa maquininha ('+res1.taxa.toFixed(2)+'%)</span><span>- '+fmt(res1.desconto)+'</span></div>'+
+          '<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--green);padding:6px 0;border-top:1px solid var(--border);margin-top:4px">'+
+            '<span>Você recebe líquido</span><span>'+fmt(res1.liquido)+'</span></div>'+
+          (precoBlackEParcelasAcima3(parc,1)?'<div style="margin-top:6px;color:var(--amber);font-size:11px">⚠ Preço Black vale só até 3x — essa venda está em '+parc+'x.</div>':'')+
+          '</div>';
+      } else {
+        liqEl.style.display='none';liqEl.innerHTML='';
+      }
     }
   }
   calcTroco();
 }
+// Carrinho tem algum item com coluna de preço Black cadastrada pra forma de pagamento atual?
+function carrinhoTemPrecoBlack(){
+  if(!PRECOS_POR_FORMA_ATIVO) return false;
+  const pgto=document.getElementById('vpgto')?.value||'Dinheiro';
+  const campo=CAMPO_PRECO_POR_FORMA[pgto];
+  if(!campo) return false;
+  return cart.some(ci=>{
+    if(ci.avulso) return false;
+    const p=db.produtos.find(x=>x.id===ci.id);
+    return p&&p[campo]!=null;
+  });
+}
+// Alerta (não bloqueia): preço Black só vale até 3x — avisa se alguma parte está acima disso
+function precoBlackEParcelasAcima3(parc1,parc2){
+  return carrinhoTemPrecoBlack()&&(Number(parc1||1)>3||Number(parc2||1)>3);
+}
 
-function togglePgto2(){
-  const on = document.getElementById('usar-pgto2')?.checked;
-  const wrap = document.getElementById('pgto2-wrap');
-  if(wrap) wrap.style.display = on ? 'block' : 'none';
+function toggleSplitPgto(){
+  const on=document.getElementById('usar-split')?.checked;
+  const wrap=document.getElementById('split-wrap');
+  if(wrap)wrap.style.display=on?'block':'none';
+  if(on)renderSplitExtra();
   calcTot();
+}
+function renderSplitExtra(){
+  const el=document.getElementById('split-extra');if(!el)return;
+  const v=document.getElementById('split-pgto2')?.value;
+  if(v==='Débito'){
+    el.innerHTML='<div class="form-group"><label class="form-label">Bandeira</label>'+
+      '<select class="form-control" id="split-bandeira" onchange="calcTot()">'+
+      '<option value="visa_master">Visa / Mastercard (1,37%)</option>'+
+      '<option value="elo">Elo (2,58%)</option>'+
+      '</select></div>';
+  } else if(v==='Crédito'){
+    el.innerHTML='<div class="form-row col2">'+
+      '<div class="form-group"><label class="form-label">Bandeira</label>'+
+      '<select class="form-control" id="split-bandeira" onchange="renderSplitParcelas();calcTot()">'+
+      '<option value="visa_master">Visa / Mastercard</option>'+
+      '<option value="elo_amex">Elo / Amex</option>'+
+      '</select></div>'+
+      '<div class="form-group"><label class="form-label">Parcelas</label>'+
+      '<select class="form-control" id="split-parcelas" onchange="calcTot()">'+
+      '<option value="1">1x à vista</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option>'+
+      '</select></div></div>';
+    renderSplitParcelas();
+  } else if(v==='Link de Pagamento'){
+    el.innerHTML='<div class="form-row col2">'+
+      '<div class="form-group"><label class="form-label">Bandeira</label>'+
+      '<select class="form-control" id="split-bandeira" onchange="renderSplitParcelasLink();calcTot()">'+
+      '<option value="visa_master">Visa / Mastercard</option>'+
+      '<option value="elo_amex">Elo / Amex</option>'+
+      '</select></div>'+
+      '<div class="form-group"><label class="form-label">Parcelas (até 12x)</label>'+
+      '<select class="form-control" id="split-parcelas" onchange="calcTot()">'+
+      '<option value="1">1x à vista</option>'+
+      '</select></div></div>';
+    renderSplitParcelasLink();
+  } else {
+    el.innerHTML='';
+  }
+}
+function renderSplitParcelas(){
+  const band=document.getElementById('split-bandeira')?.value||'visa_master';
+  const sel=document.getElementById('split-parcelas');if(!sel)return;
+  const cur=sel.value;
+  const taxas=band==='elo_amex'?TAXAS.credito.elo_amex.parcelas:TAXAS.credito.visa_master.parcelas;
+  sel.innerHTML=taxas.map(p=>'<option value="'+p.x+'"'+(p.x==cur?' selected':'')+'>'+p.x+'x'+(p.x===1?' à vista':'')+' (taxa '+(p.taxa*100).toFixed(2)+'%)</option>').join('');
+}
+function renderSplitParcelasLink(){
+  const band=document.getElementById('split-bandeira')?.value||'visa_master';
+  const sel=document.getElementById('split-parcelas');if(!sel)return;
+  const cur=sel.value;
+  const taxas=band==='elo_amex'?TAXAS.link.elo_amex.parcelas:TAXAS.link.visa_master.parcelas;
+  sel.innerHTML=taxas.map(p=>'<option value="'+p.x+'"'+(p.x==cur?' selected':'')+'>'+p.x+'x'+(p.x===1?' à vista':'')+' ('+(p.taxa*100).toFixed(2)+'%)</option>').join('');
+}
+// Calcula a divisão fracionária do pagamento (Black Friday): cada forma pode ter um
+// preço de tabela diferente, então o "total" daquela forma é recalculado do zero a
+// partir do carrinho, não reaproveitado do total já exibido (que é da forma principal).
+// f_i = v_i / Total_i; a 2ª parte sempre fecha o restante (f2 = 1-f1), arredondada
+// pra cima em centavos pra não haver sobra de centavo não cobrada.
+function calcSplit(){
+  if(!document.getElementById('usar-split')?.checked) return null;
+  const pgto1=document.getElementById('vpgto')?.value||'Dinheiro';
+  const band1=document.getElementById('v-bandeira')?.value||'visa_master';
+  const parc1=parseInt(document.getElementById('v-parcelas')?.value||'1');
+  const pgto2=document.getElementById('split-pgto2')?.value||'PIX';
+  const band2=document.getElementById('split-bandeira')?.value||'visa_master';
+  const parc2=parseInt(document.getElementById('split-parcelas')?.value||'1');
+  const totalForma=(pgto)=>cart.reduce((s,ci)=>{
+    if(ci.avulso) return s+ci.preco*ci.qtd;
+    const p=db.produtos.find(x=>x.id===ci.id);
+    return s+(p?precoPorForma(p,pgto):ci.preco)*ci.qtd;
+  },0);
+  const total1raw=totalForma(pgto1);
+  const sub=cart.reduce((s,i)=>s+i.preco*i.qtd,0); // = total1raw, carrinho já está na forma principal
+  const descVal=parseFloat(document.getElementById('vdesc')?.value)||0;
+  const descTipo=document.querySelector('input[name="descTipo"]:checked')?.value||'R$';
+  const cupomDesc=window._cupomDesc||0;
+  const descBase=descTipo==='%'?sub*(descVal/100):descVal;
+  const desc=Math.max(0,descBase+cupomDesc);
+  const tot1=Math.max(0,total1raw-desc); // forma principal, já líquida do desconto manual
+  const fatorDesc=sub>0?tot1/sub:1;
+  const total2=totalForma(pgto2)*fatorDesc; // mesmo desconto proporcional aplicado na 2ª forma
+  if(tot1<=0) return null;
+  let v1=parseFloat(document.getElementById('split-val1')?.value);
+  if(isNaN(v1)) v1=0;
+  v1=Math.max(0,Math.min(v1,tot1));
+  const f1=tot1>0?v1/tot1:0;
+  const f2=Math.max(0,1-f1);
+  const v2=Math.ceil(f2*total2*100)/100;
+  const res1=calcLiquido(v1,pgto1,band1,parc1);
+  const res2=v2>0?calcLiquido(v2,pgto2,band2,parc2):{liquido:0,taxa:0,desconto:0,parcelas:parc2};
+  return {sub,desc,tot1,pgto1,band1,parc1,v1,f1,res1,pgto2,band2,parc2,total2,v2,f2,res2};
 }
 
 function abrirItemAvulso(){
@@ -2283,6 +2470,16 @@ function onPgChange(){
   }
   // Mostrar campo de bandeira/parcelas
   renderPgtoExtra(v);
+  // Black Friday: cada forma pode ter preço diferente — reaplica nos itens já no carrinho
+  recalcularPrecosCarrinho();
+  const tabEl=document.getElementById('tabela-preco-ativa');
+  if(tabEl){
+    const label=LABEL_TABELA_PRECO[v];
+    if(PRECOS_POR_FORMA_ATIVO&&label){
+      tabEl.style.display='block';
+      tabEl.innerHTML='<span class="badge gold">'+icon('tag')+' Tabela de preço: '+label+'</span>';
+    } else tabEl.style.display='none';
+  }
   calcTot();
 }
 
@@ -2400,7 +2597,6 @@ async function finalizarVenda(){
   const tot=Math.max(0,sub-desc);
   const pgto=document.getElementById('vpgto')?.value||'Dinheiro';
   const modal=document.getElementById('v-modal')?.value||'Presencial';
-  const recebido=pgto==='Dinheiro'?(parseFloat(document.getElementById('vrec')?.value)||0):tot;
   const veioTrafego=document.getElementById('v-trafego')?.checked||false;
   const trafegoUf=veioTrafego?(document.getElementById('v-trafego-uf')?.value||null):null;
   if(veioTrafego&&!trafegoUf){
@@ -2409,14 +2605,40 @@ async function finalizarVenda(){
   }
   const band=document.getElementById('v-bandeira')?.value||null;
   const parc=parseInt(document.getElementById('v-parcelas')?.value||'1');
-  const usePgto2=document.getElementById('usar-pgto2')?.checked;
-  const pgto2=usePgto2?(document.getElementById('vpgto2')?.value||''):'';
-  const val2=usePgto2?(parseFloat(document.getElementById('vpgto2val')?.value)||0):0;
-  const pgtoLabel = usePgto2&&pgto2 ? pgto+' + '+pgto2 : pgto;
-  const simul=calcLiquido(tot-(usePgto2?val2:0),pgto,band||'visa_master',parc);
-  if(simul.semTaxaCadastrada){
+  const split=calcSplit();
+  if(split&&split.v1<=0){
+    notify('Informe o valor pago na forma principal para dividir o pagamento','warn',4000);
+    return;
+  }
+  const simul=split?null:calcLiquido(tot,pgto,band||'visa_master',parc);
+  if(simul&&simul.semTaxaCadastrada){
     notify('Taxa de '+parc+'x do Nuvem Pago ainda não foi cadastrada. Configure em Configurações antes de fechar essa venda.','err',6000);
     return;
+  }
+  // Pagamento dividido (Black Friday): monta o array pagamentos e os totais a partir
+  // das duas partes; venda de uma forma só mantém o comportamento de sempre.
+  let pgtoLabel, pagamentos=null, recebido, troco, taxaMaquininhaFinal, valorLiquidoFinal, descontoMaquininhaFinal, totalFinal, subtotalFinal;
+  if(split){
+    pgtoLabel='Misto';
+    pagamentos=[
+      {forma:split.pgto1,bandeira:split.band1||null,parcelas:split.parc1,taxa:split.res1.taxa,valor_cobrado:split.v1,fracao:split.f1,valor_liquido:split.res1.liquido},
+      {forma:split.pgto2,bandeira:split.band2||null,parcelas:split.parc2,taxa:split.res2.taxa,valor_cobrado:split.v2,fracao:split.f2,valor_liquido:split.res2.liquido}
+    ];
+    subtotalFinal=split.v1+split.v2;
+    totalFinal=subtotalFinal;
+    valorLiquidoFinal=split.res1.liquido+split.res2.liquido;
+    descontoMaquininhaFinal=(split.v1-split.res1.liquido)+(split.v2-split.res2.liquido);
+    taxaMaquininhaFinal=subtotalFinal>0?(descontoMaquininhaFinal/subtotalFinal*100):0;
+    if(split.pgto1==='Dinheiro'){
+      const vrecVal=parseFloat(document.getElementById('vrec')?.value)||0;
+      recebido=vrecVal; troco=Math.max(0,vrecVal-split.v1);
+    } else { recebido=subtotalFinal; troco=0; }
+  } else {
+    pgtoLabel=pgto;
+    subtotalFinal=sub; totalFinal=tot;
+    taxaMaquininhaFinal=simul.taxa; valorLiquidoFinal=simul.liquido; descontoMaquininhaFinal=simul.desconto;
+    recebido=pgto==='Dinheiro'?(parseFloat(document.getElementById('vrec')?.value)||0):tot;
+    troco=Math.max(0,recebido-tot);
   }
   // Revalidar estoque no exato momento do fechamento — evita registrar a venda
   // de um item que já foi baixado por outro lançamento entre o "adicionar ao
@@ -2438,19 +2660,29 @@ async function finalizarVenda(){
     return n > max ? n : max;
   }, 0);
   const nextNum = (maxNum + 1).toString().padStart(4,'0');
+  // Item 5: cada item leva a tabela de preço usada (pix/debito/maquininha/link/normal)
+  // e o preco_normal do produto, pra relatório conseguir comparar com o preço Black.
+  const formaRef=split?split.pgto1:pgto;
+  const tabelaKey=PRECOS_POR_FORMA_ATIVO?TABELA_KEY_POR_FORMA[formaRef]:null;
+  const itensEnriquecidos=cart.map(ci=>{
+    if(ci.avulso) return {...ci};
+    const p=db.produtos.find(x=>x.id===ci.id);
+    return {...ci, tabela:tabelaKey||null, precoNormal:(p&&p.precoNormal!=null)?p.precoNormal:null};
+  });
   const venda={
     id:'V'+nextNum,data:retroAtiva?retroDataISO:nowISO(),
     clienteId:vendaCliId||null,clienteNome:vendaCliNome||'',
-    pgto:pgtoLabel,recebido,troco:Math.max(0,recebido-tot),
+    pgto:pgtoLabel,recebido,troco,
     modalidade:modal,
     veioTrafego,trafegoUf,
-    bandeira:band||null,
-    parcelas:parc,
-    taxaMaquininha:simul.taxa,
-    valorLiquido:simul.liquido,
-    descontoMaquininha:simul.desconto,
-    itens:JSON.parse(JSON.stringify(cart)),
-    subtotal:sub,desconto:desc,total:tot,
+    pagamentos,
+    bandeira:split?(split.band1||null):(band||null),
+    parcelas:split?split.parc1:parc,
+    taxaMaquininha:taxaMaquininhaFinal,
+    valorLiquido:valorLiquidoFinal,
+    descontoMaquininha:descontoMaquininhaFinal,
+    itens:JSON.parse(JSON.stringify(itensEnriquecidos)),
+    subtotal:subtotalFinal,desconto:desc,total:totalFinal,
     vendedor:ses.usuario.nome,vendedorId:ses.usuario.id
   };
   // atualizar estoque em memória e persistir cada produto alterado
@@ -2909,7 +3141,15 @@ function renderCaixa(){
     return v.vendedorId===ses.usuario.id;
   });
   const totalHoje=vsHoje.reduce((s,v)=>s+v.total,0);
-  const pgtos={};vsHoje.forEach(v=>{pgtos[v.pgto]=(pgtos[v.pgto]||0)+v.total;});
+  // Venda "Misto" é dividida entre as formas reais usando o array pagamentos — não
+  // aparece como "Misto" aqui, e cada parte soma só uma vez (pelo valor cobrado dela).
+  const pgtos={};vsHoje.forEach(v=>{
+    if(v.pgto==='Misto'&&Array.isArray(v.pagamentos)&&v.pagamentos.length){
+      v.pagamentos.forEach(p=>{pgtos[p.forma]=(pgtos[p.forma]||0)+(p.valor_cobrado||0);});
+    } else {
+      pgtos[v.pgto]=(pgtos[v.pgto]||0)+v.total;
+    }
+  });
   const caixasHoje=db.caixas.filter(c=>c.data&&c.data===today()&&(isAdmin()||c.vendedorId===ses.usuario.id));
   document.getElementById('page').innerHTML=`
   <div class="grid3 mb-4">
@@ -3652,9 +3892,9 @@ async function _fetchAndApplyData(){
   const tn=resultados.taxasNuvempago||[];
 
   if(us.length) db.usuarios=(us).map(r=>({id:r.id,nome:r.nome,username:r.username,role:r.role,ativo:r.ativo,criado:r.criado,permissoes:r.permissoes||null}));
-  if(pr.length) db.produtos=(pr).map(r=>({id:r.id,cod:r.cod,nome:r.nome,marca:r.marca,cor:r.cor,custo:parseFloat(r.custo||0),preco:parseFloat(r.preco||0),min:r.min||2,obs:r.obs,grade:r.grade||[],qtd:r.qtd||0,tam:r.tam,foto:r.foto||null}));
+  if(pr.length) db.produtos=(pr).map(r=>({id:r.id,cod:r.cod,nome:r.nome,marca:r.marca,cor:r.cor,custo:parseFloat(r.custo||0),preco:parseFloat(r.preco||0),min:r.min||2,obs:r.obs,grade:r.grade||[],qtd:r.qtd||0,tam:r.tam,foto:r.foto||null,precoPix:(r.preco_pix!=null?parseFloat(r.preco_pix):null),precoDebito:(r.preco_debito!=null?parseFloat(r.preco_debito):null),precoMaquininha:(r.preco_maquininha!=null?parseFloat(r.preco_maquininha):null),precoLink:(r.preco_link!=null?parseFloat(r.preco_link):null),precoNormal:(r.preco_normal!=null?parseFloat(r.preco_normal):null)}));
   if(cl.length) db.clientes=(cl).map(r=>({id:r.id,nome:r.nome,cpf:r.cpf,nasc:r.nasc,whatsapp:r.whatsapp,email:r.email,end:r.endereco,obs:r.obs,criado:r.criado}));
-  if(vn.length) db.vendas=(vn).map(r=>({id:r.id,data:r.data,clienteId:r.cliente_id,clienteNome:r.cliente_nome||'',pgto:r.pgto,recebido:parseFloat(r.recebido||0),troco:parseFloat(r.troco||0),modalidade:r.modalidade||'Presencial',itens:r.itens||[],subtotal:parseFloat(r.subtotal||0),desconto:parseFloat(r.desconto||0),total:parseFloat(r.total||0),vendedor:r.vendedor_nome,vendedorId:r.vendedor_id,bandeira:r.bandeira||null,parcelas:r.parcelas||1,taxaMaquininha:(r.taxa_maquininha!=null?parseFloat(r.taxa_maquininha):null),valorLiquido:(r.valor_liquido!=null?parseFloat(r.valor_liquido):null),descontoMaquininha:(r.desconto_maquininha!=null?parseFloat(r.desconto_maquininha):null),veioTrafego:!!r.veio_trafego,trafegoUf:r.trafego_uf||null})).sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;});
+  if(vn.length) db.vendas=(vn).map(r=>({id:r.id,data:r.data,clienteId:r.cliente_id,clienteNome:r.cliente_nome||'',pgto:r.pgto,recebido:parseFloat(r.recebido||0),troco:parseFloat(r.troco||0),modalidade:r.modalidade||'Presencial',itens:r.itens||[],subtotal:parseFloat(r.subtotal||0),desconto:parseFloat(r.desconto||0),total:parseFloat(r.total||0),vendedor:r.vendedor_nome,vendedorId:r.vendedor_id,bandeira:r.bandeira||null,parcelas:r.parcelas||1,taxaMaquininha:(r.taxa_maquininha!=null?parseFloat(r.taxa_maquininha):null),valorLiquido:(r.valor_liquido!=null?parseFloat(r.valor_liquido):null),descontoMaquininha:(r.desconto_maquininha!=null?parseFloat(r.desconto_maquininha):null),veioTrafego:!!r.veio_trafego,trafegoUf:r.trafego_uf||null,pagamentos:r.pagamentos||null})).sort((a,b)=>{const na=parseInt((a.id||'').replace(/\D/g,''))||0,nb=parseInt((b.id||'').replace(/\D/g,''))||0;return nb-na;});
   if(mv.length) db.movimentos=(mv).map(r=>({id:r.id,tipo:r.tipo,desc:r.descricao,val:parseFloat(r.val||0),data:r.data,vendaId:r.venda_id,categoria:r.categoria||null})).sort((a,b)=>b.data>a.data?1:-1);
   if(cx.length) db.caixas=(cx).map(r=>({id:r.id,data:r.data,hora:r.hora,vendedorId:r.vendedor_id,vendedorNome:r.vendedor_nome,total:parseFloat(r.total||0),qtdVendas:r.qtd_vendas||0,obs:r.obs})).sort((a,b)=>b.data>a.data?1:-1);
   if(tn.length){
@@ -4575,6 +4815,7 @@ async function carregarConfigSupabase(){
     });
     localStorage.setItem('versatile_config', JSON.stringify(c));
     carregarTaxasConfig();
+    PRECOS_POR_FORMA_ATIVO = c.precos_por_forma_ativo===true||c.precos_por_forma_ativo==='true';
 
     // 2. Config. Recibos (presencial e online) → localStorage 'vrc'
     const vrc = JSON.parse(localStorage.getItem('vrc')||'{}');
@@ -6303,6 +6544,7 @@ async function carregarResumoCfg(){
 // ============================================================
 initTheme();
 carregarTaxasConfig();
+(function(){ const c=getConfig(); PRECOS_POR_FORMA_ATIVO = c.precos_por_forma_ativo===true||c.precos_por_forma_ativo==='true'; })();
 aplicarCfgImpressao();
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 </script>
