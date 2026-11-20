@@ -795,9 +795,28 @@ async function saveCliente(obj){
   saveLocal();
 }
 async function deleteCliente(id){await sbDelete('clientes','id=eq.'+id);db.clientes=db.clientes.filter(x=>x.id!==id);saveLocal();}
-async function saveVenda(obj){
-  const row={id:obj.id,data:obj.data,cliente_id:obj.clienteId||null,cliente_nome:obj.clienteNome||'',pgto:obj.pgto,recebido:obj.recebido,troco:obj.troco,modalidade:obj.modalidade,itens:obj.itens,subtotal:obj.subtotal,desconto:obj.desconto,total:obj.total,vendedor_nome:obj.vendedor,vendedor_id:obj.vendedorId||null,bandeira:obj.bandeira||null,parcelas:obj.parcelas||1,taxa_maquininha:obj.taxaMaquininha||0,valor_liquido:obj.valorLiquido,desconto_maquininha:obj.descontoMaquininha||0,veio_trafego:obj.veioTrafego||false,trafego_uf:obj.trafegoUf||null,pagamentos:obj.pagamentos||null};
-  await sbPost('vendas',row);db.vendas.unshift({...obj});saveLocal();
+async function sbRpc(fn,args){
+  const r=await fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:sbH(),body:JSON.stringify(args)});
+  const txt=await r.text();
+  let d=null;try{d=txt?JSON.parse(txt):null;}catch(e){}
+  if(!r.ok) throw new Error((d&&d.message)||('Erro '+r.status+' em '+fn));
+  return d;
+}
+// Número da venda, baixa de estoque e gravação acontecem numa única transação no banco:
+// ou grava tudo, ou nada (sem estoque baixado de venda que falhou).
+async function registrarVenda(obj,baixarEstoque){
+  const row={data:obj.data,cliente_id:obj.clienteId||null,cliente_nome:obj.clienteNome||'',pgto:obj.pgto,recebido:obj.recebido,troco:obj.troco,modalidade:obj.modalidade,itens:obj.itens,subtotal:obj.subtotal,desconto:obj.desconto,total:obj.total,vendedor_nome:obj.vendedor,vendedor_id:obj.vendedorId||null,bandeira:obj.bandeira||null,parcelas:obj.parcelas||1,taxa_maquininha:obj.taxaMaquininha||0,valor_liquido:obj.valorLiquido,desconto_maquininha:obj.descontoMaquininha||0,veio_trafego:obj.veioTrafego||false,trafego_uf:obj.trafegoUf||null,pagamentos:obj.pagamentos||null,baixar_estoque:baixarEstoque};
+  const salva=await sbRpc('registrar_venda',{p_venda:row});
+  obj.id=salva.id;
+  db.vendas.unshift({...obj});saveLocal();
+  return obj;
+}
+async function recarregarEstoqueProdutos(ids){
+  ids=[...new Set(ids.filter(Boolean))];
+  if(!ids.length) return;
+  const rows=await sbGet('produtos','id=in.('+ids.join(',')+')','','id,grade,qtd');
+  rows.forEach(r=>{const p=db.produtos.find(x=>x.id===r.id);if(p){p.grade=r.grade||[];p.qtd=r.qtd||0;}});
+  saveLocal();
 }
 async function saveMovimento(obj){
   const row={tipo:obj.tipo,descricao:obj.desc,val:obj.val,data:obj.data,venda_id:obj.vendaId||null,categoria:obj.categoria||null};
@@ -2654,12 +2673,6 @@ async function finalizarVenda(){
       }
     }
   }
-  // Gerar ID baseado no MAIOR número existente — evita conflito com chave única
-  const maxNum = db.vendas.reduce((max, v) => {
-    const n = parseInt((v.id||'').replace('V',''))||0;
-    return n > max ? n : max;
-  }, 0);
-  const nextNum = (maxNum + 1).toString().padStart(4,'0');
   // Item 5: cada item leva a tabela de preço usada (pix/debito/maquininha/link/normal)
   // e o preco_normal do produto, pra relatório conseguir comparar com o preço Black.
   const formaRef=split?split.pgto1:pgto;
@@ -2670,7 +2683,7 @@ async function finalizarVenda(){
     return {...ci, tabela:tabelaKey||null, precoNormal:(p&&p.precoNormal!=null)?p.precoNormal:null};
   });
   const venda={
-    id:'V'+nextNum,data:retroAtiva?retroDataISO:nowISO(),
+    id:null,data:retroAtiva?retroDataISO:nowISO(),
     clienteId:vendaCliId||null,clienteNome:vendaCliNome||'',
     pgto:pgtoLabel,recebido,troco,
     modalidade:modal,
@@ -2685,30 +2698,20 @@ async function finalizarVenda(){
     subtotal:subtotalFinal,desconto:desc,total:totalFinal,
     vendedor:ses.usuario.nome,vendedorId:ses.usuario.id
   };
-  // atualizar estoque em memória e persistir cada produto alterado
-  // (pulado se for venda retroativa marcada como "não baixar estoque")
-  const produtosAlterar=[];
-  if(!(retroAtiva&&retroNaoEstoque)){
-    cart.forEach(ci=>{
-      const p=db.produtos.find(x=>x.id===ci.id);if(!p)return;
-      if(p.grade&&ci.tam){const g=p.grade.find(x=>x.n===ci.tam);if(g)g.q=Math.max(0,g.q-ci.qtd);}
-      else p.qtd=Math.max(0,(p.qtd||0)-ci.qtd);
-      p.qtd=p.grade&&p.grade.length?p.grade.reduce((s,g)=>s+g.q,0):p.qtd;
-      if(!produtosAlterar.find(x=>x.id===p.id)) produtosAlterar.push(p);
-    });
-  }
+  const baixarEstoque=!(retroAtiva&&retroNaoEstoque);
+  const idsProdutos=cart.filter(ci=>!ci.avulso).map(ci=>ci.id);
+  let vendaSalva=false;
   try{
-    // salvar venda e produtos em paralelo — o lançamento financeiro da venda é
-    // criado automaticamente por trigger no banco (atômico com o insert da venda,
-    // não depende de uma segunda chamada de rede que pode falhar separadamente).
-    await Promise.all([
-      saveVenda(venda),
-      ...produtosAlterar.map(p=>sbPatch('produtos',`id=eq.${p.id}`,{grade:p.grade,qtd:p.qtd}))
-    ]);
-  // Registrar movimentação de estoque por produto vendido (pulado se retroativa sem baixa)
-  if(!(retroAtiva&&retroNaoEstoque)){
-    venda.itens?.forEach(item=>{ if(!item.avulso) addMovEstoque(item.id,'VENDA',-item.qtd,'Venda '+venda.id,item.tam||null); });
-  }
+    showLoading(true,'Registrando venda...');
+    // Estoque local só muda depois que o banco confirmou: se a venda falhar, nada é alterado.
+    await registrarVenda(venda,baixarEstoque);
+    vendaSalva=true;
+    if(baixarEstoque){
+      try{ await recarregarEstoqueProdutos(idsProdutos); }
+      catch(e){ console.warn('Venda salva, mas não foi possível recarregar o estoque:',e.message); }
+      venda.itens?.forEach(item=>{ if(!item.avulso) addMovEstoque(item.id,'VENDA',-item.qtd,'Venda '+venda.id,item.tam||null); });
+    }
+    showLoading(false);
     cart=[];vendaCliId=null;vendaCliNome='';
     if(retroAtiva){
       const chk=document.getElementById('usar-retroativa');if(chk)chk.checked=false;
@@ -2720,7 +2723,8 @@ async function finalizarVenda(){
     exibirModalRecibo(venda);
     pgVenda();
   }catch(e){
-    notify('Erro ao salvar venda: '+e.message,'err',5000);
+    showLoading(false);
+    notify(vendaSalva?'Venda '+venda.id+' foi registrada, mas houve um erro na tela: '+e.message:'Venda NÃO registrada: '+e.message,'err',7000);
     console.error('Venda error:',e);
   }
   showLoading(false);
@@ -3068,43 +3072,16 @@ async function excluirVenda(id){
   try{
     showLoading(true,'Cancelando venda e devolvendo estoque...');
 
-    // 1. DEVOLVER ITENS AO ESTOQUE
-    const produtosAlterar=[];
-    for(const item of (v.itens||[])){
-      const prod=db.produtos.find(p=>p.id===item.id);
-      if(!prod) continue;
-      // Devolver à grade correta
-      if(prod.grade&&prod.grade.length>0&&item.tam){
-        const g=prod.grade.find(g=>g.n===item.tam||g.n===Number(item.tam));
-        if(g) g.q+=item.qtd;
-        else prod.grade.push({n:Number(item.tam),q:item.qtd});
-        prod.qtd=prod.grade.reduce((s,g)=>s+g.q,0);
-      } else {
-        prod.qtd=(prod.qtd||0)+item.qtd;
-      }
-      produtosAlterar.push(prod);
-    }
-
-    // 2. SALVAR ESTOQUE NO BANCO
-    for(const p of produtosAlterar){
-      await sbPatch('produtos','id=eq.'+p.id,{grade:p.grade,qtd:p.qtd});
-    }
-
-    // 3. EXCLUIR MOVIMENTOS FINANCEIROS VINCULADOS
-    const mvs=db.movimentos.filter(m=>m.vendaId===id);
-    for(const m of mvs){
-      await sbDelete('movimentos','id=eq.'+m.id);
-    }
+    // Devolve o estoque, apaga os movimentos e a venda numa única transação no banco.
+    const res=await sbRpc('cancelar_venda',{p_venda_id:id});
     db.movimentos=db.movimentos.filter(m=>m.vendaId!==id);
-
-    // 4. EXCLUIR A VENDA
-    await sbDelete('vendas','id=eq.'+id);
     db.vendas=db.vendas.filter(x=>x.id!==id);
-
     saveLocal();
+    try{ await recarregarEstoqueProdutos((v.itens||[]).filter(i=>!i.avulso).map(i=>i.id)); }
+    catch(e){ console.warn('Venda cancelada, mas não foi possível recarregar o estoque:',e.message); }
     showLoading(false);
     registrarAudit('VENDA_CANCELADA','Venda '+id+' cancelada — '+fmt(v.total));
-    notify('Venda '+id+' cancelada! '+produtosAlterar.length+' produto(s) devolvido(s) ao estoque.');
+    notify('Venda '+id+' cancelada! '+(res?.produtos_devolvidos||0)+' produto(s) devolvido(s) ao estoque.');
     filtHist();
   }catch(e){
     showLoading(false);
