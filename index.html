@@ -726,7 +726,13 @@ function getPerms(usuario){
   if(usuario.permissoes) return Object.assign({},PERM_DEFAULTS.vendedor,usuario.permissoes);
   return PERM_DEFAULTS.vendedor;
 }
+// Financeiro é liberado por usuário, não pelo tipo (admin/vendedor).
+const FINANCEIRO_USUARIOS=['brenop'];
+function podeVerFinanceiro(){
+  return FINANCEIRO_USUARIOS.includes((ses?.usuario?.username||'').toLowerCase());
+}
 function temPerm(page){
+  if(page==='financeiro') return podeVerFinanceiro();
   return !!getPerms(ses?.usuario)[page];
 }
 let ses=null;
@@ -843,6 +849,8 @@ async function saveUsuario(obj){
 async function deleteUsuario(id){
   const r=await fetch(SB_URL+'/rest/v1/rpc/fn_delete_usuario',{method:'POST',headers:sbH(),body:JSON.stringify({p_id:id})});
   if(!r.ok){const e=await r.text();throw new Error('Erro ao excluir: '+e.slice(0,120));}
+  const res=await r.json();
+  if(!res||!res.ok) throw new Error((res&&res.msg)||'Não foi possível excluir o usuário');
   db.usuarios=db.usuarios.filter(x=>x.id!==id);saveLocal();
 }
 // ============================================================
@@ -1245,6 +1253,7 @@ function goTo(pg){
   if(!ses)return;
   const item=NAV.find(n=>n.id===pg);
   if(item&&!item.roles.includes(ses.usuario.role)){notify('Acesso restrito','err');return;}
+  if(pg==='financeiro'&&!podeVerFinanceiro()){notify('Acesso restrito','err');return;}
   curPage=pg;
   closeSidebar();
   document.getElementById('page').style.padding='';
